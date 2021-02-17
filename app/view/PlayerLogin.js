@@ -31,7 +31,7 @@ export default function PlayerLogin() {
           }          
          
         }
-        console.log("api called");
+        console.log("api called in player login component");
         fetchMyAPI();
       }
     }
