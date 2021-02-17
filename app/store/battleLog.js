@@ -6,9 +6,6 @@ const slice = createSlice({
     initialState:{
         battleLog:null,
         lastFetch:null,
-        wins:null,
-        loses:null
-
     },
     reducers:{
        battleLogReceived:(battleLog,action)=>{

@@ -5,13 +5,14 @@ import { useDispatch } from "react-redux";
 import { battleLogReceived } from "../store/battleLog";
 import api from "../store/middleware/api";
 
-import PlayerStats from '../view/PlayerStats'
+import PlayerStats from "../view/PlayerStats";
 
 export default function PlayerLogin() {
   const dispatch = useDispatch();
   const [battleLog, setbattleLog] = useState();
 
-  const [userId, setUserId] = useState("Please provide your brawl stars player ID"
+  const [userId, setUserId] = useState(
+    "Please provide your brawl stars player ID"
   );
   const [validId, setValidId] = useState(false);
 
@@ -19,15 +20,16 @@ export default function PlayerLogin() {
     {
       if (userId && userId.length === 9) {
         async function fetchMyAPI() {
-          try {
-            let response = await api(userId);
+          try{
+            console.log(userId);
+            let response = await api(userId)
             dispatch(battleLogReceived(response));
             setValidId(true);
-          } catch (error) {
-            console.log(error)
-            setUserId("Incorrect PlayerId or supercell is doing maintenance! Sorry!");
           }
-                   
+          catch(error){
+            setUserId('Invalid player ID or supercell is doing maintenance!')
+          }          
+         
         }
         console.log("api called");
         fetchMyAPI();
@@ -37,16 +39,16 @@ export default function PlayerLogin() {
 
   return (
     <View style={styles.container}>
-      {!validId&&<TextInput
-       
-        value={userId}
-        autoCapitalize="characters"
-        style={styles.playerIdInput}
-        onFocus={(userId) => setUserId("")}
-        onChangeText={(userId) => setUserId(userId)}
-      />}
-      {validId&&<PlayerStats/>}
-
+      {!validId && (
+        <TextInput
+          value={userId}
+          autoCapitalize="characters"
+          style={styles.playerIdInput}
+          onFocus={(userId) => setUserId("")}
+          onChangeText={(userId) => setUserId(userId)}
+        />
+      )}
+      {validId && <PlayerStats />}
     </View>
   );
 }
@@ -59,7 +61,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   playerIdInput: {
-    
     height: 60,
     width: 400,
     borderColor: "white",

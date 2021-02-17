@@ -1,22 +1,24 @@
 import axios from "axios";
 
-
-export default function api(userId){
+export default async function api(userId) {
+  const userIdJson = JSON.stringify({ userId });
   return new Promise(function (resolve, reject) {
-    
     axios
-      .post("http://127.0.0.1:5000/battle-log", {
+      .post("https://brawlhub.herokuapp.com/battleLog", {
         playerId: userId,
       })
       .then(
         (response) => {
-          console.log('Fresh out of Axios Api'+response.data)
+          if (response.data["reason"])
+            reject();
+          console.log("Fresh out of Axios Api" + response.data);
+          console.log(response);
           resolve(response.data);
         },
         (error) => {
           reject(error);
+          console.log(error);
         }
       );
   });
-};
-
+}
