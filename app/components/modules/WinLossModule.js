@@ -1,15 +1,13 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { useSelector } from "react-redux";
 
 import colors from "../../config/colors";
 
-export default function WinLossModule({
-  wins,
-  losses,
-  numberOfGames,
-  trophyLosses,
-  trophyWins,
-}) {
+export default function WinLossModule() {
+  const  trophyWins= useSelector((state) => state.trophyWins);
+  const  trophyLosses= useSelector((state) => state.trophyLosses);
+  
   let winsRatioLong = (trophyWins / (trophyWins + trophyLosses)) * 100;
   let losesRatioLong = (trophyLosses / (trophyWins + trophyLosses)) * 100;
   let winsRatio = +winsRatioLong.toFixed(2);

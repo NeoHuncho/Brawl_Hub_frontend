@@ -5,8 +5,6 @@ import battleLogReducer from './battleLogReducer'
 export default function () {
   return configureStore({
     reducer:battleLogReducer,
-    middleware: [
-      ...getDefaultMiddleware()
-    ],
+   
   });
 }

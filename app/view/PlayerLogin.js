@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, View, TextInput, Text, Image, TouchableOpacity } from "react-native";
 
 import { useDispatch } from "react-redux";
-import { battleLogAndPlayerReceived,} from "../store/battleLogReducer";
+import { battleLogAndPlayerReceived,processedPlayerStats} from "../store/battleLogReducer";
 import api from "../store/middleware/api";
 import PlayerStats from "../view/PlayerStats.js";
 import colors from '../config/colors'
@@ -28,6 +28,7 @@ export default function PlayerLogin() {
             correctedUserId='#'+userId;
             let response = await api(userId);
             dispatch(battleLogAndPlayerReceived(response));
+            dispatch(processedPlayerStats(userId))
             setValidId(true);
             
           } catch (error) {
