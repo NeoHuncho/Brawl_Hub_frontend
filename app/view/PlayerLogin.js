@@ -35,7 +35,7 @@ export default function PlayerLogin() {
             setMessage("Invalid player ID or Supercell is doing maintenance!");
           }
         }
-        console.log("api called in player login component");
+        console.log("api called in player login component!");
         fetchMyAPI();
       }
     }
