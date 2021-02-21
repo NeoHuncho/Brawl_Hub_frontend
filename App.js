@@ -7,8 +7,8 @@ import { useFonts } from "expo-font";
 
 import configureStore from "./app/store/configureStore";
 import PlayerLogin from "./app/view/PlayerLogin";
+import store from './app/store/configureStore'
 
-const store = configureStore();
 
 export default function App() {
   let [fontsLoaded] = useFonts({
