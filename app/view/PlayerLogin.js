@@ -13,7 +13,7 @@ export default function PlayerLogin() {
   const [userId, setUserId] = useState("8LP0P8LVC");//8LP0P8LVC
   const [validId, setValidId] = useState(false);
   const [howToClicked,setHowToClicked] =useState(false);
-  let correctedUserId=''
+
 
   const [message, setMessage] = useState(
     "Please provide your Brawl Stars player ID"
@@ -21,7 +21,7 @@ export default function PlayerLogin() {
 
   useEffect(() => {
     {
-      if (userId && userId.length === 9) {
+      if (!validId && userId && userId.length === 9) {
         async function fetchMyAPI() {
           try {
             console.log(userId);

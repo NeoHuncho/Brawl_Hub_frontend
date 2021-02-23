@@ -48,7 +48,7 @@ export default function CarouselModule() {
       losses: playerStats.bounty.losses,
     },
     {
-      color: "#8ca0df",
+      color: "#f04f32",
       image: require("../../assets/ModesandMaps/Siege/icon/Siege.png"),
       title: "Siege",
       winRatio: playerStats.siege.winRatio,
@@ -72,7 +72,7 @@ export default function CarouselModule() {
       losses: playerStats.heist.losses,
     },
     {
-      color: "#8ca0df",
+      color: "#e33c50",
       image: require("../../assets/ModesandMaps/Hot-Zone/icon/Hot-Zone.png"),
       title: "Hot Zone",
       winRatio: playerStats.hotZone.winRatio,
@@ -97,6 +97,8 @@ export default function CarouselModule() {
     },
   ];
 
+  //for some reason this is mutating original array too. Check online
+  let modesSortedbyWR=  modes.sort((a, b) => (a.winRatio > b.winRatio) ? -1 : 1)
   const renderItem = ({ item, index }) => {
     return (
       <View style={styles.item}>
@@ -104,7 +106,6 @@ export default function CarouselModule() {
           style={{
             backgroundColor: item.color,
             borderRadius: 5,
-            height: 220,
             padding: 10,
             marginLeft: 25,
             marginRight: 25,
@@ -146,11 +147,15 @@ export default function CarouselModule() {
 
   return (
     <View style={styles.container}>
-      <View style={{ flex: 1, flexDirection: "row", justifyContent: "center" }}>
+      <View style={{ flex: 1, flexDirection: "row", marginRight:'3.5%'}}>
         <Carousel
-          layout={"default"}
+
+
+         layout={"tinder"}
+         inverted
+         layoutCardOffset={30}
           ref={carouselRef}
-          sliderWidth={300}
+          sliderWidth={390}
           itemWidth={300}
           data={modes}
           renderItem={renderItem}
@@ -163,11 +168,12 @@ export default function CarouselModule() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 50,
+    marginTop: 30,
+    height:300
   },
   item: {
     width: Dimensions.get("window").width - 80,
-    height: Dimensions.get("window").width - 80,
+    height: Dimensions.get("window").width - 180,
   },
   imageContainer: {
     marginBottom: Platform.select({ ios: 0, android: 1 }), // Prevent a random Android rendering issue

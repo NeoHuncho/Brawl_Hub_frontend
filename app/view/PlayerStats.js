@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSelector } from "react-redux";
 
 import colors from "../config/colors";
@@ -8,25 +8,29 @@ import WinLossModule from "../components/modules/WinLossModule";
 import CarouselModule from "../components/modules/CarouselModule";
 
 export default function PlayerStats() {
-  
   const player = useSelector((state) => state.player);
   const playerStats = useSelector((state) => state.playerStats);
-  console.log(playerStats)
+  console.log(playerStats);
   return (
-    <View style={styles.container}>
-      <View style={styles.nameContainer}>
-        <Text style={styles.name}>{player.name}</Text>
+    <ScrollView>
+      <View style={styles.container}>
+        <View style={styles.nameContainer}>
+          <Text style={styles.name}>{player.name}</Text>
+        </View>
+        <View style={{ marginTop: 10 }}>
+          <WinLossModule />
+        </View>
+
+        <View style={{ marginTop: 60 }}>
+          <Text style={styles.categoryName}>Player Stats by Mode</Text>
+          <CarouselModule />
+        </View>
+        <View style={{}}>
+          <Text style={styles.categoryName}>Player Stats by Brawler</Text>
+          <CarouselModule />
+        </View>
       </View>
-      <View style={{ marginTop: 10 }}>
-        <WinLossModule/>
-      
-      </View>
-      
-      <View style={{ marginTop: 60 }}>
-        <Text style={styles.categoryName}>Player Stats by Mode</Text>
-      <CarouselModule />
-      </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -34,7 +38,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-  
   },
   nameContainer: {
     marginTop: 60,
@@ -43,11 +46,12 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontFamily: "Lilita-One",
     fontSize: 30,
+    textAlign: "center",
   },
   categoryName: {
     color: colors.primary,
     fontFamily: "Lilita-One",
-    fontSize:20,
-    marginLeft:6
+    fontSize: 20,
+    marginLeft: 6,
   },
 });
