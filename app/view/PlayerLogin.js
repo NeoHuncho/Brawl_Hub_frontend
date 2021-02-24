@@ -1,19 +1,29 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View, TextInput, Text, Image, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  View,
+  TextInput,
+  Text,
+  Image,
+  TouchableOpacity,
+} from "react-native";
 
 import { useDispatch } from "react-redux";
-import { battleLogAndPlayerReceived,processedPlayerStats} from "../store/battleLogReducer";
+import {
+  battleLogAndPlayerReceived,
+  processedPlayerStats,
+} from "../store/battleLogReducer";
 import api from "../store/middleware/api";
 import PlayerStats from "../view/PlayerStats.js";
-import colors from '../config/colors'
+import colors from "../config/colors";
+import { supabase } from "../lib/initSupabase";
 
 export default function PlayerLogin() {
   const dispatch = useDispatch();
 
-  const [userId, setUserId] = useState("8LP0P8LVC");//8LP0P8LVC
+  const [userId, setUserId] = useState("8LP0P8LVC"); //8LP0P8LVC
   const [validId, setValidId] = useState(false);
-  const [howToClicked,setHowToClicked] =useState(false);
-
+  const [howToClicked, setHowToClicked] = useState(false);
 
   const [message, setMessage] = useState(
     "Please provide your Brawl Stars player ID"
@@ -25,14 +35,21 @@ export default function PlayerLogin() {
         async function fetchMyAPI() {
           try {
             console.log(userId);
-            correctedUserId='#'+userId;
+            correctedUserId = "#" + userId;
             let response = await api(userId);
             dispatch(battleLogAndPlayerReceived(response));
-            dispatch(processedPlayerStats(userId))
+            dispatch(processedPlayerStats(userId));
             setValidId(true);
-            
+
+            const { data, error } = await supabase
+              .from("Player")
+              .insert([
+                { userID: userId},
+              ]);
+              if (error) console.log('error', error)
+
           } catch (error) {
-            console.log(error)
+            console.log(error);
             setMessage("Invalid player ID or Supercell is doing maintenance!");
           }
         }
@@ -43,9 +60,7 @@ export default function PlayerLogin() {
   });
 
   return (
-
     <View style={styles.container}>
-
       {!validId && (
         <View>
           <View style={styles.inputContainer}>
@@ -56,30 +71,29 @@ export default function PlayerLogin() {
               autoCapitalize="characters"
               style={styles.playerIdInput}
               onChangeText={(userId) => setUserId(userId.toUpperCase())}
-           
             />
           </View>
           <View style={styles.imagesContainer}>
-            <TouchableOpacity onPress={(howToClicked)=>setHowToClicked(true)}>
-            <Text style={styles.findIdText}>how to find Player ID</Text>
+            <TouchableOpacity onPress={(howToClicked) => setHowToClicked(true)}>
+              <Text style={styles.findIdText}>how to find Player ID</Text>
             </TouchableOpacity>
-           {howToClicked &&(
-             <>
-            <Image
-              style={styles.image}
-              source={require("../assets/playerLoginImages/brawlStarsmainPage.png")}
-            />
-            <Image
-              style={styles.image}
-              source={require("../assets/playerLoginImages/brawlStarsProfilePage.png")}
-            />
-            </>
-           )} 
+            {howToClicked && (
+              <>
+                <Image
+                  style={styles.image}
+                  source={require("../assets/playerLoginImages/brawlStarsmainPage.png")}
+                />
+                <Image
+                  style={styles.image}
+                  source={require("../assets/playerLoginImages/brawlStarsProfilePage.png")}
+                />
+              </>
+            )}
           </View>
         </View>
       )}
 
-      {validId && <PlayerStats userId={userId}/>}
+      {validId && <PlayerStats userId={userId} />}
     </View>
   );
 }
@@ -88,18 +102,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    alignItems: "center"
-
+    alignItems: "center",
   },
   inputContainer: {
-    marginTop:180,
+    marginTop: 180,
     marginBottom: 50,
-    alignItems: "center"
+    alignItems: "center",
   },
   playerIdInput: {
-    paddingLeft:3,
-    color:colors.secondary,
-    fontFamily:'Lilita-One',
+    paddingLeft: 3,
+    color: colors.secondary,
+    fontFamily: "Lilita-One",
     fontSize: 15,
     height: 50,
     width: 340,
@@ -110,16 +123,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingBottom: 10,
     fontSize: 17,
-    fontFamily:'Lilita-One',
-    color:colors.primary,
-
+    fontFamily: "Lilita-One",
+    color: colors.primary,
   },
   findIdText: {
     textAlign: "center",
     fontSize: 13,
-    fontFamily:'Lilita-One',
-    color:colors.secondary,
-
+    fontFamily: "Lilita-One",
+    color: colors.secondary,
   },
   imagesContainer: {
     alignItems: "center",

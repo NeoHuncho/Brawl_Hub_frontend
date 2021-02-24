@@ -152,7 +152,7 @@ export default function CarouselModule() {
 
 
          layout={"tinder"}
-         inverted
+       
          layoutCardOffset={30}
           ref={carouselRef}
           sliderWidth={390}

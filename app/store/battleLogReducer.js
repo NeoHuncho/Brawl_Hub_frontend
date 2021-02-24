@@ -1,5 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
-import moment from "moment";
+import moment from "moment";;
+import { supabase } from '../lib/initSupabase'
+import 'react-native-url-polyfill/auto';
 
 const slice = createSlice({
   name: "battleLogAndPlayer",
@@ -168,7 +170,9 @@ const slice = createSlice({
         (battleLogAndPlayer.userId = playerId),
         (battleLogAndPlayer.numberOfGames = numberOfGames);
     },
+    
   },
+
 });
 export const {
   battleLogAndPlayerReceived,
