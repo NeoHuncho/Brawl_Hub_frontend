@@ -5,8 +5,8 @@ import { useSelector } from "react-redux";
 import colors from "../../config/colors";
 
 export default function WinLossModule() {
-  const  trophyWins= useSelector((state) => state.trophyWins);
-  const  trophyLosses= useSelector((state) => state.trophyLosses);
+  const  trophyWins= useSelector((state) => state.battleLogReducer.trophyWins);
+  const  trophyLosses= useSelector((state) => state.battleLogReducer.trophyLosses);
   
   let winsRatioLong = (trophyWins / (trophyWins + trophyLosses)) * 100;
   let losesRatioLong = (trophyLosses / (trophyWins + trophyLosses)) * 100;
@@ -45,21 +45,22 @@ const styles = StyleSheet.create({
     color: colors.primary,
     marginRight: 10,
     fontFamily: "Lilita-One",
-    fontSize: 20,
+    fontSize: 14,
   },
   trophyWins: {
     textAlign: "left",
     margin: 10,
     color: colors.secondary,
     fontFamily: "Lilita-One",
-    fontSize: 14,
+    fontSize: 12,
   },
   trophyLosses: {
     textAlign: "right",
     margin: 10,
+    marginRight:35,
     color: colors.primary,
     fontFamily: "Lilita-One",
-    fontSize: 14,
+    fontSize: 12,
   },
   losesRectangle: {
     height: 70,
@@ -71,6 +72,6 @@ const styles = StyleSheet.create({
     color: colors.primary,
     marginLeft: 10,
     fontFamily: "Lilita-One",
-    fontSize: 20,
+    fontSize: 14,
   },
 });

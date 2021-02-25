@@ -27,7 +27,7 @@ export default function CarouselModule() {
 
   const { width: screenWidth } = Dimensions.get("window");
 
-  const playerStats = useSelector((state) => state.playerStats);
+  const playerStats = useSelector((state) => state.battleLogReducer.playerStats);
   console.log(playerStats.brawlBall.winRatio);
 
   let modes = [

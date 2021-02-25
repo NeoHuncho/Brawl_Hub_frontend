@@ -8,20 +8,26 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+ 
+
 import {
   battleLogAndPlayerReceived,
   processedPlayerStats,
 } from "../store/battleLogReducer";
-import api from "../store/middleware/api";
+import api from "../store/api";
 import PlayerStats from "../view/PlayerStats.js";
 import colors from "../config/colors";
 import { supabase } from "../lib/initSupabase";
+import { playerInfoWrite, playerStatsWrite } from "../lib/writer";
+import { userIdReceived } from "../store/playerIdReducer";
 
 export default function PlayerLogin() {
   const dispatch = useDispatch();
+  const playerID = useSelector((state) => state.playerIdReducer.playerID);
+  const saved = useSelector((state) => state.playerIdReducer.saved);
 
-  const [userId, setUserId] = useState("8LP0P8LVC"); //8LP0P8LVC
+  const [userId, setUserId] = useState(); //8LP0P8LVC
   const [validId, setValidId] = useState(false);
   const [howToClicked, setHowToClicked] = useState(false);
 
@@ -31,23 +37,26 @@ export default function PlayerLogin() {
 
   useEffect(() => {
     {
-      if (!validId && userId && userId.length === 9) {
+      if (saved === true)  setUserId(playerID)
+    
+      if (!validId && userId && userId.length >=6) {
         async function fetchMyAPI() {
           try {
-            console.log(userId);
-            correctedUserId = "#" + userId;
             let response = await api(userId);
             dispatch(battleLogAndPlayerReceived(response));
             dispatch(processedPlayerStats(userId));
+            dispatch(userIdReceived(userId));
             setValidId(true);
 
             const { data, error } = await supabase
               .from("Player")
-              .insert([
-                { userID: userId},
-              ]);
-              if (error) console.log('error', error)
+              .insert([{ playerID: userId }]);
+            if (error) console.log("error", error);
 
+            const { datam, errors } = await supabase
+              .from("BattleLog")
+              .insert([{ playerID: userId }]);
+            if (error) console.log("error", error);
           } catch (error) {
             console.log(error);
             setMessage("Invalid player ID or Supercell is doing maintenance!");
@@ -56,6 +65,8 @@ export default function PlayerLogin() {
         console.log("api called in player login component!");
         fetchMyAPI();
       }
+      playerInfoWrite();
+      playerStatsWrite();
     }
   });
 
@@ -93,7 +104,7 @@ export default function PlayerLogin() {
         </View>
       )}
 
-      {validId && <PlayerStats userId={userId} />}
+      {validId && <PlayerStats />}
     </View>
   );
 }

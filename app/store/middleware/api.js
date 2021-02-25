@@ -1,27 +1,21 @@
-import axios from "axios";
+import { supabase } from "../../lib/initSupabase";
+import api from "../api";
+export default async function apiMiddleware(userId) {
+  let { data, error } = await supabase.from("BattleLog").select("lastMatch");
+  let response = await api(userId);
+  let TimeStamp = data[0].lastMatch;
+  let battlelog = response.items;
+  let index = 0;
 
-export default async function api(userId) {
-  return new Promise(function (resolve, reject) {
-    //https://brawlhub.herokuapp.com/battleLog
-    axios
-      // development
-      // 192.168.1.4
-      //wifi hotspot
-      // 192.168.43.50
-      .post("http://192.168.1.4:5010/PlayerandBattleLog", {
-        playerId: userId,
-      })
-      .then(
-        (response) => {
-          if (response.data["reason"]) reject();
-          console.log("Fresh out of Axios Api" + response.data);
-          console.log(response.data);
-          resolve(response.data);
-        },
-        (error) => {
-          reject(error);
-          console.log(error);
-        }
-      );
-  });
+  for (const element of battlelog) {
+    
+    if (element.battleTime !== TimeStamp) {
+   break;
+    }
+    index++;
+  }
+  console.log(index);
+  battlelog.splice(6, battlelog.length-index);
+  console.log(battlelog);
+  return battlelog;
 }
