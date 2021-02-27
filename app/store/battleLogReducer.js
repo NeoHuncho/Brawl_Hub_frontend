@@ -3,8 +3,6 @@ import moment from "moment";
 
 import "react-native-url-polyfill/auto";
 
-
-
 const slice = createSlice({
   name: "battleLogAndPlayer",
   initialState: {
@@ -13,11 +11,9 @@ const slice = createSlice({
     lastMatch: null,
     userId: null,
     playerStats: null,
-    wins: 0,
-    losses: 0,
     trophyLosses: 0,
     trophyWins: 0,
-    numberOfGames: 0, 
+    numberOfGames: 0,
   },
   reducers: {
     battleLogAndPlayerReceived: (battleLogAndPlayer, action) => {
@@ -32,6 +28,7 @@ const slice = createSlice({
       const playerId = "#" + userId;
 
       let lastMatch = battleLogAndPlayer.battleLog[0].battleTime;
+
       let wins = 0;
       let losses = 0;
       let trophyLosses = 0;
@@ -39,12 +36,175 @@ const slice = createSlice({
       let numberOfGames = 0;
 
       let playerStats = {};
-      let lastMatchfromDB = null;
-      let index = -1;
-      let elementIndex = -1;
-   
+
       for (const element of battleLogAndPlayer.battleLog) {
-        
+        if (element.battle.trophyChange) {
+          numberOfGames++;
+          let mapName = element.event.map;
+          let mode = element.event.mode;
+
+          let findBrawler = (element) => {
+            if (element.battle.teams) {
+              for (const team of element.battle.teams)
+                for (const player of team)
+                  if (player.tag == playerId) return player.brawler.name;
+            } else {
+              for (const player of element.battle.players)
+                if (player.tag == playerId) return player.brawler.name;
+            }
+          };
+          let brawler = findBrawler(element);
+
+          let calculateRatio = (wins, losses) => {
+            return (wins / (wins + losses)) * 100;
+          };
+          if (element.battle.trophyChange > 0) {
+            trophyWins += element.battle.trophyChange;
+
+            if (playerStats[mode]) {
+              playerStats[mode].wins += 1;
+              if (playerStats[mode].losses)
+                playerStats[mode].winRatio = calculateRatio(
+                  playerStats[mode].wins,
+                  playerStats[mode].losses
+                );
+            } else playerStats[mode] = { wins: 1, losses: 0, winRatio: 100 };
+
+            if (playerStats[mode][mapName]) {
+              playerStats[mode][mapName].wins += 1;
+              if (playerStats[mode][mapName].losses)
+                playerStats[mode][mapName].winRatio = calculateRatio(
+                  playerStats[mode][mapName].wins,
+                  playerStats[mode][mapName].losses
+                );
+            } else
+              playerStats[mode][mapName] = {
+                wins: 1,
+                losses: 0,
+                winRatio: 100,
+              };
+
+            if (playerStats[mode][mapName][brawler]) {
+              playerStats[mode][mapName][brawler].wins += 1;
+              if (playerStats[mode][mapName][brawler].losses)
+                playerStats[mode][mapName][brawler].winRatio = calculateRatio(
+                  playerStats[mode][mapName][brawler].wins,
+                  playerStats[mode][mapName][brawler].losses
+                );
+            } else
+              playerStats[mode][mapName][brawler] = {
+                wins: 1,
+                losses: 0,
+                winRatio: 100,
+              };
+            //
+          } else if (element.battle.trophyChange) {
+            trophyLosses += Math.abs(element.battle.trophyChange);
+            losses = losses + 1;
+
+            if (playerStats[mode]) {
+              playerStats[mode].losses += 1;
+              if (playerStats[mode].wins)
+                playerStats[mode].winRatio = calculateRatio(
+                  playerStats[mode].wins,
+                  playerStats[mode].losses
+                );
+            } else playerStats[mode] = { wins: 0, losses: 1, winRatio: 0 };
+
+            if (playerStats[mode][mapName]) {
+              playerStats[mode][mapName].losses += 1;
+              if (playerStats[mode][mapName].wins)
+                playerStats[mode][mapName].winRatio = calculateRatio(
+                  playerStats[mode][mapName].wins,
+                  playerStats[mode][mapName].losses
+                );
+            } else
+              playerStats[mode][mapName] = {
+                wins: 0,
+                losses: 1,
+                winRatio: 0,
+              };
+
+            if (playerStats[mode][mapName][brawler]) {
+              playerStats[mode][mapName][brawler].losses += 1;
+              if (playerStats[mode][mapName][brawler].wins)
+                playerStats[mode][mapName][brawler].winRatio = calculateRatio(
+                  playerStats[mode][mapName][brawler].wins,
+                  playerStats[mode][mapName][brawler].losses
+                );
+            } else
+              playerStats[mode][mapName][brawler] = {
+                wins: 0,
+                losses: 1,
+                winRatio: 0,
+              };
+          }
+        }
+      }
+
+      if (!playerStats.brawlBall) {
+        playerStats.brawlBall = { wins: 0, losses: 0, winRatio: 0 };
+      }
+      if (!playerStats.bounty) {
+        playerStats.bounty = { wins: 0, losses: 0, winRatio: 0 };
+      }
+      if (!playerStats.soloShowdown) {
+        playerStats.soloShowdown = { wins: 0, losses: 0, winRatio: 0 };
+      }
+      if (!playerStats.duoShowdown) {
+        playerStats.duoShowdown = { wins: 0, losses: 0, winRatio: 0 };
+      }
+      if (!playerStats.siege) {
+        playerStats.siege = { wins: 0, losses: 0, winRatio: 0 };
+      }
+      if (!playerStats.heist) {
+        playerStats.heist = { wins: 0, losses: 0, winRatio: 0 };
+      }
+      if (!playerStats.gemGrab) {
+        playerStats.gemGrab = { wins: 0, losses: 0, winRatio: 0 };
+      }
+      if (!playerStats.hotZone) {
+        playerStats.hotZone = { wins: 0, losses: 0, winRatio: 0 };
+      }
+      (battleLogAndPlayer.wins = wins),
+        (battleLogAndPlayer.losses = losses),
+        (battleLogAndPlayer.trophyLosses = trophyLosses),
+        (battleLogAndPlayer.trophyWins = trophyWins),
+        (battleLogAndPlayer.playerStats = playerStats),
+        (battleLogAndPlayer.userId = userId),
+        (battleLogAndPlayer.numberOfGames = numberOfGames),
+        (battleLogAndPlayer.lastMatch = lastMatch);
+    },
+    receivedPlayerStatsFromDB: (battleLogAndPlayer, action) => {
+      let data = action.payload;
+      battleLogAndPlayer.trophyWins = data.trophyWins;
+      battleLogAndPlayer.trophyLosses = data.trophyLosses;
+      battleLogAndPlayer.numberOfGames = data.numberOfGames;
+      battleLogAndPlayer.playerStats = data.playerStats;
+      battleLogAndPlayer.userId = data.playerId;
+
+      console.log(data);
+    },
+    updatedPlayerStats: (battleLogAndPlayer, action) => {
+      const data = action.payload;
+      const { items, ...playerData } = data;
+      battleLogAndPlayer.battleLog = items;
+      battleLogAndPlayer.player = playerData;
+      console.log(data);
+
+      if (battleLogAndPlayer.battleLog[0]) {
+        console.log('called 1')
+        battleLogAndPlayer.lastMatch = battleLogAndPlayer.battleLog[0].battleTime;
+        let playerId = "#" + battleLogAndPlayer.userId;
+        let wins = 0;
+        let losses = 0;
+        let trophyLosses = battleLogAndPlayer.trophyLosses;
+        let trophyWins = battleLogAndPlayer.trophyWins;
+        let numberOfGames = battleLogAndPlayer.numberOfGames;
+
+        let playerStats = battleLogAndPlayer.playerStats;
+
+        for (const element of battleLogAndPlayer.battleLog) {
           if (element.battle.trophyChange) {
             numberOfGames++;
             let mapName = element.event.map;
@@ -147,47 +307,22 @@ const slice = createSlice({
                 };
             }
           }
-   
-      }
-      console.log(elementIndex);
+        }
+        (battleLogAndPlayer.wins = wins),
+          (battleLogAndPlayer.losses = losses),
+          (battleLogAndPlayer.trophyLosses = trophyLosses),
+          (battleLogAndPlayer.trophyWins = trophyWins),
+          (battleLogAndPlayer.playerStats = playerStats),
+          (battleLogAndPlayer.numberOfGames = numberOfGames);
 
-      if (!playerStats.brawlBall) {
-        playerStats.brawlBall = { wins: 0, losses: 0, winRatio: 0 };
       }
-      if (!playerStats.bounty) {
-        playerStats.bounty = { wins: 0, losses: 0, winRatio: 0 };
-      }
-      if (!playerStats.soloShowdown) {
-        playerStats.soloShowdown = { wins: 0, losses: 0, winRatio: 0 };
-      }
-      if (!playerStats.duoShowdown) {
-        playerStats.duoShowdown = { wins: 0, losses: 0, winRatio: 0 };
-      }
-      if (!playerStats.siege) {
-        playerStats.siege = { wins: 0, losses: 0, winRatio: 0 };
-      }
-      if (!playerStats.heist) {
-        playerStats.heist = { wins: 0, losses: 0, winRatio: 0 };
-      }
-      if (!playerStats.gemGrab) {
-        playerStats.gemGrab = { wins: 0, losses: 0, winRatio: 0 };
-      }
-      if (!playerStats.hotZone) {
-        playerStats.hotZone = { wins: 0, losses: 0, winRatio: 0 };
-      }
-      (battleLogAndPlayer.wins = wins),
-        (battleLogAndPlayer.losses = losses),
-        (battleLogAndPlayer.trophyLosses = trophyLosses),
-        (battleLogAndPlayer.trophyWins = trophyWins),
-        (battleLogAndPlayer.playerStats = playerStats),
-        (battleLogAndPlayer.userId = userId),
-        (battleLogAndPlayer.numberOfGames = numberOfGames),
-        (battleLogAndPlayer.lastMatch = lastMatch);
     },
   },
 });
 export const {
   battleLogAndPlayerReceived,
   processedPlayerStats,
+  updatedPlayerStats,
+  receivedPlayerStatsFromDB,
 } = slice.actions;
 export default slice.reducer;

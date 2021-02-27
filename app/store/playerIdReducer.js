@@ -1,15 +1,18 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const slice = createSlice({
-  name: "playerID",
+  name: "playerPersist",
   initialState: {
     playerID: null,
     saved:false
   },
   reducers: {
     userIdReceived: (playerID, action) => {
-      const userId = action.payload;
-      playerID.playerID = userId;
+      const data = action.payload;
+      playerID.playerID = data;//* finish updating this reducer so it keeps id name and color
+      //*then change reset and update link in both login and stats
+      //* then finish updating other reducer so we get saved stats
+      
       playerID.saved=true
     },
     userIdReset:(playerID,action)=>{

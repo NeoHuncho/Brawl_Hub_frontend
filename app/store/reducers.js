@@ -1,9 +1,9 @@
 import {combineReducers} from "redux"; 
 import battleLogReducer from "./battleLogReducer";
-import playerIdReducer from "./playerIdReducer";
+import playerPersistReducer from "./playerIdReducer";
 const reducers = combineReducers({
   battleLogReducer: battleLogReducer,
-  playerIdReducer: playerIdReducer,
+  playerPersistReducer: playerPersistReducer,
 });
 
 export default reducers;
