@@ -27,7 +27,10 @@ export default function CarouselModule() {
 
   const { width: screenWidth } = Dimensions.get("window");
 
-  const playerStats = useSelector((state) => state.battleLogReducer.playerStats);
+  const playerStats = useSelector(
+    (state) => state.battleLogReducer.playerStats
+  );
+  const player = useSelector((state) => state.battleLogReducer.player);
   console.log(playerStats.brawlBall.winRatio);
 
   let modes = [
@@ -97,8 +100,15 @@ export default function CarouselModule() {
     },
   ];
 
+
+
   //for some reason this is mutating original array too. Check online
-  let modesSortedbyWR=  modes.sort((a, b) => (a.winRatio > b.winRatio) ? -1 : 1)
+  let modesSortedbyWR = modes.sort((a, b) =>
+    a.winRatio > b.winRatio ? -1 : 1
+  );
+  let modesSorted = modesSortedbyWR.filter((mode) => mode.winRatio !== 0);
+  console.log(modes)
+  console.log(modesSorted)
   const renderItem = ({ item, index }) => {
     return (
       <View style={styles.item}>
@@ -122,11 +132,15 @@ export default function CarouselModule() {
               containerStyle={styles.imageContainer}
               style={styles.image}
             />
-          </View >
-          <View style={{ marginTop: 12 }}>
-            <Text style={styles.winRatio}>
-              {"win Rate:" + item.winRatio.toFixed(2) + "%"}
+          </View>
+          <View >
+            <Text style={styles.performance}>
+            performance:
             </Text>
+            <Text style={styles.winRatio}>
+            {item.winRatio.toFixed(2) + "%"}
+            </Text>
+           
           </View>
           <View
             style={{
@@ -147,17 +161,14 @@ export default function CarouselModule() {
 
   return (
     <View style={styles.container}>
-      <View style={{ flex: 1, flexDirection: "row", marginRight:'3.5%'}}>
+      <View style={{ flex: 1, flexDirection: "row", marginRight: "3.5%",width:'100%' }}>
         <Carousel
-
-
-         layout={"tinder"}
-       
-         layoutCardOffset={30}
+          layout={"tinder"}
+          layoutCardOffset={30}
           ref={carouselRef}
           sliderWidth={390}
           itemWidth={300}
-          data={modes}
+          data={modesSorted}
           renderItem={renderItem}
         />
       </View>
@@ -169,7 +180,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: 30,
-    height:300
+    height: 300,
   },
   item: {
     width: Dimensions.get("window").width - 80,
@@ -193,14 +204,22 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },
-  winRatio: {
+ performance: {
     color: colors.secondary,
     fontFamily: "Lilita-One",
-    fontSize: 20,
+    fontSize: 15,
     textShadowColor: "rgba(0, 0, 0, 0.75)",
     textShadowOffset: { width: -1, height: -1 },
     textShadowRadius: 0,
-    textAlign:"center"
+    textAlign: "center",
+  },
+  winRatio:{
+    marginTop:4,
+    color: colors.secondary,
+    fontFamily: "Lilita-One",
+    fontSize: 23,
+    textShadowColor: "rgba(0, 0, 0, 0.75)",
+    textAlign: "center",
   },
   winLoss: {
     color: colors.secondary,

@@ -7,7 +7,7 @@ import colors from "../../config/colors";
 import { userIdReset } from "../../store/playerIdReducer";
 import WinLossModule from "../../components/modules/WinLossModule";
 
-import CarouselModule from "../../components/modules/CarouselModule";
+//import CarouselModule from "../../components/modules/CarouselModule";
 
 export default function PlayerStats() {
   const dispatch = useDispatch();
@@ -41,11 +41,11 @@ export default function PlayerStats() {
 
         <View style={{ marginTop: 60 }}>
           <Text style={styles.categoryName}>Player Stats by Mode</Text>
-           <CarouselModule />  
+           {/* <CarouselModule />  */}
         </View>
         <View style={{}}>
           <Text style={styles.categoryName}>Player Stats by Brawler</Text>
-            <CarouselModule />  
+           {/* <CarouselModule />  */}
         </View>
       </View>
     </ScrollView>

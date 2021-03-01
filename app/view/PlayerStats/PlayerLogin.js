@@ -59,8 +59,8 @@ export default function PlayerLogin() {
               console.log(playerStatsFromDB);
               await dispatch(receivedPlayerStatsFromDB(dbData));
               await dispatch(updatedPlayerStats(response));
+              await playerInfoWrite();
               setValidId(true);
-              playerInfoWrite();
             }
 
             //response will be like this if no player stats are saved in db
@@ -73,7 +73,7 @@ export default function PlayerLogin() {
               playerInfoWrite();
             }
           } catch (error) {
-            console.log(error);
+          console.log(error)
             setMessage("Invalid player ID or Supercell is doing maintenance!");
           }
         }
