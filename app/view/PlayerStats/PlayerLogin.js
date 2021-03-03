@@ -13,8 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   battleLogAndPlayerReceived,
   processedPlayerStats,
-  updatedPlayerStats,
-  receivedPlayerStatsFromDB,
+   receivedPlayerStatsFromDB,
 } from "../../store/battleLogReducer";
 import api from "../../store/middleware/api";
 import PlayerStats from "./PlayerStats.js";
@@ -58,7 +57,7 @@ export default function PlayerLogin() {
               const dbData = await getDataFromDB();
               console.log(playerStatsFromDB);
               await dispatch(receivedPlayerStatsFromDB(dbData));
-              await dispatch(updatedPlayerStats(response));
+              await dispatch(processedPlayerStats(response));
               await playerInfoWrite();
               setValidId(true);
             }

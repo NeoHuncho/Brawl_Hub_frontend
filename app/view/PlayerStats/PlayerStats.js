@@ -14,7 +14,7 @@ import colors from "../../config/colors";
 import { userIdReset } from "../../store/playerIdReducer";
 import WinLossModule from "../../components/modules/WinLossModule";
 
-//import CarouselModule from "../../components/modules/CarouselModule";
+//import CarouselModule from "../../components/modules/Carousel/CarouselModule";
 
 export default function PlayerStats() {
   const dispatch = useDispatch();
