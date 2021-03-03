@@ -14,16 +14,13 @@ import Carousel from "react-native-snap-carousel";
 import colors from "../../config/colors";
 
 export default function CarouselModule() {
-  const [playerModes, setPlayerModes] = useState([]);
   const carouselRef = useRef(null);
 
   const goForward = () => {
     carouselRef.current.snapToNext();
   };
 
-  useEffect(() => {
-    setPlayerModes(modes);
-  }, []);
+
 
   const { width: screenWidth } = Dimensions.get("window");
 
@@ -31,75 +28,76 @@ export default function CarouselModule() {
     (state) => state.battleLogReducer.playerStats
   );
   const player = useSelector((state) => state.battleLogReducer.player);
-  console.log(playerStats.brawlBall.winRatio);
+  console.log(playerStats.modes.brawlBall.winRatio);
 
   let modes = [
     {
       color: "#8ca0df",
       image: require("../../assets/ModesandMaps/Brawl-Ball/icon/Brawl-Ball.png"),
       title: "Brawl Ball",
-      winRatio: playerStats.brawlBall.winRatio,
-      wins: playerStats.brawlBall.wins,
-      losses: playerStats.brawlBall.losses,
+      winRatio: playerStats.modes.brawlBall.winRatio,
+      wins: playerStats.modes.modes.brawlBall.wins,
+      losses: playerStats.modes.modes.brawlBall.losses,
     },
     {
       color: "#01cfff",
       image: require("../../assets/ModesandMaps/Bounty/icon/Bounty.png"),
       title: "Bounty",
-      winRatio: playerStats.bounty.winRatio,
-      wins: playerStats.bounty.wins,
-      losses: playerStats.bounty.losses,
+      winRatio: playerStats.modes.bounty.winRatio,
+      wins: playerStats.modes.bounty.wins,
+      losses: playerStats.modes.bounty.losses,
     },
     {
       color: "#f04f32",
       image: require("../../assets/ModesandMaps/Siege/icon/Siege.png"),
       title: "Siege",
-      winRatio: playerStats.siege.winRatio,
-      wins: playerStats.siege.wins,
-      losses: playerStats.siege.losses,
+      winRatio: playerStats.modes.siege.winRatio,
+      wins: playerStats.modes.siege.wins,
+      losses: playerStats.modes.siege.losses,
     },
     {
       color: "#9b3df3",
       image: require("../../assets/ModesandMaps/Gem-Grab/icon/Gem-Grab.png"),
       title: "Gem Grab",
-      winRatio: playerStats.gemGrab.winRatio,
-      wins: playerStats.gemGrab.wins,
-      losses: playerStats.gemGrab.losses,
+      winRatio: playerStats.modes.gemGrab.winRatio,
+      wins: playerStats.modes.gemGrab.wins,
+      losses: playerStats.modes.gemGrab.losses,
     },
     {
       color: "#d55cd3",
       image: require("../../assets/ModesandMaps/Heist/icon/Heist.png"),
       title: "Heist",
-      winRatio: playerStats.heist.winRatio,
-      wins: playerStats.heist.wins,
-      losses: playerStats.heist.losses,
+      winRatio: playerStats.modes.heist.winRatio,
+      wins: playerStats.modes.heist.wins,
+      losses: playerStats.modes.heist.losses,
     },
     {
       color: "#e33c50",
       image: require("../../assets/ModesandMaps/Hot-Zone/icon/Hot-Zone.png"),
       title: "Hot Zone",
-      winRatio: playerStats.hotZone.winRatio,
-      wins: playerStats.hotZone.wins,
-      losses: playerStats.hotZone.losses,
+      winRatio: playerStats.modes.hotZone.winRatio,
+      wins: playerStats.modes.hotZone.wins,
+      losses: playerStats.modes.hotZone.losses,
     },
     {
       color: "#81d621",
       image: require("../../assets/ModesandMaps/Showdown/icon/Solo-Showdown.png"),
       title: "Solo S/D",
-      winRatio: playerStats.soloShowdown.winRatio,
-      wins: playerStats.soloShowdown.wins,
-      losses: playerStats.soloShowdown.losses,
+      winRatio: playerStats.modes.soloShowdown.winRatio,
+      wins: playerStats.modes.soloShowdown.wins,
+      losses: playerStats.modes.soloShowdown.losses,
     },
     {
       color: "#81d621",
       image: require("../../assets/ModesandMaps/Showdown/icon/Duo-Showdown.png"),
       title: "Duo S/D",
-      winRatio: playerStats.duoShowdown.winRatio,
-      wins: playerStats.duoShowdown.wins,
-      losses: playerStats.duoShowdown.losses,
+      winRatio: playerStats.modes.duoShowdown.winRatio,
+      wins: playerStats.modes.duoShowdown.wins,
+      losses: playerStats.modes.duoShowdown.losses,
     },
   ];
 
+  
 
 
   //for some reason this is mutating original array too. Check online
