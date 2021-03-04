@@ -374,11 +374,192 @@ const slice = createSlice({
         battleLogAndPlayer.lastMatch = lastMatch;
       }
     },
+    compiledPlayerStats: (battleLogAndPlayer, action) => {
+      if (battleLogAndPlayer.playerStats) {
+      battleLogAndPlayer.playerStats.compiled={};
+      battleLogAndPlayer.playerStats.keys={};
+      let  playerStats = battleLogAndPlayer.playerStats;
+
+        let mKeys = [];
+        let bKeys = [];
+        let tKeys = [];
+
+        let modeKeys = Object.keys(playerStats.mode);
+        battleLogAndPlayer.playerStats.keys.modes= modeKeys;
+      
+
+        battleLogAndPlayer.playerStats.compiled.maps = modeKeys
+          .map((mode) => playerStats.mode[mode].map)
+          .reduce((r, c) => Object.assign(r, c), {});
+        
+        modeKeys.map((mode) =>
+          mKeys.push(Object.keys(playerStats.mode[mode].map))
+        );
+
+        let mapKeys = mKeys.flat();
+        battleLogAndPlayer.playerStats.keys.maps= mapKeys;
+
+        modeKeys.map((mode) =>
+          mapKeys.map((map) => {
+            if (playerStats.mode[mode].map[map]) {
+              bKeys.push(Object.keys(playerStats.mode[mode].map[map].brawler));
+            }
+          })
+        );
+
+        let brawlerKeys = bKeys.flat().filter((v, i, a) => a.indexOf(v) === i);
+        battleLogAndPlayer.playerStats.keys.brawlers= brawlerKeys;
+        modeKeys.map((mode) =>
+          mapKeys.map((map) => {
+            brawlerKeys.map((brawler) => {
+              if (playerStats.mode[mode].map[map]) {
+                if (playerStats.mode[mode].map[map].brawler[brawler])
+                  tKeys.push(
+                    Object.keys(
+                      playerStats.mode[mode].map[map].brawler[brawler].team
+                    )
+                  );
+              }
+            });
+          })
+        );
+        let teamKeys = tKeys.flat().filter((v, i, a) => a.indexOf(v) === i);
+
+        battleLogAndPlayer.playerStats.keys.teams= teamKeys;
+        let reducerBrawler = (stored, next) => {
+          let result = {};
+          brawlerKeys.map((brawler) => {
+            if (stored === undefined || (stored === {} && next !== undefined)) {
+              // console.log("called 1");
+              return next;
+            } else if (stored !== undefined && next === undefined) {
+              // console.log("called 2");
+              result = stored;
+            }
+
+            if (stored && next) {
+              //  console.log("called 3");
+              if (stored[brawler] && next[brawler]) {
+                //  console.log("called 4");
+                result[brawler] = {
+                  wins: stored[brawler].wins + next[brawler].wins,
+                  losses: stored[brawler].losses + next[brawler].losses,
+                  lossesByTrophies:
+                    stored[brawler].lossesByTrophies +
+                    next[brawler].lossesByTrophies,
+                  winsByTrophies:
+                    stored[brawler].winsByTrophies +
+                    next[brawler].winsByTrophies,
+                  winRatio: stored[brawler].winRatio + next[brawler].winRatio,
+                };
+              } else if (next[brawler]) {
+                // console.log("called 5");
+                result[brawler] = {
+                  wins: next[brawler].wins,
+                  losses: next[brawler].losses,
+                  lossesByTrophies: next[brawler].lossesByTrophies,
+                  winsByTrophies: next[brawler].winsByTrophies,
+                  winRatio: next[brawler].winRatio,
+                };
+              } else if (stored[brawler]) {
+                //  console.log("called 6");
+                result[brawler] = stored[brawler];
+              }
+            }
+          });
+
+          return result;
+        };
+
+        let reducerTeams = (stored, next) => {
+          //console.log(next);
+          //console.log(stored);
+          let result = {};
+          teamKeys.map((team) => {
+            if (stored === undefined || (stored === {} && next !== undefined)) {
+              // console.log("called 1");
+              return next;
+            } else if (stored !== undefined && next === undefined) {
+              //console.log("called 2");
+              result = stored;
+            }
+
+            if (stored && next) {
+              // console.log("called 3");
+              if (stored[team] && next[team]) {
+                // console.log("called 4");
+                result[team] = {
+                  wins: stored[team].wins + next[team].wins,
+                  losses: stored[team].losses + next[team].losses,
+                  lossesByTrophies:
+                    stored[team].lossesByTrophies + next[team].lossesByTrophies,
+                  winsByTrophies:
+                    stored[team].winsByTrophies + next[team.winsByTrophies],
+                  winRatio: stored[team].winRatio + next[team].winRatio,
+                };
+              } else if (next[team]) {
+                //  console.log("called 5");
+                result[team] = {
+                  wins: next[team].wins,
+                  losses: next[team].losses,
+                  lossesByTrophies: next[team].lossesByTrophies,
+                  winsByTrophies: next[team].winsByTrophies,
+                  winRatio: next[team].winRatio,
+                };
+              } else if (stored[team]) {
+                //console.log("called 6");
+                result[team] = stored[team];
+              }
+            }
+          });
+          return result;
+        };
+
+        battleLogAndPlayer.playerStats.compiled.brawlers = modeKeys
+          .map((mode) =>
+            mapKeys.map((map) => {
+              if (playerStats.mode[mode].map[map]) {
+                return playerStats.mode[mode].map[map].brawler;
+              }
+            })
+          )
+          .flat()
+          .reduce(reducerBrawler);
+
+        let savedTeams = [];
+
+        let saveTeams = (x) => {
+          savedTeams.push(x);
+        };
+
+        let brokenTeams = modeKeys
+          .map((mode) =>
+            mapKeys.map((map) =>
+              brawlerKeys.map((brawler) => {
+                if (playerStats.mode[mode].map[map]) {
+                  if (playerStats.mode[mode].map[map].brawler[brawler]) {
+                    return playerStats.mode[mode].map[map].brawler[brawler]
+                      .team;
+                  }
+                }
+              })
+            )
+          )
+          .flat(1)
+          .map((team) => team.filter((x) => x !== undefined))
+          .filter((el) => (el.length <= 0 ? null : el))
+          .map((team) => team.map((x) => saveTeams(x)));
+        battleLogAndPlayer.playerStats.compiled.teams = savedTeams.reduce(
+          reducerTeams
+        );
+      }
+    },
   },
 });
 export const {
   battleLogAndPlayerReceived,
   processedPlayerStats,
   receivedPlayerStatsFromDB,
+  compiledPlayerStats,
 } = slice.actions;
 export default slice.reducer;

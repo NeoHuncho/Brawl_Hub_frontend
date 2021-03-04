@@ -7,17 +7,18 @@ const slice = createSlice({
     saved:false
   },
   reducers: {
-    userIdReceived: (playerID, action) => {
+    userIdReceived: (playerPersist, action) => {
       const data = action.payload;
-      playerID.playerID = data;//* finish updating this reducer so it keeps id name and color
-      //*then change reset and update link in both login and stats
-      //* then finish updating other reducer so we get saved stats
-      
-      playerID.saved=true
+      playerPersist.playerID = data;      
+      playerPersist.saved=true
     },
-    userIdReset:(playerID,action)=>{
-      playerID.playerID='';
-      playerID.saved=false
+    userIdReset:(playerPersist,action)=>{
+      if(playerPersist.playerID!==''){
+        playerPersist.playerID='';
+        playerPersist.saved=false;
+      }
+     
+      
     }
   },
 });

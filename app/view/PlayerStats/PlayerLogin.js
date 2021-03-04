@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   ImageBackground,
+  Button,
 } from "react-native";
 import { TextInput } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,7 +14,8 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   battleLogAndPlayerReceived,
   processedPlayerStats,
-   receivedPlayerStatsFromDB,
+  receivedPlayerStatsFromDB,
+  compiledPlayerStats,
 } from "../../store/battleLogReducer";
 import api from "../../store/middleware/api";
 import PlayerStats from "./PlayerStats.js";
@@ -30,6 +32,7 @@ export default function PlayerLogin() {
   const [userId, setUserId] = useState(); //8LP0P8LVC
   const [validId, setValidId] = useState(false);
   const [howToClicked, setHowToClicked] = useState(false);
+  const [confirmClicked, setConfirmClicked] = useState(false);
   const [playerStatsFromDB, setplayerStatsFromDb] = useState();
 
   const [message, setMessage] = useState(
@@ -45,8 +48,14 @@ export default function PlayerLogin() {
 
   useEffect(() => {
     {
-      if (saved === true) setUserId(playerID);
-      if (!validId && userId && userId.length >= 6) {
+      if (saved === true) {
+        setMessage("loading");
+        setUserId(playerID)}
+        ;
+      if (
+        saved === true ||
+        (!validId && userId && userId.length >= 6 && confirmClicked === true)
+      ) {
         async function fetchMyAPI() {
           try {
             let response = await api(userId);
@@ -54,10 +63,13 @@ export default function PlayerLogin() {
             //response will be an array like this if stats already in the db
             //check api
             if (response.db == true) {
+             
               const dbData = await getDataFromDB();
               console.log(playerStatsFromDB);
               await dispatch(receivedPlayerStatsFromDB(dbData));
               await dispatch(processedPlayerStats(response));
+              await dispatch(compiledPlayerStats());
+              dispatch(userIdReceived(userId));
               await playerInfoWrite();
               setValidId(true);
             }
@@ -67,20 +79,24 @@ export default function PlayerLogin() {
             else {
               dispatch(battleLogAndPlayerReceived(response));
               dispatch(processedPlayerStats(userId));
+              dispatch(compiledPlayerStats());
               dispatch(userIdReceived(userId));
               setValidId(true);
               playerInfoWrite();
             }
           } catch (error) {
-          console.log(error)
+          
+            console.log(error);
             setMessage("Invalid player ID or Supercell is doing maintenance!");
           }
         }
         console.log("api called in player login component!");
-        fetchMyAPI();
+        if (playerID===userId) {
+          fetchMyAPI();
+        }
       }
     }
-  }, [userId]);
+  }, [userId, confirmClicked]);
 
   return (
     <>
@@ -106,6 +122,7 @@ export default function PlayerLogin() {
                   setMessage("Please provide your Brawl Stars player ID");
                 }}
               />
+              <Button title="Confirm" onPress={() => setConfirmClicked(true)} />
             </View>
             <View style={styles.imagesContainer}>
               <TouchableOpacity

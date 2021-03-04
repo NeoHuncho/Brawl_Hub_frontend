@@ -1,51 +1,49 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef } from "react";
 import {
   View,
   Text,
   Dimensions,
   StyleSheet,
-  TouchableOpacity,
   Platform,
   Image,
 } from "react-native";
-import { useSelector } from "react-redux";
+
 import Carousel from "react-native-snap-carousel";
-
 import colors from "../../../config/colors";
+import {
+  modesByPerformance,
+  modesByWins,
+  brawlersByPerformance,
+  brawlersByWins,
+  processPlayerStats,
+} from "./CarouselData";
 
-export default function CarouselModule() {
+export default function CarouselModule({ dataType }) {
+  console.log(brawlersByPerformance);
+
   const carouselRef = useRef(null);
 
   const goForward = () => {
     carouselRef.current.snapToNext();
   };
 
-
-
   const { width: screenWidth } = Dimensions.get("window");
 
-  const playerStats = useSelector(
-    (state) => state.battleLogReducer.playerStats
-  );
-  const player = useSelector((state) => state.battleLogReducer.player);
-  console.log(playerStats.modes.brawlBall.winRatio);
+  const getBackgroundColor = (item) => {
+    if (item.winRatio >= 200) return "#009965";
+    else if (item.winRatio >= 100) return "#0b7649";
+    else if (item.winRatio > 80) return "#59260b";
+    else if (item.winRatio > 50) return "#af593e";
+    else if (item.winRatio > 20) return "#a52a2b";
+    else if (item.winRatio > 10) return "#7c0a02";
+  };
 
-
-
-  
-
-
-  //for some reason this is mutating original array too. Check online
-  
-
-  console.log(modes)
-  console.log(modesSorted)
   const renderItem = ({ item, index }) => {
     return (
       <View style={styles.item}>
         <View
           style={{
-            backgroundColor: item.color,
+            backgroundColor:getBackgroundColor(item),
             borderRadius: 5,
             padding: 10,
             marginLeft: 25,
@@ -64,18 +62,13 @@ export default function CarouselModule() {
               style={styles.image}
             />
           </View>
-          <View >
-            <Text style={styles.performance}>
-            performance:
-            </Text>
-            <Text style={styles.winRatio}>
-            {item.winRatio.toFixed(2) + "%"}
-            </Text>
-           
+          <View style={{marginTop:10}}>
+            <Text style={styles.performance}>performance:</Text>
+            <Text style={styles.winRatio}>{item.winRatio.toFixed(0)}</Text>
           </View>
           <View
             style={{
-              marginTop: 12,
+              
               flexDirection: "row",
               justifyContent: "space-between",
             }}
@@ -88,19 +81,29 @@ export default function CarouselModule() {
     );
   };
 
-  console.log(modes);
-
   return (
     <View style={styles.container}>
-      
-      <View style={{ flex: 1, flexDirection: "row", marginRight: "3.5%",width:'100%' }}>
+      <View
+        style={{
+          flex: 1,
+          flexDirection: "row",
+          marginRight: "3.5%",
+          width: "100%",
+        }}
+      >
         <Carousel
           layout={"tinder"}
           layoutCardOffset={30}
           ref={carouselRef}
           sliderWidth={390}
           itemWidth={300}
-          data={modesSorted}
+          data={
+            dataType === "mode"
+              ? modesByPerformance
+              : dataType === "brawler"
+              ? brawlersByPerformance
+              : null
+          }
           renderItem={renderItem}
         />
       </View>
@@ -136,7 +139,7 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },
- performance: {
+  performance: {
     color: colors.secondary,
     fontFamily: "Lilita-One",
     fontSize: 15,
@@ -145,8 +148,8 @@ const styles = StyleSheet.create({
     textShadowRadius: 0,
     textAlign: "center",
   },
-  winRatio:{
-    marginTop:4,
+  winRatio: {
+    marginTop: 4,
     color: colors.secondary,
     fontFamily: "Lilita-One",
     fontSize: 23,
