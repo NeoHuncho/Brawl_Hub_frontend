@@ -30,12 +30,12 @@ export default function CarouselModule({ dataType }) {
   const { width: screenWidth } = Dimensions.get("window");
 
   const getBackgroundColor = (item) => {
-    if (item.winRatio >= 200) return "#009965";
-    else if (item.winRatio >= 100) return "#0b7649";
-    else if (item.winRatio > 80) return "#59260b";
-    else if (item.winRatio > 50) return "#af593e";
-    else if (item.winRatio > 20) return "#a52a2b";
-    else if (item.winRatio > 10) return "#7c0a02";
+    if (item.winRatio >= 7) return "#009965";
+    else if (item.winRatio >= 5) return "#0b7649";
+    else if (item.winRatio >= 3) return "#59260b";
+    else if (item.winRatio >= 2) return "#af593e";
+    else if (item.winRatio >=1) return "#a52a2b";
+    else if (item.winRatio <1) return "#7c0a02";
   };
 
   const renderItem = ({ item, index }) => {
@@ -57,6 +57,7 @@ export default function CarouselModule({ dataType }) {
             style={{ marginLeft: "auto", marginRight: "auto", marginTop: 10 }}
           >
             <Image
+    
               source={item.image}
               containerStyle={styles.imageContainer}
               style={styles.image}
@@ -64,7 +65,7 @@ export default function CarouselModule({ dataType }) {
           </View>
           <View style={{marginTop:10}}>
             <Text style={styles.performance}>performance:</Text>
-            <Text style={styles.winRatio}>{item.winRatio.toFixed(0)}</Text>
+            <Text style={styles.winRatio}>{item.winRatio.toFixed(1)}</Text>
           </View>
           <View
             style={{
@@ -86,9 +87,6 @@ export default function CarouselModule({ dataType }) {
       <View
         style={{
           flex: 1,
-          flexDirection: "row",
-          marginRight: "3.5%",
-          width: "100%",
         }}
       >
         <Carousel

@@ -1,6 +1,7 @@
 import { store } from "../../../store/configureStore";
 import colors from "../../../config/colors";
 
+
 let modesByPerformance = undefined;
 let modesByWins = undefined;
 let mapsByWins = undefined;
@@ -12,11 +13,13 @@ let teamsByPerformance = undefined;
 
 let modes = [];
 let brawlers = [];
+let maps = [];
+let teams = [];
 
 const processPlayerStats = () => {
   let state = store.getState();
   let playerStats = undefined;
-  if (state.battleLogReducer.playerStats) {
+  if (state.battleLogReducer.playerStats.keys.teams) {
     playerStats = state.battleLogReducer.playerStats;
 
     const getModeColors = (mode) => {
@@ -89,38 +92,39 @@ const processPlayerStats = () => {
         brawler === "RICO" ||
         brawler === "DARRYL" ||
         brawler === "PENNY" ||
-        brawler === "CARL"||
-        brawler==="JACKY"
+        brawler === "CARL" ||
+        brawler === "JACKY"
       )
         color = colors.brawlers.superRare;
       if (
         brawler === "PIPER" ||
         brawler === "FRANK" ||
         brawler === "PAM" ||
-        brawler === "BIBI"||
-        brawler==="BEA"||
-        brawler==="NANI"||
-        brawler==="EDGAR"
-        )
+        brawler === "BIBI" ||
+        brawler === "BEA" ||
+        brawler === "NANI" ||
+        brawler === "EDGAR"
+      )
         color = colors.brawlers.epic;
       if (
         brawler === "MORTIS" ||
         brawler === "TARA" ||
         brawler === "GENE" ||
-        brawler === "MAX"||
-        brawler==="MR. P"||
-        brawler==="SPROUT"||
-        brawler==="BYRON"
-        )
+        brawler === "MAX" ||
+        brawler === "MR. P" ||
+        brawler === "SPROUT" ||
+        brawler === "BYRON"
+      )
         color = colors.brawlers.mythic;
       if (
         brawler === "SPIKE" ||
         brawler === "CROW" ||
         brawler === "LEON" ||
-        brawler === "SANDY"||
-        brawler==="AMBER"
-        )
+        brawler === "SANDY" ||
+        brawler === "AMBER"
+      )
         color = colors.brawlers.legendary;
+
       if (
         brawler === "GALE" ||
         brawler === "SURGE" ||
@@ -129,10 +133,9 @@ const processPlayerStats = () => {
         brawler === "COLONEL RUFFS"
       )
         color = "linear-gradient(to right, rgba(255,0,0,0), rgba(255,0,0,1))";
-        return color;
+      return color;
     };
-    const getBrawlerImage = (brawler) => {
-      console.log(brawler);
+    const getBrawlerImageOld = (brawler) => {
       switch (brawler) {
         case "8-BIT":
           return require("../../../assets/Brawlers_icons/8-BIT.png");
@@ -168,7 +171,8 @@ const processPlayerStats = () => {
           return require("../../../assets/Brawlers_icons/COLETTE.png");
 
         case "COLONEL RUFFS":
-          return require("../../../assets/Brawlers_icons/COLONEL RUFFS.png");
+          console.log("called ruff");
+          return require("../../../assets/Brawlers_icons/COLONEL_RUFFS.png");
 
         case "COLT":
           return require("../../../assets/Brawlers_icons/COLT.png");
@@ -186,7 +190,7 @@ const processPlayerStats = () => {
           return require("../../../assets/Brawlers_icons/EDGAR.png");
 
         case "EL PRIMO":
-          return require("../../../assets/Brawlers_icons/EL PRIMO.png");
+          return require("../../../assets/Brawlers_icons/EL_PRIMO.png");
 
         case "EMZ":
           return require("../../../assets/Brawlers_icons/EMZ.png");
@@ -219,7 +223,7 @@ const processPlayerStats = () => {
           return require("../../../assets/Brawlers_icons/MORTIS.png");
 
         case "MR. P":
-          return require("../../../assets/Brawlers_icons/MR. P.png");
+          return require("../../../assets/Brawlers_icons/MR_P.png");
 
         case "NANI":
           return require("../../../assets/Brawlers_icons/NANI.png");
@@ -268,6 +272,17 @@ const processPlayerStats = () => {
       }
     };
 
+    const getBrawlerImage = (brawlerID) => {
+      let brawlerUrl= undefined;
+      state.brawlifyReducer.brawlersList.list.map((brawler) => {
+        if (brawler.id === brawlerID) {
+          brawlerUrl=brawler.imageUrl
+        }
+
+      });
+      return {uri:brawlerUrl}
+    };
+
     playerStats.keys.modes.map((mode) => {
       console.log(mode);
       if (mode !== "duoShowdown" && mode !== "soloShowdown") {
@@ -307,15 +322,19 @@ const processPlayerStats = () => {
       .filter((mode) => mode.winRatio !== 0);
 
     playerStats.keys.brawlers.map((brawler) => {
-      console.log(brawler);
+      let compiledBrawlers = playerStats.compiled.brawlers[brawler];
       brawlers.push({
-        color:getBrawlerColor(brawler),
-        image: getBrawlerImage(brawler),
-        winRatio: playerStats.compiled.brawlers[brawler].winRatio,
-        wins: playerStats.compiled.brawlers[brawler].wins,
-        losses: playerStats.compiled.brawlers[brawler].losses,
+        color: getBrawlerColor(brawler),
+        image: getBrawlerImage(compiledBrawlers.brawlerID),
+        winRatio: compiledBrawlers.winRatio,
+        wins: compiledBrawlers.wins,
+        losses: compiledBrawlers.losses,
         title: brawler,
       });
+    });
+
+    playerStats.keys.maps.map((map) => {
+      maps.push({});
     });
 
     brawlersByPerformance = [...brawlers]
@@ -331,6 +350,7 @@ const processPlayerStats = () => {
 const unsubscribe = store.subscribe(processPlayerStats);
 unsubscribe();
 
+console.log(brawlersByPerformance);
 export {
   processPlayerStats,
   modesByPerformance,

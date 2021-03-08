@@ -12,7 +12,7 @@ const persistConfig = {
   // Storage Method (React Native)
   storage: AsyncStorage,
   // Whitelist (Save Specific Reducers)
-  whitelist: ["playerPersistReducer"],
+  whitelist: ["playerPersistReducer","brawlifyReducer"],
   // Blacklist (Don't Save Specific Reducers)
   blacklist: ["battleLogReducer"],
 };

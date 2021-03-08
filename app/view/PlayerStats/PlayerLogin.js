@@ -17,13 +17,16 @@ import {
   receivedPlayerStatsFromDB,
   compiledPlayerStats,
 } from "../../store/battleLogReducer";
-import api from "../../store/middleware/api";
+import { userIdReceived } from "../../store/playerIdReducer"; 
+import {mapsReceived,brawlersReceived} from '../../store/brawlifyReducer'
+
+import apiHeroku from "../../store/middleware/apiHeroku";
 import PlayerStats from "./PlayerStats.js";
 import colors from "../../config/colors";
 import { playerInfoWrite } from "../../lib/writer";
-import { userIdReceived } from "../../store/playerIdReducer";
 import imageBackground from "../../assets/background-login.jpg";
 import { db } from "../../lib/initFirebase";
+import { findBrawlerList, findMapsList } from "../../store/APIbrawlify";
 export default function PlayerLogin() {
   const dispatch = useDispatch();
   const playerID = useSelector((state) => state.playerPersistReducer.playerID);
@@ -58,10 +61,16 @@ export default function PlayerLogin() {
       ) {
         async function fetchMyAPI() {
           try {
-            let response = await api(userId);
+            let response = await apiHeroku(userId);
 
+            let brawlersList = await findBrawlerList();
+            let brawlersMaps= await findMapsList();
+            dispatch(brawlersReceived(brawlersList));
+            dispatch(mapsReceived(brawlersMaps));
+
+            
             //response will be an array like this if stats already in the db
-            //check api
+            //check apiHeroku
             if (response.db == true) {
              
               const dbData = await getDataFromDB();
@@ -69,20 +78,20 @@ export default function PlayerLogin() {
               await dispatch(receivedPlayerStatsFromDB(dbData));
               await dispatch(processedPlayerStats(response));
               await dispatch(compiledPlayerStats());
-              dispatch(userIdReceived(userId));
+             await  dispatch(userIdReceived(userId));
               await playerInfoWrite();
               setValidId(true);
             }
 
             //response will be like this if no player stats are saved in db
-            //check api
+            //check apiHeroku
             else {
-              dispatch(battleLogAndPlayerReceived(response));
-              dispatch(processedPlayerStats(userId));
-              dispatch(compiledPlayerStats());
-              dispatch(userIdReceived(userId));
-              setValidId(true);
-              playerInfoWrite();
+              await dispatch(battleLogAndPlayerReceived(response));
+              await dispatch(processedPlayerStats(userId));
+              await  dispatch(compiledPlayerStats());
+              await   dispatch(userIdReceived(userId));
+              await  playerInfoWrite();
+              await   setValidId(true);
             }
           } catch (error) {
           
@@ -90,10 +99,10 @@ export default function PlayerLogin() {
             setMessage("Invalid player ID or Supercell is doing maintenance!");
           }
         }
-        console.log("api called in player login component!");
-        if (playerID===userId) {
+        console.log("apiHeroku called in player login component!");
+       
           fetchMyAPI();
-        }
+        
       }
     }
   }, [userId, confirmClicked]);
@@ -115,7 +124,7 @@ export default function PlayerLogin() {
                 underlineColor={colors.background}
                 selectionColor={colors.background}
                 value={userId}
-                autoCapitalize="characters"
+                autoCapiHerokutalize="characters"
                 style={styles.playerIdInput}
                 onChangeText={(userId) => {
                   setUserId(userId.toUpperCase());

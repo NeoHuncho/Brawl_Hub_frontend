@@ -14,8 +14,8 @@ export default async function api(userId) {
       .then(
         (response) => {
           if (response.data["reason"]) reject();
-          console.log("Fresh out of Axios Api" + response.data);
           console.log(response.data);
+          console.log("Fresh out of Heroku Api")
           resolve(response.data);
         },
         (error) => {

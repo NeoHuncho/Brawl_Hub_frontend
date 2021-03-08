@@ -1,5 +1,5 @@
 import { db } from "../../lib/initFirebase";
-import api from "../api";
+import api from "../apiHeroku";
 export default async function apiMiddleware(userId) {
   const playerStats = await  db.collection("PlayerStats").doc(userId);
   const stats = await playerStats.get();

@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import moment from "moment";
+import moment, { duration } from "moment";
 
 import "react-native-url-polyfill/auto";
 
@@ -58,9 +58,9 @@ const slice = createSlice({
         battleLogAndPlayer.player = playerData;
         console.log(data);
         if (battleLogAndPlayer.battleLog[0]) {
-          console.log(battleLogAndPlayer.battleLog[0]);
-          console.log(battleLogAndPlayer.battleLog[0].battleTime);
-          console.log("called 1");
+          // console.log(battleLogAndPlayer.battleLog[0]);
+          // console.log(battleLogAndPlayer.battleLog[0].battleTime);
+          // console.log("called 1");
           lastMatch = battleLogAndPlayer.battleLog[0].battleTime;
           userId = battleLogAndPlayer.userId;
           playerId = "#" + battleLogAndPlayer.userId;
@@ -75,25 +75,49 @@ const slice = createSlice({
 
       if (battleLogAndPlayer.battleLog[0]) {
         for (const element of battleLogAndPlayer.battleLog) {
-          console.log("CALLLLDED");
+          //console.log("CALLLLDED");
           if (element.battle.trophyChange) {
             numberOfGames++;
             let mapName = element.event.map;
             let mode = element.event.mode;
-            console.log(mode);
+            let eventID = element.event.id;
+            let duration = element.battle.duration;
+            if (duration === NaN || duration === undefined) {
+              duration = 0;
+            }
+            let isStarPlayer = 0;
+
+            let checkStarPlayer = () => {
+              if (element.battle.starPlayer) {
+                if (element.battle.starPlayer.tag === playerId) {
+                  isStarPlayer = 1;
+                }
+              }
+            };
+            checkStarPlayer();
             let findBrawler = (element) => {
               if (element.battle.teams) {
                 for (const team of element.battle.teams)
                   for (const player of team)
                     if (player.tag == playerId)
-                      return [player.brawler.name, player.brawler.trophies];
+                      return [
+                        player.brawler.name,
+                        player.brawler.trophies,
+                        player.brawler.id,
+                      ];
               } else {
                 for (const player of element.battle.players)
                   if (player.tag == playerId)
-                    return [player.brawler.name, player.brawler.trophies];
+                    return [
+                      player.brawler.name,
+                      player.brawler.trophies,
+                      player.brawler.id,
+                    ];
               }
             };
-            let [brawlerName, brawlerTrophies] = findBrawler(element);
+            let [brawlerName, brawlerTrophies, brawlerID] = findBrawler(
+              element
+            );
 
             let findTeam = (element) => {
               let brawler = [];
@@ -103,6 +127,8 @@ const slice = createSlice({
               let brawlerTeam1 = [];
               let trophiesTeam0 = 0;
               let trophiesTeam1 = 0;
+              let brawlerIDTeam0 = [];
+              let brawlerIDTeam1 = [];
               let inTeam0 = false;
               let inTeam1 = false;
 
@@ -112,6 +138,7 @@ const slice = createSlice({
                     inTeam0 = true;
                   }
                   brawlerTeam0.push(player.brawler.name);
+                  brawlerIDTeam0.push(player.brawler.id);
                   trophiesTeam0 += player.brawler.trophies;
                 }
                 for (const player of element.battle.teams[1]) {
@@ -119,30 +146,37 @@ const slice = createSlice({
                     inTeam1 = true;
                   }
                   brawlerTeam1.push(player.brawler.name);
+                  brawlerIDTeam1.push(player.brawler.id);
                   trophiesTeam1 += player.brawler.trophies;
                 }
                 if (inTeam0) {
-                  return [brawlerTeam0, trophiesTeam0];
+                  return [brawlerTeam0, trophiesTeam0, brawlerIDTeam0];
                 } else {
-                  return [brawlerTeam1, trophiesTeam1];
+                  return [brawlerTeam1, trophiesTeam1, brawlerIDTeam1];
                 }
               }
             };
 
-            let brawlerTeam = null;
+            let brawlersTeam = null;
+            let brawlersIDTeam = null;
             let trophiesTeam = null;
+
             if (element.battle.teams) {
-              let [bTeam, tTeam] = findTeam(element);
-              brawlerTeam = bTeam;
+              let [bTeam, tTeam, idTeam] = findTeam(element);
+              brawlersTeam = bTeam;
+              brawlersIDTeam = idTeam;
               trophiesTeam = tTeam;
-              brawlerTeam.sort();
+              brawlersTeam.sort();
             }
+            console.log(brawlersIDTeam);
             let calculateRatio = (wins, losses) => {
-              return (wins / (wins + losses)) * 100;
+              return wins / losses;
             };
             if (element.battle.trophyChange) {
               let winTrophies = undefined;
               let lossTrophies = undefined;
+
+              //
               if (element.battle.trophyChange > 0) {
                 winTrophies = element.battle.trophyChange;
                 trophyWins += element.battle.trophyChange;
@@ -151,7 +185,15 @@ const slice = createSlice({
                 trophyLosses += lossTrophies;
               }
 
+              console.log(brawlerName, mapName, isStarPlayer);
               if (playerStats.mode[mode]) {
+                if (duration !== 0) {
+                  playerStats.mode[mode].games++;
+                  playerStats.mode[mode].duration += duration;
+                  playerStats.mode[mode].avgDuration =
+                    playerStats.mode[mode].duration /
+                    playerStats.mode[mode].games;
+                }
                 if (winTrophies) {
                   playerStats.mode[mode].wins += 1;
                   playerStats.mode[mode].winsByTrophies += 2 * brawlerTrophies;
@@ -164,35 +206,62 @@ const slice = createSlice({
                   playerStats.mode[mode].lossesByTrophies !== 0 &&
                   playerStats.mode[mode].winsByTrophies !== 0
                 ) {
+                  isStarPlayer !== 0
+                    ? (playerStats.mode[mode].starPlayer += 1)
+                    : null;
                   playerStats.mode[mode].winRatio = calculateRatio(
                     playerStats.mode[mode].winsByTrophies,
                     playerStats.mode[mode].lossesByTrophies
                   );
                 } else {
-                  winTrophies
-                    ? (playerStats.mode[mode].winRatio = 100)
-                    : (playerStats.mode[mode].winRatio = 0);
+                  if (winTrophies) {
+                    playerStats.mode[mode].winRatio =
+                      playerStats.mode[mode].wins;
+                    isStarPlayer !== 0
+                      ? (playerStats.mode[mode].starPlayer += 1)
+                      : null;
+                  } else {
+                    playerStats.mode[mode].winRatio = 0;
+                    playerStats.mode[mode].starPlayer = 0;
+                  }
                 }
               } else if (winTrophies) {
                 playerStats.mode[mode] = {
+                  games: 1,
+                  avgDuration: duration,
+                  duration: duration,
                   wins: 1,
                   losses: 0,
-                  winRatio: 100,
+                  winRatio: 1,
                   lossesByTrophies: 0,
                   winsByTrophies: 2 * brawlerTrophies,
                   map: {},
+                  starPlayer: 0,
                 };
-              } else
+                isStarPlayer ? (playerStats.mode[mode].starPlayer = 1) : null;
+              } else {
                 playerStats.mode[mode] = {
+                  games: 1,
+                  avgDuration: duration,
+                  duration: duration,
                   wins: 0,
                   losses: 1,
                   winRatio: 0,
                   lossesByTrophies: 2 * brawlerTrophies,
                   winsByTrophies: 0,
                   map: {},
+                  starPlayer: 0,
                 };
+              }
 
               if (playerStats.mode[mode].map[mapName]) {
+                playerStats.mode[mode].map[mapName].games++;
+                if (duration !== 0) {
+                  playerStats.mode[mode].map[mapName].duration += duration;
+                  playerStats.mode[mode].map[mapName].avgDuration =
+                    playerStats.mode[mode].map[mapName].duration /
+                    playerStats.mode[mode].map[mapName].games;
+                }
                 if (winTrophies) {
                   playerStats.mode[mode].map[mapName].wins += 1;
                   playerStats.mode[mode].map[mapName].winsByTrophies +=
@@ -206,35 +275,74 @@ const slice = createSlice({
                   playerStats.mode[mode].map[mapName].lossesByTrophies !== 0 &&
                   playerStats.mode[mode].map[mapName].winsByTrophies !== 0
                 ) {
+                  isStarPlayer !== 0
+                    ? (playerStats.mode[mode].map[mapName].starPlayer += 1)
+                    : null;
+
                   playerStats.mode[mode].map[mapName].winRatio = calculateRatio(
                     playerStats.mode[mode].map[mapName].winsByTrophies,
                     playerStats.mode[mode].map[mapName].lossesByTrophies
                   );
                 } else {
-                  winTrophies
-                    ? (playerStats.mode[mode].map[mapName].winRatio = 100)
-                    : (playerStats.mode[mode].map[mapName].winRatio = 0);
+                  if (winTrophies) {
+                    playerStats.mode[mode].map[mapName].winRatio =
+                      playerStats.mode[mode].map[mapName].win * 1;
+                    isStarPlayer !== 0
+                      ? (playerStats.mode[mode].map[mapName].starPlayer += 1)
+                      : null;
+                  } else {
+                    playerStats.mode[mode].map[mapName].winRatio = 0;
+                    playerStats.mode[mode].map[mapName].starPlayer = 0;
+                  }
                 }
               } else if (winTrophies) {
                 playerStats.mode[mode].map[mapName] = {
+                  mapID: eventID,
+                  games: 1,
+                  avgDuration: duration,
+                  duration: duration,
                   wins: 1,
                   losses: 0,
-                  winRatio: 100,
+                  winRatio: 1,
                   lossesByTrophies: 0,
                   winsByTrophies: brawlerTrophies * 2 * trophyWins,
                   brawler: {},
+                  starPlayer: 0,
                 };
+                isStarPlayer
+                  ? (playerStats.mode[mode].map[mapName].starPlayer = 1)
+                  : null;
               } else
                 playerStats.mode[mode].map[mapName] = {
+                  mapID: eventID,
+                  games: 1,
+                  avgDuration: duration,
+                  duration: duration,
                   wins: 0,
                   losses: 1,
                   winRatio: 0,
                   lossesByTrophies: 2 * brawlerTrophies * trophyLosses,
                   winsByTrophies: 0,
                   brawler: {},
+                  starPlayer: 0,
                 };
 
               if (playerStats.mode[mode].map[mapName].brawler[brawlerName]) {
+                if (duration !== 0) {
+                  playerStats.mode[mode].map[mapName].brawler[brawlerName]
+                    .games++;
+                  playerStats.mode[mode].map[mapName].brawler[
+                    brawlerName
+                  ].duration += duration;
+                  playerStats.mode[mode].map[mapName].brawler[
+                    brawlerName
+                  ].avgDuration =
+                    playerStats.mode[mode].map[mapName].brawler[brawlerName]
+                      .duration /
+                    playerStats.mode[mode].map[mapName].brawler[brawlerName]
+                      .games;
+                }
+
                 if (winTrophies) {
                   playerStats.mode[mode].map[mapName].brawler[
                     brawlerName
@@ -256,6 +364,11 @@ const slice = createSlice({
                   playerStats.mode[mode].map[mapName].brawler[brawlerName]
                     .winsByTrophies !== 0
                 ) {
+                  isStarPlayer !== 0
+                    ? (playerStats.mode[mode].map[mapName].brawler[
+                        brawlerName
+                      ].starPlayer += 1)
+                    : null;
                   playerStats.mode[mode].map[mapName].brawler[
                     brawlerName
                   ].winRatio = calculateRatio(
@@ -265,103 +378,185 @@ const slice = createSlice({
                       .lossesByTrophies
                   );
                 } else {
-                  winTrophies
-                    ? (playerStats.mode[mode].map[mapName].brawler[
+                  if (winTrophies) {
+                    isStarPlayer !== 0
+                      ? (playerStats.mode[mode].map[mapName].brawler[
+                          brawlerName
+                        ].starPlayer += 1)
+                      : null;
+
+                    playerStats.mode[mode].map[mapName].brawler[
+                      brawlerName
+                    ].winRatio =
+                      playerStats.mode[mode].map[mapName].brawler[
                         brawlerName
-                      ].winRatio = 100)
-                    : (playerStats.mode[mode].map[mapName].brawler[
-                        brawlerName
-                      ].winRatio = 0);
+                      ].wins;
+                  } else
+                    playerStats.mode[mode].map[mapName].brawler[
+                      brawlerName
+                    ].winRatio = 0;
                 }
               } else if (winTrophies) {
                 playerStats.mode[mode].map[mapName].brawler[brawlerName] = {
+                  brawlerID: brawlerID,
+                  games: 1,
+                  avgDuration: duration,
+                  duration: duration,
                   wins: 1,
                   losses: 0,
-                  winRatio: 100,
+                  winRatio: 1,
                   lossesByTrophies: 0,
                   winsByTrophies: 2 * brawlerTrophies * winTrophies,
+                  starPlayer: 0,
                   team: {},
                 };
+                isStarPlayer
+                  ? (playerStats.mode[mode].map[mapName].brawler[
+                      brawlerName
+                    ].starPlayer = 1)
+                  : null;
               } else
                 playerStats.mode[mode].map[mapName].brawler[brawlerName] = {
+                  brawlerID: brawlerID,
+                  games: 1,
+                  avgDuration: duration,
+                  duration: duration,
                   wins: 0,
                   losses: 1,
                   winRatio: 0,
                   lossesByTrophies: 2 * brawlerTrophies * lossTrophies,
                   winsByTrophies: 0,
+                  starPlayer: 0,
                   team: {},
                 };
 
               if (
                 playerStats.mode[mode].map[mapName].brawler[brawlerName].team[
-                  brawlerTeam
+                  brawlersTeam
                 ]
               ) {
+                if (duration !== 0) {
+                  playerStats.mode[mode].map[mapName].brawler[brawlerName].team[
+                    brawlersTeam
+                  ].games++;
+                  playerStats.mode[mode].map[mapName].brawler[brawlerName].team[
+                    brawlersTeam
+                  ].duration += duration;
+                  playerStats.mode[mode].map[mapName].brawler[brawlerName].team[
+                    brawlersTeam
+                  ].avgDuration =
+                    playerStats.mode[mode].map[mapName].brawler[brawlerName]
+                      .team[brawlersTeam].duration /
+                    playerStats.mode[mode].map[mapName].brawler[brawlerName]
+                      .team[brawlersTeam].games;
+                }
+
                 if (winTrophies) {
                   playerStats.mode[mode].map[mapName].brawler[brawlerName].team[
-                    brawlerTeam
+                    brawlersTeam
                   ].wins += 1;
                   playerStats.mode[mode].map[mapName].brawler[brawlerName].team[
-                    brawlerTeam
+                    brawlersTeam
                   ].winsByTrophies += 2 * trophiesTeam * winTrophies;
                 } else {
                   playerStats.mode[mode].map[mapName].brawler[brawlerName].team[
-                    brawlerTeam
+                    brawlersTeam
                   ].losses += 1;
                   playerStats.mode[mode].map[mapName].brawler[brawlerName].team[
-                    brawlerTeam
+                    brawlersTeam
                   ].lossesByTrophies += 2 * trophiesTeam * lossTrophies;
                 }
                 if (
                   playerStats.mode[mode].map[mapName].brawler[brawlerName].team[
-                    brawlerTeam
+                    brawlersTeam
                   ].lossesByTrophies !== 0 &&
                   playerStats.mode[mode].map[mapName].brawler[brawlerName].team[
-                    brawlerTeam
+                    brawlersTeam
                   ].winsByTrophies !== 0
                 ) {
-                  playerStats.mode[mode].map[mapName].brawler[brawlerName].team[
-                    brawlerTeam
-                  ].winRatio = calculateRatio(
-                    playerStats.mode[mode].map[mapName].brawler[brawlerName]
-                      .team[brawlerTeam].winsByTrophies,
-                    playerStats.mode[mode].map[mapName].brawler[brawlerName]
-                      .team[brawlerTeam].lossesByTrophies
-                  );
-                } else {
-                  winTrophies
+                  isStarPlayer !== 0
                     ? (playerStats.mode[mode].map[mapName].brawler[
                         brawlerName
-                      ].team[brawlerTeam].winRatio = 100)
-                    : (playerStats.mode[mode].map[mapName].brawler[
+                      ].team[brawlersTeam].starPlayer += 1)
+                    : null;
+                  playerStats.mode[mode].map[mapName].brawler[brawlerName].team[
+                    brawlersTeam
+                  ].winRatio = calculateRatio(
+                    playerStats.mode[mode].map[mapName].brawler[brawlerName]
+                      .team[brawlersTeam].winsByTrophies,
+                    playerStats.mode[mode].map[mapName].brawler[brawlerName]
+                      .team[brawlersTeam].lossesByTrophies
+                  );
+                } else {
+                  if (winTrophies) {
+                    isStarPlayer !== 0
+                      ? (playerStats.mode[mode].map[mapName].brawler[
+                          brawlerName
+                        ].team[brawlersTeam].starPlayer += 1)
+                      : null;
+                    playerStats.mode[mode].map[mapName].brawler[
+                      brawlerName
+                    ].team[brawlersTeam].winRatio =
+                      playerStats.mode[mode].map[mapName].brawler[
                         brawlerName
-                      ].team[brawlerTeam].winRatio = 0);
+                      ].team[brawlersTeam].wins;
+                  } else
+                    playerStats.mode[mode].map[mapName].brawler[
+                      brawlerName
+                    ].team[brawlersTeam].winRatio = 0;
                 }
-              } else if (mode !== "soloShowdown" && winTrophies) {
+              } else if (
+                mode !== "soloShowdown" &&
+                mode !== "duoShowdown" &&
+                winTrophies
+              ) {
                 playerStats.mode[mode].map[mapName].brawler[brawlerName].team[
-                  brawlerTeam
+                  brawlersTeam
                 ] = {
+                  games: 1,
+                  avgDuration: duration,
+                  duration: duration,
                   wins: 1,
                   losses: 0,
-                  winRatio: 100,
+                  winRatio: 1,
                   lossesByTrophies: 0,
                   winsByTrophies: 2 * trophiesTeam * trophyWins,
+                  starPlayer: 0,
+                  id1: brawlersIDTeam[0],
+                  id2: brawlersIDTeam[1],
+                  id3: brawlersIDTeam[2],
                 };
-              } else if (mode !== "soloShowdown" && lossTrophies)
+
+                isStarPlayer
+                  ? (playerStats.mode[mode].map[mapName].brawler[
+                      brawlerName
+                    ].team[brawlersTeam].starPlayer = 1)
+                  : null;
+              } else if (
+                mode !== "soloShowdown" &&
+                mode !== "duoShowdown" &&
+                lossTrophies
+              ) {
                 playerStats.mode[mode].map[mapName].brawler[brawlerName].team[
-                  brawlerTeam
+                  brawlersTeam
                 ] = {
+                  games: 1,
+                  avgDuration: duration,
+                  duration: duration,
                   wins: 0,
                   losses: 1,
                   winRatio: 0,
                   lossesByTrophies: 2 * trophiesTeam * trophyLosses,
                   winsByTrophies: 0,
+                  starPlayer: 0,
+                  id1: brawlersIDTeam[0],
+                  id2: brawlersIDTeam[1],
+                  id3: brawlersIDTeam[2],
                 };
-
+              }
               //
             }
           }
-          console.log(playerStats);
         }
 
         (battleLogAndPlayer.wins = wins),
@@ -376,28 +571,27 @@ const slice = createSlice({
     },
     compiledPlayerStats: (battleLogAndPlayer, action) => {
       if (battleLogAndPlayer.playerStats) {
-      battleLogAndPlayer.playerStats.compiled={};
-      battleLogAndPlayer.playerStats.keys={};
-      let  playerStats = battleLogAndPlayer.playerStats;
+        battleLogAndPlayer.playerStats.compiled = {};
+        battleLogAndPlayer.playerStats.keys = {};
+        let playerStats = battleLogAndPlayer.playerStats;
 
         let mKeys = [];
         let bKeys = [];
         let tKeys = [];
 
         let modeKeys = Object.keys(playerStats.mode);
-        battleLogAndPlayer.playerStats.keys.modes= modeKeys;
-      
+        battleLogAndPlayer.playerStats.keys.modes = modeKeys;
 
         battleLogAndPlayer.playerStats.compiled.maps = modeKeys
           .map((mode) => playerStats.mode[mode].map)
           .reduce((r, c) => Object.assign(r, c), {});
-        
+
         modeKeys.map((mode) =>
           mKeys.push(Object.keys(playerStats.mode[mode].map))
         );
 
         let mapKeys = mKeys.flat();
-        battleLogAndPlayer.playerStats.keys.maps= mapKeys;
+        battleLogAndPlayer.playerStats.keys.maps = mapKeys;
 
         modeKeys.map((mode) =>
           mapKeys.map((map) => {
@@ -408,7 +602,7 @@ const slice = createSlice({
         );
 
         let brawlerKeys = bKeys.flat().filter((v, i, a) => a.indexOf(v) === i);
-        battleLogAndPlayer.playerStats.keys.brawlers= brawlerKeys;
+        battleLogAndPlayer.playerStats.keys.brawlers = brawlerKeys;
         modeKeys.map((mode) =>
           mapKeys.map((map) => {
             brawlerKeys.map((brawler) => {
@@ -425,7 +619,7 @@ const slice = createSlice({
         );
         let teamKeys = tKeys.flat().filter((v, i, a) => a.indexOf(v) === i);
 
-        battleLogAndPlayer.playerStats.keys.teams= teamKeys;
+        battleLogAndPlayer.playerStats.keys.teams = teamKeys;
         let reducerBrawler = (stored, next) => {
           let result = {};
           brawlerKeys.map((brawler) => {
@@ -450,8 +644,16 @@ const slice = createSlice({
                   winsByTrophies:
                     stored[brawler].winsByTrophies +
                     next[brawler].winsByTrophies,
-                  winRatio: stored[brawler].winRatio + next[brawler].winRatio,
+                  winRatio:  (stored[brawler].winsByTrophies +
+                    next[brawler].winsByTrophies)/(stored[brawler].lossesByTrophies +
+                  next[brawler].lossesByTrophies),
+                  avgDuration:
+                    (stored[brawler].avgDuration + next[brawler].avgDuration) /
+                    2,
+                  duration: stored[brawler].duration + next[brawler].duration,
+                  brawlerID: stored[brawler].brawlerID,
                 };
+               
               } else if (next[brawler]) {
                 // console.log("called 5");
                 result[brawler] = {
@@ -460,6 +662,9 @@ const slice = createSlice({
                   lossesByTrophies: next[brawler].lossesByTrophies,
                   winsByTrophies: next[brawler].winsByTrophies,
                   winRatio: next[brawler].winRatio,
+                  duration: next[brawler].duration,
+                  avgDuration: next[brawler].avgDuration,
+                  brawlerID: next[brawler].brawlerID,
                 };
               } else if (stored[brawler]) {
                 //  console.log("called 6");
@@ -496,6 +701,9 @@ const slice = createSlice({
                   winsByTrophies:
                     stored[team].winsByTrophies + next[team.winsByTrophies],
                   winRatio: stored[team].winRatio + next[team].winRatio,
+                  id1:stored[team].id1,
+                  id2:stored[team].id2,
+                  id3:stored[team].id3,
                 };
               } else if (next[team]) {
                 //  console.log("called 5");
@@ -505,6 +713,9 @@ const slice = createSlice({
                   lossesByTrophies: next[team].lossesByTrophies,
                   winsByTrophies: next[team].winsByTrophies,
                   winRatio: next[team].winRatio,
+                  id1:next[team].id1,
+                  id2:next[team].id2,
+                  id3:next[team].id3,
                 };
               } else if (stored[team]) {
                 //console.log("called 6");
@@ -532,7 +743,7 @@ const slice = createSlice({
           savedTeams.push(x);
         };
 
-        let brokenTeams = modeKeys
+        let TeamsFinder = modeKeys
           .map((mode) =>
             mapKeys.map((map) =>
               brawlerKeys.map((brawler) => {

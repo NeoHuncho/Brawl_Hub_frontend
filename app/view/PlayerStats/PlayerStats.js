@@ -9,12 +9,14 @@ import {
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { Ionicons } from "@expo/vector-icons";
-import nestedProperty from "nested-property";
+
+
+
 import colors from "../../config/colors";
 import { userIdReset } from "../../store/playerIdReducer";
 import WinLossModule from "../../components/modules/WinLossModule";
 import CarouselModule from "../../components/modules/Carousel/CarouselModule";
-import{processPlayerStats} from '../../components/modules/Carousel/CarouselData'
+import{processPlayerStats,brawlersByPerformance} from '../../components/modules/Carousel/CarouselData'
 
 export default function PlayerStats() {
 
@@ -30,7 +32,9 @@ export default function PlayerStats() {
     }
   };
 processPlayerStats()
- 
+
+
+
 
   return (
     <ScrollView>
@@ -38,8 +42,8 @@ processPlayerStats()
         <View style={styles.nameContainer}>
           <Text style={styles.name}>{player.name}</Text>
 
-          <TouchableHighlight onPress={() => handleReset()}>
-            <Ionicons
+          <TouchableHighlight >
+            <Ionicons onPress={() => handleReset()}
               style={styles.icon}
               name="exit"
               size={24}
@@ -53,12 +57,12 @@ processPlayerStats()
 
         <View style={{ marginTop: 60 }}>
           <Text style={styles.categoryName}>Player Stats by Mode</Text>
-            <CarouselModule dataType='mode'/>     
+             <CarouselModule dataType='mode'/>      
         </View>
         <View style={{}}>
           <Text style={styles.categoryName}>Player Stats by Brawler</Text>
-            <CarouselModule dataType='brawler'/>     
-        
+             <CarouselModule dataType='brawler'/>      
+    
         </View>
       </View>
     </ScrollView>
