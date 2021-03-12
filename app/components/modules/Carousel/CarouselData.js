@@ -1,7 +1,6 @@
 import { store } from "../../../store/configureStore";
 import colors from "../../../config/colors";
 
-
 let modesByPerformance = undefined;
 let modesByWins = undefined;
 let mapsByWins = undefined;
@@ -273,14 +272,23 @@ const processPlayerStats = () => {
     };
 
     const getBrawlerImage = (brawlerID) => {
-      let brawlerUrl= undefined;
+      let brawlerUrl = undefined;
       state.brawlifyReducer.brawlersList.list.map((brawler) => {
         if (brawler.id === brawlerID) {
-          brawlerUrl=brawler.imageUrl
+          brawlerUrl = brawler.imageUrl;
         }
-
       });
-      return {uri:brawlerUrl}
+      return { uri: brawlerUrl };
+    };
+
+    const getMapImage = (mapID) => {
+      let mapUrl = undefined;
+      state.brawlifyReducer.mapsList.list.map((map) => {
+        if (map.id === mapID) {
+          mapUrl = map.imageUrl;
+        }
+      });
+      return { uri: mapUrl };
     };
 
     playerStats.keys.modes.map((mode) => {
@@ -333,17 +341,45 @@ const processPlayerStats = () => {
       });
     });
 
+    brawlersByPerformance = [...brawlers].sort((a, b) =>
+      a.winRatio > b.winRatio ? -1 : 1
+    );
+
+    brawlersByWins = [...brawlers].sort((a, b) => (a.wins > b.wins ? -1 : 1));
+
     playerStats.keys.maps.map((map) => {
-      maps.push({});
+      let compiledMaps = playerStats.compiled.maps[map];
+      maps.push({
+        image: getMapImage(compiledMaps.mapID),
+        winRatio: compiledMaps.winRatio,
+        wins: compiledMaps.wins,
+        losses: compiledMaps.losses,
+        title: map,
+      });
     });
+    mapsByPerformance = [...maps].sort((a, b) =>
+      a.winRatio > b.winRatio ? -1 : 1
+    );
 
-    brawlersByPerformance = [...brawlers]
-      .sort((a, b) => (a.winRatio > b.winRatio ? -1 : 1))
-      .filter((brawler) => brawler.winRatio !== 0);
+    mapsByWins = [...maps].sort((a, b) => (a.wins > b.wins ? -1 : 1));
+    
+    playerStats.keys.teams.map((team) => {
+      let compiledTeams = playerStats.compiled.teams[team];
+      teams.push({
+        brawler1: getBrawlerImage(compiledTeams.id1),
+        brawler2:getBrawlerImage(compiledTeams.id2),
+        brawler3:getBrawlerImage(compiledTeams.id3),
+        winRatio: compiledTeams.winRatio,
+        wins: compiledTeams.wins,
+        losses: compiledTeams.losses,
+        title: team,
+      });
+    });
+    teamsByPerformance = [...teams].sort((a, b) =>
+      a.winRatio > b.winRatio ? -1 : 1
+    );
 
-    brawlersByWins = [...brawlers]
-      .sort((a, b) => (a.wins > b.wins ? -1 : 1))
-      .filter((brawler) => brawler.winRatio !== 0);
+    teamsByWins = [...teams].sort((a, b) => (a.wins > b.wins ? -1 : 1));
   }
 };
 
@@ -357,4 +393,8 @@ export {
   modesByWins,
   brawlersByPerformance,
   brawlersByWins,
+  mapsByPerformance,
+  mapsByWins,
+  teamsByPerformance,
+  teamsByWins
 };

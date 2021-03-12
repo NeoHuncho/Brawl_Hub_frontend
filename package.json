@@ -1,4 +1,14 @@
 {
+  "expo": {
+    "name": "Brawl Hub",
+    "icon": "https://static.wikia.nocookie.net/brawlstars/images/f/f0/8-BIT_Portrait.png/revision/latest/scale-to-width-down/340?cb=20191012200012",
+    "version": "1.0.1",
+    "slug": "your-app-slug",
+    "android": {
+      "package": "com.brawlhub.yourappname",
+      "versionCode": 1
+    }
+  },
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
@@ -27,14 +37,17 @@
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-40.0.1.tar.gz",
+    "react-native-multi-switch": "^1.2.0",
     "react-native-paper": "^4.7.2",
     "react-native-snap-carousel": "^3.9.1",
+    "react-native-toggle-element": "^1.0.1",
     "react-native-url-polyfill": "^1.2.0",
     "react-native-video": "^5.1.1",
     "react-native-web": "~0.13.12",
     "react-redux": "^7.2.2",
     "redux-persist": "^6.0.0",
-    "reselect": "^4.0.0"
+    "reselect": "^4.0.0",
+    "rn-slider-switch": "0.0.3"
   },
   "devDependencies": {
     "@babel/core": "~7.9.0"

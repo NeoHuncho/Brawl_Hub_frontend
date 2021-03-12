@@ -17,8 +17,8 @@ import {
   receivedPlayerStatsFromDB,
   compiledPlayerStats,
 } from "../../store/battleLogReducer";
-import { userIdReceived } from "../../store/playerIdReducer"; 
-import {mapsReceived,brawlersReceived} from '../../store/brawlifyReducer'
+import { userIdReceived } from "../../store/playerIdReducer";
+import { mapsReceived, brawlersReceived } from "../../store/brawlifyReducer";
 
 import apiHeroku from "../../store/middleware/apiHeroku";
 import PlayerStats from "./PlayerStats.js";
@@ -27,6 +27,7 @@ import { playerInfoWrite } from "../../lib/writer";
 import imageBackground from "../../assets/background-login.jpg";
 import { db } from "../../lib/initFirebase";
 import { findBrawlerList, findMapsList } from "../../store/APIbrawlify";
+import moment from "moment";
 export default function PlayerLogin() {
   const dispatch = useDispatch();
   const playerID = useSelector((state) => state.playerPersistReducer.playerID);
@@ -36,7 +37,7 @@ export default function PlayerLogin() {
   const [validId, setValidId] = useState(false);
   const [howToClicked, setHowToClicked] = useState(false);
   const [confirmClicked, setConfirmClicked] = useState(false);
-  const [playerStatsFromDB, setplayerStatsFromDb] = useState();
+ 
 
   const [message, setMessage] = useState(
     "Please provide your Brawl Stars player ID"
@@ -52,64 +53,85 @@ export default function PlayerLogin() {
   useEffect(() => {
     {
       if (saved === true) {
-        setMessage("loading");
-        setUserId(playerID)}
-        ;
-      if (
-        saved === true ||
-        (!validId && userId && userId.length >= 6 && confirmClicked === true)
-      ) {
-        async function fetchMyAPI() {
-          try {
-            let response = await apiHeroku(userId);
+        setUserId(playerID);
+        async function fetchMySavedData() {
+          if (userId) {
+            const dbData = await getDataFromDB();
+            dispatch(receivedPlayerStatsFromDB(dbData));
+            console.log(dbData.time);
 
+            if (moment(dbData.time).isAfter(moment().format()) === true) {
+              setValidId(true);
+            } else {
+              let brawlersList = await findBrawlerList();
+              let brawlersMaps = await findMapsList();
+              let response = await apiHeroku(userId);
+              dispatch(brawlersReceived(brawlersList));
+              dispatch(mapsReceived(brawlersMaps));
+              dispatch(processedPlayerStats(response));
+              dispatch(compiledPlayerStats());
+         
+              playerInfoWrite();
+              setValidId(true);
+            }
+          }
+        }
+        fetchMySavedData();
+      }
+
+      if (
+        saved !== true &&
+        !validId &&
+        userId &&
+        userId.length >= 6 &&
+        confirmClicked === true
+      ) {
+        async function fetchMyDataFirstTime() {
+          try {
             let brawlersList = await findBrawlerList();
-            let brawlersMaps= await findMapsList();
+            let brawlersMaps = await findMapsList();
             dispatch(brawlersReceived(brawlersList));
             dispatch(mapsReceived(brawlersMaps));
 
-            
+            let response = await apiHeroku(userId);
             //response will be an array like this if stats already in the db
             //check apiHeroku
             if (response.db == true) {
-             
               const dbData = await getDataFromDB();
-              console.log(playerStatsFromDB);
-              await dispatch(receivedPlayerStatsFromDB(dbData));
-              await dispatch(processedPlayerStats(response));
-              await dispatch(compiledPlayerStats());
-             await  dispatch(userIdReceived(userId));
-              await playerInfoWrite();
+             
+              dispatch(receivedPlayerStatsFromDB(dbData));
+              dispatch(processedPlayerStats(response));
+              dispatch(compiledPlayerStats());
+              dispatch(userIdReceived(userId));
               setValidId(true);
+              playerInfoWrite();
             }
 
             //response will be like this if no player stats are saved in db
             //check apiHeroku
             else {
-              await dispatch(battleLogAndPlayerReceived(response));
-              await dispatch(processedPlayerStats(userId));
-              await  dispatch(compiledPlayerStats());
-              await   dispatch(userIdReceived(userId));
-              await  playerInfoWrite();
-              await   setValidId(true);
+              dispatch(battleLogAndPlayerReceived(response));
+              dispatch(processedPlayerStats(userId));
+              dispatch(compiledPlayerStats());
+              dispatch(userIdReceived(userId));
+              playerInfoWrite();
+              setValidId(true);
             }
           } catch (error) {
-          
             console.log(error);
             setMessage("Invalid player ID or Supercell is doing maintenance!");
           }
         }
         console.log("apiHeroku called in player login component!");
-       
-          fetchMyAPI();
-        
+
+        fetchMyDataFirstTime();
       }
     }
   }, [userId, confirmClicked]);
 
   return (
     <>
-      {!validId && (
+      {!validId && saved !== true && (
         <View style={styles.container}>
           <ImageBackground
             source={imageBackground}
@@ -123,8 +145,7 @@ export default function PlayerLogin() {
                 type="flat"
                 underlineColor={colors.background}
                 selectionColor={colors.background}
-                value={userId}
-                autoCapiHerokutalize="characters"
+                autoCapitalize="characters"
                 style={styles.playerIdInput}
                 onChangeText={(userId) => {
                   setUserId(userId.toUpperCase());
@@ -153,6 +174,15 @@ export default function PlayerLogin() {
               )}
             </View>
           </ImageBackground>
+        </View>
+      )}
+      {saved === true && !validId && (
+        <View style={styles.container}>
+          <ImageBackground
+            source={imageBackground}
+            style={styles.imageBackground}
+            blurRadius={2}
+          ></ImageBackground>
         </View>
       )}
 

@@ -2,13 +2,13 @@ import axios from "axios";
 
 export default async function api(userId) {
   return new Promise(function (resolve, reject) {
-    //https://brawlhub.herokuapp.com/battleLog
+    //https://brawlhub.herokuapp.com/PlayerandBattleLog
     axios
       // development
       // 192.168.1.4
       //wifi hotspot
       // 192.168.43.50
-      .post("http://192.168.1.4:5010/PlayerandBattleLog", {
+      .post("https://brawlhub.herokuapp.com/PlayerandBattleLog", {
         playerId: userId,
       })
       .then(

@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import moment, { duration } from "moment";
+import moment from "moment";
 
 import "react-native-url-polyfill/auto";
 
@@ -14,6 +14,8 @@ const slice = createSlice({
     trophyLosses: 0,
     trophyWins: 0,
     numberOfGames: 0,
+    name:null,
+    time:null
   },
   reducers: {
     battleLogAndPlayerReceived: (battleLogAndPlayer, action) => {
@@ -29,6 +31,8 @@ const slice = createSlice({
       battleLogAndPlayer.numberOfGames = data.numberOfGames;
       battleLogAndPlayer.playerStats = data.playerStats;
       battleLogAndPlayer.userId = data.playerId;
+      battleLogAndPlayer.name=data.name
+
     },
     processedPlayerStats: (battleLogAndPlayer, action) => {
       let userId = null;
@@ -571,6 +575,7 @@ const slice = createSlice({
     },
     compiledPlayerStats: (battleLogAndPlayer, action) => {
       if (battleLogAndPlayer.playerStats) {
+        battleLogAndPlayer.time=moment().add(12, 'hours').format()
         battleLogAndPlayer.playerStats.compiled = {};
         battleLogAndPlayer.playerStats.keys = {};
         let playerStats = battleLogAndPlayer.playerStats;
@@ -644,16 +649,21 @@ const slice = createSlice({
                   winsByTrophies:
                     stored[brawler].winsByTrophies +
                     next[brawler].winsByTrophies,
-                  winRatio:  (stored[brawler].winsByTrophies +
-                    next[brawler].winsByTrophies)/(stored[brawler].lossesByTrophies +
-                  next[brawler].lossesByTrophies),
                   avgDuration:
                     (stored[brawler].avgDuration + next[brawler].avgDuration) /
                     2,
                   duration: stored[brawler].duration + next[brawler].duration,
                   brawlerID: stored[brawler].brawlerID,
                 };
-               
+                if (result[brawler].lossesByTrophies !== 0) {
+                  result[brawler].winRatio =
+                    (stored[brawler].winsByTrophies +
+                      next[brawler].winsByTrophies) /
+                    (stored[brawler].lossesByTrophies +
+                      next[brawler].lossesByTrophies);
+                } else {
+                  result[brawler].winRatio = stored[brawler].wins;
+                }
               } else if (next[brawler]) {
                 // console.log("called 5");
                 result[brawler] = {
@@ -701,9 +711,13 @@ const slice = createSlice({
                   winsByTrophies:
                     stored[team].winsByTrophies + next[team.winsByTrophies],
                   winRatio: stored[team].winRatio + next[team].winRatio,
-                  id1:stored[team].id1,
-                  id2:stored[team].id2,
-                  id3:stored[team].id3,
+                  avgDuration:
+                  (stored[brawler].avgDuration + next[brawler].avgDuration) /
+                  2,
+                duration: stored[brawler].duration + next[brawler].duration,
+                  id1: stored[team].id1,
+                  id2: stored[team].id2,
+                  id3: stored[team].id3,
                 };
               } else if (next[team]) {
                 //  console.log("called 5");
@@ -713,9 +727,11 @@ const slice = createSlice({
                   lossesByTrophies: next[team].lossesByTrophies,
                   winsByTrophies: next[team].winsByTrophies,
                   winRatio: next[team].winRatio,
-                  id1:next[team].id1,
-                  id2:next[team].id2,
-                  id3:next[team].id3,
+                  id1: next[team].id1,
+                  id2: next[team].id2,
+                  id3: next[team].id3,
+                  duration: next[team].duration,
+                  avgDuration: next[team].avgDuration,
                 };
               } else if (stored[team]) {
                 //console.log("called 6");

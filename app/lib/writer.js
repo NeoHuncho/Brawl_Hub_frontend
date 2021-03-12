@@ -1,4 +1,4 @@
-import { supabase } from "./initSupabase";
+
 import { store } from "../store/configureStore";
 import { db } from "./initFirebase";
 
@@ -16,12 +16,14 @@ const playerInfoWrite = async () => {
       lastMatch: state.battleLogReducer.lastMatch,
       numberOfGames: state.battleLogReducer.numberOfGames,
       playerStats: state.battleLogReducer.playerStats,
+      time:state.battleLogReducer.time
     });
   } else
     db.collection("PlayerStats").doc(state.battleLogReducer.userId).update({
       playerId: state.battleLogReducer.userId,
       name: state.battleLogReducer.player.name,
       nameColor: state.battleLogReducer.player.nameColor,
+      time:state.battleLogReducer.time
     });
 };
 
