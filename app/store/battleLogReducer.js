@@ -725,7 +725,7 @@ const slice = createSlice({
     },
     compiledPlayerStats: (battleLogAndPlayer, action) => {
       if (battleLogAndPlayer.playerStats.season) {
-        battleLogAndPlayer.time = moment().add(1, "hours").format();
+        battleLogAndPlayer.time = moment().add(5, "minutes").format();
 
         let season = battleLogAndPlayer.season;
         let playerStats = battleLogAndPlayer.playerStats;
@@ -819,6 +819,8 @@ const slice = createSlice({
           battleLogAndPlayer.playerStats.season[season].type[
             gameType
           ].keys.teams = teamKeys;
+
+          //
           let reducerBrawler = (stored, next) => {
             let result = {};
             brawlerKeys.map((brawler) => {
@@ -838,6 +840,7 @@ const slice = createSlice({
                 if (stored[brawler] && next[brawler]) {
                   //  console.log("called 4");
                   result[brawler] = {
+                    games: stored[brawler].games + next[brawler].games,
                     wins: stored[brawler].wins + next[brawler].wins,
                     losses: stored[brawler].losses + next[brawler].losses,
                     lossesByTrophies:
@@ -866,6 +869,7 @@ const slice = createSlice({
                 } else if (next[brawler]) {
                   // console.log("called 5");
                   result[brawler] = {
+                    games: next[brawler].games,
                     wins: next[brawler].wins,
                     losses: next[brawler].losses,
                     lossesByTrophies: next[brawler].lossesByTrophies,
@@ -886,7 +890,8 @@ const slice = createSlice({
             return result;
           };
 
-          let reducerTeams = (stored, next) => {
+         //
+         let reducerTeams = (stored, next) => {
             //console.log(next);
             //console.log(stored);
             let result = {};
@@ -907,6 +912,8 @@ const slice = createSlice({
                 if (stored[team] && next[team]) {
                   // console.log("called 4");
                   result[team] = {
+
+                    games: stored[team].games + next[team].games,
                     wins: stored[team].wins + next[team].wins,
                     losses: stored[team].losses + next[team].losses,
                     lossesByTrophies:
@@ -916,18 +923,19 @@ const slice = createSlice({
                       stored[team].winsByTrophies + next[team.winsByTrophies],
                     winRatio: stored[team].winRatio + next[team].winRatio,
                     avgDuration:
-                      (stored[brawler].avgDuration +
-                        next[brawler].avgDuration) /
+                      (stored[team].avgDuration +
+                        next[team].avgDuration) /
                       2,
-                    duration: stored[brawler].duration + next[brawler].duration,
+                    duration: stored[team].duration + next[team].duration,
                     id1: stored[team].id1,
                     id2: stored[team].id2,
                     id3: stored[team].id3,
-                    starPlayer: stored[brawler].starPlayer+ next[brawler].starPlayer
+                    starPlayer: stored[team].starPlayer+ next[team].starPlayer
                   };
                 } else if (next[team]) {
                   //  console.log("called 5");
                   result[team] = {
+                    games: next[team].games,
                     wins: next[team].wins,
                     losses: next[team].losses,
                     lossesByTrophies: next[team].lossesByTrophies,
@@ -938,6 +946,7 @@ const slice = createSlice({
                     id3: next[team].id3,
                     duration: next[team].duration,
                     avgDuration: next[team].avgDuration,
+                    starPlayer:next[team].starPlayer
                   };
                 } else if (stored[team]) {
                   //console.log("called 6");

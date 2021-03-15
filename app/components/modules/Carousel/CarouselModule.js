@@ -8,8 +8,8 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-
 import Carousel from "react-native-snap-carousel";
+import { Ionicons } from "@expo/vector-icons";
 import colors from "../../../config/colors";
 import {
   modesByPerformance,
@@ -22,6 +22,8 @@ import {
   teamsByPerformance,
   teamsByWins,
 } from "./CarouselData";
+
+import moreInfoPage from "./moreInfoPage";
 
 export default function CarouselModule({ dataType, style, sort }) {
   //this is to stop these values re rendering each time the user changes module settings
@@ -71,17 +73,11 @@ export default function CarouselModule({ dataType, style, sort }) {
     else if (item.winRatio < 1) return "#B50A0A";
   };
 
- 
-
-
   const renderItem = ({ item, index }) => {
     console.log("new");
     console.log(item);
     return (
       <View style={styles.item}>
-  
-
-      
         <View
           style={[
             {
@@ -94,7 +90,7 @@ export default function CarouselModule({ dataType, style, sort }) {
             },
             //this is where you can change height of each item
             dataType === "team" ? styles.teamItem : null,
-            dataType!=='map'? {height:250}:{height:330}
+            dataType !== "map" ? { height: 250 } : { height: 330 },
           ]}
         >
           <Text
@@ -121,8 +117,8 @@ export default function CarouselModule({ dataType, style, sort }) {
                 style={{
                   flex: 1,
                   flexDirection: "row",
-                  marginTop:30,
-                  marginBottom:70,
+                  marginTop: 30,
+                  marginBottom: 70,
                 }}
               >
                 <Image source={item.brawler1} style={styles.teamImage} />
@@ -148,15 +144,22 @@ export default function CarouselModule({ dataType, style, sort }) {
             style={{
               flexDirection: "row",
               justifyContent: "space-between",
-              alignItems:"flex-end"
+              alignItems: "flex-end",
             }}
           >
             <Text style={styles.winLoss}>{"Wins: " + item.wins}</Text>
             <View
-              style={[{
-                flexDirection: "row",
-                alignContent: "center",
-              },item.duration && item.spRatio?{marginTop:25}:item.duration || item.spRatio?{marginTop:43}:{marginTop:65}]}
+              style={[
+                {
+                  flexDirection: "row",
+                  alignContent: "center",
+                },
+                item.duration && item.spRatio
+                  ? { marginTop: 25 }
+                  : item.duration || item.spRatio
+                  ? { marginTop: 43 }
+                  : { marginTop: 65 },
+              ]}
             >
               <Text style={styles.winRatio}>
                 {"Performance:  " + item.winRatio.toFixed(1)}
@@ -165,7 +168,6 @@ export default function CarouselModule({ dataType, style, sort }) {
             <Text style={styles.winLoss}>{"Losses: " + item.losses}</Text>
           </View>
         </View>
-    
       </View>
     );
   };
@@ -186,7 +188,6 @@ export default function CarouselModule({ dataType, style, sort }) {
           ref={carouselRef}
           sliderWidth={390}
           itemWidth={300}
-        
           data={
             sort === 0
               ? dataType === "mode"
@@ -279,7 +280,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   winLoss: {
-   
     color: colors.secondary,
     fontFamily: "Lilita-One",
     fontSize: 10,

@@ -26,6 +26,8 @@ export default function PlayerStats() {
   const playerName = useSelector((state) => state.battleLogReducer.name);
   const playerID = useSelector((state) => state.playerPersistReducer.playerID);
   const season = useSelector((state) => state.battleLogReducer.season);
+
+  
   const [styleIndex, setStyleIndex] = useState(0);
   const [sortIndex, setSortIndex] = useState(0);
   const [seasonIndex, setSeasonIndex] = useState(season);
@@ -47,8 +49,13 @@ export default function PlayerStats() {
   };
   // console.log("calleddd!");
  
+//this will intialise the creation of the data for the carousels
+let done=false;
+if(season&& done===false){
+  processPlayerStats(seasonIndex)
+  done=true;
+}
 
-    processPlayerStats(seasonIndex);
 
 
   return (
