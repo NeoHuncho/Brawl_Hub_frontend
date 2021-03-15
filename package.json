@@ -2,10 +2,10 @@
   "expo": {
     "name": "Brawl Hub",
     "icon": "https://static.wikia.nocookie.net/brawlstars/images/f/f0/8-BIT_Portrait.png/revision/latest/scale-to-width-down/340?cb=20191012200012",
-    "version": "1.0.1",
+    "version": "1.0.3",
     "slug": "your-app-slug",
     "android": {
-      "package": "com.brawlhub.yourappname",
+      "package": "com.brawlhub.1.0.3",
       "versionCode": 1
     }
   },
@@ -22,6 +22,7 @@
     "@react-native-async-storage/async-storage": "^1.14.1",
     "@react-native-community/async-storage": "^1.12.1",
     "@react-native-firebase/app": "^10.8.0",
+    "@react-native-picker/picker": "^1.9.12",
     "@reduxjs/toolkit": "^1.5.0",
     "@supabase/supabase-js": "^1.4.1",
     "axios": "^0.21.1",
@@ -34,11 +35,13 @@
     "firebase": "7.9.0",
     "moment": "^2.29.1",
     "nested-property": "^4.0.0",
+    "radio-buttons-react-native": "^1.0.4",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-40.0.1.tar.gz",
     "react-native-multi-switch": "^1.2.0",
     "react-native-paper": "^4.7.2",
+    "react-native-segmented-control-tab": "^3.4.1",
     "react-native-snap-carousel": "^3.9.1",
     "react-native-toggle-element": "^1.0.1",
     "react-native-url-polyfill": "^1.2.0",

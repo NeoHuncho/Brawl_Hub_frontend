@@ -43,7 +43,7 @@ export default function PlayerLogin() {
     "Please provide your Brawl Stars player ID"
   );
   const getDataFromDB = async () => {
-    console.log("called!");
+   // console.log("called!");
     const playerStats = await db.collection("PlayerStats").doc(userId);
     const stats = await playerStats.get();
     const data = await stats.data();
@@ -122,7 +122,7 @@ export default function PlayerLogin() {
             setMessage("Invalid player ID or Supercell is doing maintenance!");
           }
         }
-        console.log("apiHeroku called in player login component!");
+       // console.log("apiHeroku called in player login component!");
 
         fetchMyDataFirstTime();
       }

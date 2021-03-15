@@ -6,7 +6,7 @@ let modes = [];
 const carouselCardData = () => {
   let playerStats = select(store.getState());
   if (playerStats) {
-      console.log('received!!!')
+      //console.log('received!!!')
     modes = [
       {
         image: require("../assets/ModesandMaps/Brawl-Ball/icon/Brawl-Ball.png"),

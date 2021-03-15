@@ -6,9 +6,8 @@ import {
   StyleSheet,
   Platform,
   Image,
+  TouchableOpacity,
 } from "react-native";
-
-
 
 import Carousel from "react-native-snap-carousel";
 import colors from "../../../config/colors";
@@ -19,13 +18,40 @@ import {
   brawlersByWins,
   processPlayerStats,
   mapsByPerformance,
+  mapsByWins,
   teamsByPerformance,
   teamsByWins,
 } from "./CarouselData";
 
-
-export default function CarouselModule({ dataType }) {
-  console.log(brawlersByPerformance);
+export default function CarouselModule({ dataType, style, sort }) {
+  //this is to stop these values re rendering each time the user changes module settings
+  const modesPerformance = modesByPerformance.filter(
+    (v, i, a) => a.findIndex((t) => t.title === v.title) === i
+  );
+  //console.log(modesByPerformance);
+  const modesWins = modesByWins.filter(
+    (v, i, a) => a.findIndex((t) => t.title === v.title) === i
+  );
+  // console.log(modesWins);
+  const brawlersPerformance = brawlersByPerformance.filter(
+    (v, i, a) => a.findIndex((t) => t.title === v.title) === i
+  );
+  const brawlersWins = brawlersByWins.filter(
+    (v, i, a) => a.findIndex((t) => t.title === v.title) === i
+  );
+  // console.log(brawlersWins)
+  const mapsPerformance = mapsByPerformance.filter(
+    (v, i, a) => a.findIndex((t) => t.title === v.title) === i
+  );
+  const mapsWins = mapsByWins.filter(
+    (v, i, a) => a.findIndex((t) => t.title === v.title) === i
+  );
+  const teamsPerformance = teamsByPerformance.filter(
+    (v, i, a) => a.findIndex((t) => t.title === v.title) === i
+  );
+  const teamsWins = teamsByWins.filter(
+    (v, i, a) => a.findIndex((t) => t.title === v.title) === i
+  );
 
   const carouselRef = useRef(null);
   const [toggleStyle, setToggleStyle] = useState(false);
@@ -37,17 +63,25 @@ export default function CarouselModule({ dataType }) {
   const { width: screenWidth } = Dimensions.get("window");
 
   const getBackgroundColor = (item) => {
-    if (item.winRatio >= 7) return "#009965";
-    else if (item.winRatio >= 5) return "#0b7649";
-    else if (item.winRatio >= 3) return "#59260b";
-    else if (item.winRatio >= 2) return "#af593e";
-    else if (item.winRatio >= 1) return "#a52a2b";
-    else if (item.winRatio < 1) return "#7c0a02";
+    if (item.winRatio >= 7) return "#69b34c";
+    else if (item.winRatio >= 5) return "#acb334";
+    else if (item.winRatio >= 3) return "#fab733";
+    else if (item.winRatio >= 2) return "#ff4e11";
+    else if (item.winRatio >= 1) return "#ff0d0d";
+    else if (item.winRatio < 1) return "#B50A0A";
   };
 
+ 
+
+
   const renderItem = ({ item, index }) => {
+    console.log("new");
+    console.log(item);
     return (
       <View style={styles.item}>
+  
+
+      
         <View
           style={[
             {
@@ -58,7 +92,9 @@ export default function CarouselModule({ dataType }) {
               paddingRight: 10,
               paddingBottom: 5,
             },
+            //this is where you can change height of each item
             dataType === "team" ? styles.teamItem : null,
+            dataType!=='map'? {height:250}:{height:330}
           ]}
         >
           <Text
@@ -85,8 +121,8 @@ export default function CarouselModule({ dataType }) {
                 style={{
                   flex: 1,
                   flexDirection: "row",
-                  marginTop: 40,
-                  marginBottom: 108,
+                  marginTop:30,
+                  marginBottom:70,
                 }}
               >
                 <Image source={item.brawler1} style={styles.teamImage} />
@@ -95,21 +131,41 @@ export default function CarouselModule({ dataType }) {
               </View>
             )}
           </View>
-          <View style={{ marginTop: 10 }}></View>
+
+          <View style={{ marginTop: 5 }}>
+            {item.duration ? (
+              <Text style={[styles.performance, { marginTop: 5 }]}>
+                {"GTA: " + item.duration.toFixed(1) + "s"}
+              </Text>
+            ) : null}
+            {item.spRatio ? (
+              <Text style={[styles.performance, { marginTop: 0 }]}>
+                {"SPR: " + item.spRatio.toFixed(2) * 100 + "%"}
+              </Text>
+            ) : null}
+          </View>
           <View
             style={{
               flexDirection: "row",
               justifyContent: "space-between",
+              alignItems:"flex-end"
             }}
           >
             <Text style={styles.winLoss}>{"Wins: " + item.wins}</Text>
-            <View>
-              <Text style={styles.performance}>performance:</Text>
-              <Text style={styles.winRatio}>{item.winRatio.toFixed(1)}</Text>
+            <View
+              style={[{
+                flexDirection: "row",
+                alignContent: "center",
+              },item.duration && item.spRatio?{marginTop:25}:item.duration || item.spRatio?{marginTop:43}:{marginTop:65}]}
+            >
+              <Text style={styles.winRatio}>
+                {"Performance:  " + item.winRatio.toFixed(1)}
+              </Text>
             </View>
             <Text style={styles.winLoss}>{"Losses: " + item.losses}</Text>
           </View>
         </View>
+    
       </View>
     );
   };
@@ -124,20 +180,32 @@ export default function CarouselModule({ dataType }) {
         }}
       >
         <Carousel
-          layout={"tinder"}
+          shouldOptimizeUpdates={false}
+          layout={style === 0 ? "default" : style === 1 ? "tinder" : "stack"}
           layoutCardOffset={30}
           ref={carouselRef}
           sliderWidth={390}
           itemWidth={300}
+        
           data={
-            dataType === "mode"
-              ? modesByPerformance
+            sort === 0
+              ? dataType === "mode"
+                ? modesPerformance
+                : dataType === "brawler"
+                ? brawlersPerformance
+                : dataType === "map"
+                ? mapsPerformance
+                : dataType === "team"
+                ? teamsPerformance
+                : null
+              : dataType === "mode"
+              ? modesWins
               : dataType === "brawler"
-              ? brawlersByPerformance
+              ? brawlersWins
               : dataType === "map"
-              ? mapsByPerformance
+              ? mapsWins
               : dataType === "team"
-              ? teamsByPerformance
+              ? teamsWins
               : null
           }
           renderItem={renderItem}
@@ -151,10 +219,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: 30,
-    height: 290,
+    height: 310,
   },
   item: {
-    width: Dimensions.get("window").width - 150,
+    width: 250,
+
     marginLeft: 30,
   },
   mapItem: {
@@ -181,6 +250,7 @@ const styles = StyleSheet.create({
     width: 160 / 1.3,
     height: 240 / 1.3,
   },
+  text: {},
   title: {
     color: colors.primary,
     fontFamily: "Lilita-One",
@@ -191,6 +261,7 @@ const styles = StyleSheet.create({
     textShadowRadius: 2,
   },
   performance: {
+    marginTop: 4,
     color: colors.secondary,
     fontFamily: "Lilita-One",
     fontSize: 13,
@@ -203,12 +274,12 @@ const styles = StyleSheet.create({
     marginTop: 4,
     color: colors.secondary,
     fontFamily: "Lilita-One",
-    fontSize: 16,
+    fontSize: 13,
     textShadowColor: "rgba(0, 0, 0, 0.75)",
     textAlign: "center",
   },
   winLoss: {
-    marginTop: 30,
+   
     color: colors.secondary,
     fontFamily: "Lilita-One",
     fontSize: 10,

@@ -24,8 +24,8 @@ export default async function apiMiddleware(userId) {
       }
       console.log('this is the index!'+index);
       battlelog.splice(index, battlelog.length - index);
-      console.log(response)
-      console.log(battlelog);
+     // console.log(response)
+     // console.log(battlelog);
       return(response);
     }
   }

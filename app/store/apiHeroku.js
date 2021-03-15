@@ -5,7 +5,7 @@ export default async function api(userId) {
     //https://brawlhub.herokuapp.com/PlayerandBattleLog
     axios
       // development
-      // 192.168.1.4
+      // 192.168.1.4:5010
       //wifi hotspot
       // 192.168.43.50
       .post("https://brawlhub.herokuapp.com/PlayerandBattleLog", {

@@ -14,15 +14,23 @@ let modes = [];
 let brawlers = [];
 let maps = [];
 let teams = [];
+let loadedOnceCarouselData=false;
 
-const processPlayerStats = () => {
+const processPlayerStats = (seasonIndex) => {
   let state = store.getState();
   let playerStats = undefined;
-  if (state.battleLogReducer.playerStats.keys.teams) {
-    playerStats = state.battleLogReducer.playerStats;
+  let season = seasonIndex;
+  let gameType = "ranked";
+  if (
+    state.battleLogReducer.playerStats.season[season].type[gameType].keys.teams
+  ) {
+    playerStats =
+      state.battleLogReducer.playerStats.season[season].type[gameType];
+    console.log(playerStats);
 
+    //not currently in use
     const getModeColors = (mode) => {
-      console.log(mode);
+      //console.log(mode);
       let color = undefined;
       mode === "brawlBall"
         ? (color = colors.modes.brawlBall)
@@ -42,29 +50,8 @@ const processPlayerStats = () => {
       return color;
     };
 
-    const getModeImage = (mode) => {
-      switch (mode) {
-        case "brawlBall":
-          return require("../../../assets/ModesandMaps/brawlBall/icon/brawlBall.png");
-        case "bounty":
-          return require("../../../assets/ModesandMaps/siege/icon/siege.png");
-        case "gemGrab":
-          return require("../../../assets/ModesandMaps/gemGrab/icon/gemGrab.png");
-        case "heist":
-          return require("../../../assets/ModesandMaps/heist/icon/heist.png");
-        case "hotZone":
-          return require("../../../assets/ModesandMaps/hotZone/icon/hotZone.png");
-        case "siege":
-          return require("../../../assets/ModesandMaps/siege/icon/siege.png");
-        case "soloShowdown":
-          return require("../../../assets/ModesandMaps/showdown/icon/soloShowdown.png");
-        case "duoShowdown":
-          return require("../../../assets/ModesandMaps/showdown/icon/duoShowdown.png");
-      }
-    };
-
     const getBrawlerColor = (brawler) => {
-      console.log(brawler);
+      //console.log(brawler);
       let color = undefined;
       if (
         brawler === "8-BIT" ||
@@ -134,6 +121,7 @@ const processPlayerStats = () => {
         color = "linear-gradient(to right, rgba(255,0,0,0), rgba(255,0,0,1))";
       return color;
     };
+
     const getBrawlerImageOld = (brawler) => {
       switch (brawler) {
         case "8-BIT":
@@ -170,7 +158,7 @@ const processPlayerStats = () => {
           return require("../../../assets/Brawlers_icons/COLETTE.png");
 
         case "COLONEL RUFFS":
-          console.log("called ruff");
+          //console.log("called ruff");
           return require("../../../assets/Brawlers_icons/COLONEL_RUFFS.png");
 
         case "COLT":
@@ -270,6 +258,28 @@ const processPlayerStats = () => {
           return require("../../../assets/Brawlers_icons/TICK.png");
       }
     };
+    //not currently in use
+
+    const getModeImage = (mode) => {
+      switch (mode) {
+        case "brawlBall":
+          return require("../../../assets/ModesandMaps/brawlBall/icon/brawlBall.png");
+        case "bounty":
+          return require("../../../assets/ModesandMaps/siege/icon/siege.png");
+        case "gemGrab":
+          return require("../../../assets/ModesandMaps/gemGrab/icon/gemGrab.png");
+        case "heist":
+          return require("../../../assets/ModesandMaps/heist/icon/heist.png");
+        case "hotZone":
+          return require("../../../assets/ModesandMaps/hotZone/icon/hotZone.png");
+        case "siege":
+          return require("../../../assets/ModesandMaps/siege/icon/siege.png");
+        case "soloShowdown":
+          return require("../../../assets/ModesandMaps/showdown/icon/soloShowdown.png");
+        case "duoShowdown":
+          return require("../../../assets/ModesandMaps/showdown/icon/duoShowdown.png");
+      }
+    };
 
     const getBrawlerImage = (brawlerID) => {
       let brawlerUrl = undefined;
@@ -292,11 +302,13 @@ const processPlayerStats = () => {
     };
 
     playerStats.keys.modes.map((mode) => {
-      console.log(mode);
+      //console.log(mode);
       if (mode !== "duoShowdown" && mode !== "soloShowdown") {
         modes.push({
           color: getModeColors(mode),
           image: getModeImage(mode),
+          duration: playerStats.mode[mode].avgDuration,
+          spRatio: (playerStats.mode[mode].starPlayer/playerStats.mode[mode].games),
           winRatio: playerStats.mode[mode].winRatio,
           wins: playerStats.mode[mode].wins,
           losses: playerStats.mode[mode].losses,
@@ -330,10 +342,13 @@ const processPlayerStats = () => {
       .filter((mode) => mode.winRatio !== 0);
 
     playerStats.keys.brawlers.map((brawler) => {
+      //console.log(brawler)
       let compiledBrawlers = playerStats.compiled.brawlers[brawler];
       brawlers.push({
         color: getBrawlerColor(brawler),
         image: getBrawlerImage(compiledBrawlers.brawlerID),
+        duration: compiledBrawlers.avgDuration,
+        spRatio: (compiledBrawlers.starPlayer/compiledBrawlers.games),
         winRatio: compiledBrawlers.winRatio,
         wins: compiledBrawlers.wins,
         losses: compiledBrawlers.losses,
@@ -352,6 +367,8 @@ const processPlayerStats = () => {
       maps.push({
         image: getMapImage(compiledMaps.mapID),
         winRatio: compiledMaps.winRatio,
+        spRatio:(compiledMaps.starPlayer/compiledMaps.games),
+        duration: compiledMaps.avgDuration,
         wins: compiledMaps.wins,
         losses: compiledMaps.losses,
         title: map,
@@ -362,13 +379,19 @@ const processPlayerStats = () => {
     );
 
     mapsByWins = [...maps].sort((a, b) => (a.wins > b.wins ? -1 : 1));
-    
+
+    if(mapsByWins){
+      loadedOnceCarouselData=true;
+    }
+
     playerStats.keys.teams.map((team) => {
       let compiledTeams = playerStats.compiled.teams[team];
       teams.push({
         brawler1: getBrawlerImage(compiledTeams.id1),
-        brawler2:getBrawlerImage(compiledTeams.id2),
-        brawler3:getBrawlerImage(compiledTeams.id3),
+        brawler2: getBrawlerImage(compiledTeams.id2),
+        brawler3: getBrawlerImage(compiledTeams.id3),
+        duration:compiledTeams.avgDuration,
+        spRatio:(compiledTeams.starPlayer/compiledTeams.games),
         winRatio: compiledTeams.winRatio,
         wins: compiledTeams.wins,
         losses: compiledTeams.losses,
@@ -386,7 +409,7 @@ const processPlayerStats = () => {
 const unsubscribe = store.subscribe(processPlayerStats);
 unsubscribe();
 
-console.log(brawlersByPerformance);
+//console.log(brawlersByPerformance);
 export {
   processPlayerStats,
   modesByPerformance,
@@ -396,5 +419,6 @@ export {
   mapsByPerformance,
   mapsByWins,
   teamsByPerformance,
-  teamsByWins
+  teamsByWins,
+  loadedOnceCarouselData
 };
