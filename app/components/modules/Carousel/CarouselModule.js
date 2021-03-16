@@ -74,8 +74,8 @@ export default function CarouselModule({ dataType, style, sort }) {
   };
 
   const renderItem = ({ item, index }) => {
-    console.log("new");
-    console.log(item);
+    // console.log("new");
+    // console.log(item);
     return (
       <View style={styles.item}>
         <View

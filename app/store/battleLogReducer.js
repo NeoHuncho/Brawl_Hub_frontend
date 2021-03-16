@@ -90,11 +90,27 @@ const slice = createSlice({
 
       if (battleLogAndPlayer.battleLog[0]) {
         for (const element of battleLogAndPlayer.battleLog) {
+          const verifyIfPowerPlay = () => {
+            let result = false;
+            if (element.battle.teams) {
+              for (const team of element.battle.teams)
+                for (const player of team)
+                  if (player.brawler.trophies <= 23) result = true;
+
+              return result;
+            }
+          };
+          let isPowerPlay = verifyIfPowerPlay();
+
           try {
             //  console.log("CALLLLDED");
-            if (element.battle.trophyChange) {
+            if (element.battle.trophyChange || isPowerPlay === true) {
               numberOfGames += 1;
-              let gameType = element.battle.type;
+              let gameType = undefined;
+              element.battle.type
+                ? (gameType = element.battle.type)
+                : (gameType = "Power League");
+              console.log(gameType);
               let mapName = element.event.map;
               let mode = element.event.mode;
               let eventID = element.event.id;
@@ -105,14 +121,17 @@ const slice = createSlice({
               }
               let isStarPlayer = 0;
 
-              let checkStarPlayer = () => {
-                if (element.battle.starPlayer) {
-                  if (element.battle.starPlayer.tag === playerId) {
-                    isStarPlayer = 1;
+              if (element.battle.trophyChange) {
+                let checkStarPlayer = () => {
+                  if (element.battle.starPlayer) {
+                    if (element.battle.starPlayer.tag === playerId) {
+                      isStarPlayer = 1;
+                    }
                   }
-                }
-              };
-              checkStarPlayer();
+                };
+                checkStarPlayer();
+              }
+
               let findBrawler = (element) => {
                 if (element.battle.teams) {
                   for (const team of element.battle.teams)
@@ -133,9 +152,11 @@ const slice = createSlice({
                       ];
                 }
               };
-              let [brawlerName, brawlerTrophies, brawlerID] = findBrawler(
-                element
-              );
+              let [
+                brawlerName,
+                brawlerTrophiesOrPPTrophies,
+                brawlerID,
+              ] = findBrawler(element);
 
               let findTeam = (element) => {
                 let brawler = [];
@@ -168,9 +189,19 @@ const slice = createSlice({
                     trophiesTeam1 += player.brawler.trophies;
                   }
                   if (inTeam0) {
-                    return [brawlerTeam0, trophiesTeam0, brawlerIDTeam0];
+                    return [
+                      brawlerTeam0,
+                      trophiesTeam0,
+                      brawlerIDTeam0,
+                      trophiesTeam1,
+                    ];
                   } else {
-                    return [brawlerTeam1, trophiesTeam1, brawlerIDTeam1];
+                    return [
+                      brawlerTeam1,
+                      trophiesTeam1,
+                      brawlerIDTeam1,
+                      trophiesTeam0,
+                    ];
                   }
                 }
               };
@@ -178,19 +209,21 @@ const slice = createSlice({
               let brawlersTeam = null;
               let brawlersIDTeam = null;
               let trophiesTeam = null;
+              let opposingTeamTrophies = null;
 
               if (element.battle.teams) {
-                let [bTeam, tTeam, idTeam] = findTeam(element);
+                let [bTeam, tTeam, idTeam, otTeam] = findTeam(element);
                 brawlersTeam = bTeam;
                 brawlersIDTeam = idTeam;
                 trophiesTeam = tTeam;
+                opposingTeamTrophies = otTeam;
                 brawlersTeam.sort();
               }
               //   console.log(brawlersIDTeam);
               let calculateRatio = (wins, losses) => {
                 return wins / losses;
               };
-              if (element.battle.trophyChange) {
+              if (element.battle.trophyChange || isPowerPlay === true) {
                 let winTrophies = undefined;
                 let lossTrophies = undefined;
 
@@ -210,46 +243,52 @@ const slice = createSlice({
                 if (element.battle.trophyChange > 0) {
                   winTrophies = element.battle.trophyChange;
                   trophyWins += element.battle.trophyChange;
-                } else {
+                } else if (element.battle.trophyChange < 0) {
                   lossTrophies = Math.abs(element.battle.trophyChange);
                   trophyLosses += lossTrophies;
                 }
 
-                //  console.log(season, gameType);
+                console.log(season, gameType);
 
-                // console.log(playerStats);
+                console.log(playerStats);
                 if (playerStats.season[season].type[gameType].mode[mode]) {
-                  if (element.battle.trophyChange) {
-                    mode !== "soloShowdown" && mode !== "duoShowdown"
-                      ? (playerStats.season[season].type[gameType].mode[
-                          mode
-                        ].games += 1)
-                      : null;
-                    playerStats.season[season].type[gameType].mode[
-                      mode
-                    ].duration += duration;
-                    playerStats.season[season].type[gameType].mode[
-                      mode
-                    ].avgDuration =
-                      playerStats.season[season].type[gameType].mode[mode]
-                        .duration /
-                      playerStats.season[season].type[gameType].mode[mode]
-                        .games;
-                  }
-                  if (winTrophies) {
+                  mode !== "soloShowdown" && mode !== "duoShowdown"
+                    ? (playerStats.season[season].type[gameType].mode[
+                        mode
+                      ].games += 1)
+                    : null;
+                  playerStats.season[season].type[gameType].mode[
+                    mode
+                  ].duration += duration;
+                  playerStats.season[season].type[gameType].mode[
+                    mode
+                  ].avgDuration =
+                    playerStats.season[season].type[gameType].mode[mode]
+                      .duration /
+                    playerStats.season[season].type[gameType].mode[mode].games;
+
+                  if (
+                    winTrophies ||
+                    (isPowerPlay === true &&
+                      element.battle.result === "victory")
+                  ) {
                     playerStats.season[season].type[gameType].mode[
                       mode
                     ].wins += 1;
                     playerStats.season[season].type[gameType].mode[
                       mode
-                    ].winsByTrophies += 2 * brawlerTrophies;
+                    ].winsByTrophies += isPowerPlay
+                      ? brawlerTrophiesOrPPTrophies * opposingTeamTrophies
+                      : winTrophies * opposingTeamTrophies;
                   } else {
                     playerStats.season[season].type[gameType].mode[
                       mode
                     ].losses += 1;
                     playerStats.season[season].type[gameType].mode[
                       mode
-                    ].lossesByTrophies += 2 * brawlerTrophies;
+                    ].lossesByTrophies += isPowerPlay
+                      ? brawlerTrophiesOrPPTrophies * opposingTeamTrophies
+                      : lossTrophies * opposingTeamTrophies;
                   }
                   if (
                     playerStats.season[season].type[gameType].mode[mode]
@@ -257,7 +296,7 @@ const slice = createSlice({
                     playerStats.season[season].type[gameType].mode[mode]
                       .winsByTrophies !== 0
                   ) {
-                    isStarPlayer !== 0
+                    isStarPlayer !== 0 && !isPowerPlay
                       ? (playerStats.season[season].type[gameType].mode[
                           mode
                         ].starPlayer += 1)
@@ -271,14 +310,25 @@ const slice = createSlice({
                         .lossesByTrophies
                     );
                   } else {
-                    if (winTrophies) {
-                      playerStats.season[season].type[gameType].mode[
-                        mode
-                      ].winRatio =
+                    if (
+                      winTrophies ||
+                      (isPowerPlay === true &&
+                        element.battle.result === "victory")
+                    ) {
+                      if (!isPowerPlay)
                         playerStats.season[season].type[gameType].mode[
                           mode
-                        ].wins;
-                      isStarPlayer !== 0
+                        ].winRatio =
+                          playerStats.season[season].type[gameType].mode[
+                            mode
+                          ].wins;
+                      if (isPowerPlay)
+                        playerStats.season[season].type[gameType].mode[
+                          mode
+                        ].winRatio =
+                          playerStats.season[season].type[gameType].mode[mode]
+                            .wins * brawlerTrophiesOrPPTrophies;
+                      isStarPlayer !== 0 && !isPowerPlay
                         ? (playerStats.season[season].type[gameType].mode[
                             mode
                           ].starPlayer += 1)
@@ -289,7 +339,10 @@ const slice = createSlice({
                       ].winRatio -= 1;
                     }
                   }
-                } else if (winTrophies) {
+                } else if (
+                  winTrophies ||
+                  (isPowerPlay === true && element.battle.result === "victory")
+                ) {
                   playerStats.season[season].type[gameType].mode[mode] = {
                     games: 1,
                     avgDuration: duration,
@@ -298,11 +351,13 @@ const slice = createSlice({
                     losses: 0,
                     winRatio: 1,
                     lossesByTrophies: 0,
-                    winsByTrophies: 2 * brawlerTrophies,
+                    winsByTrophies: isPowerPlay
+                      ? brawlerTrophiesOrPPTrophies * opposingTeamTrophies
+                      : winTrophies * opposingTeamTrophies,
                     map: {},
                     starPlayer: 0,
                   };
-                  isStarPlayer
+                  isStarPlayer || !isPowerPlay
                     ? (playerStats.season[season].type[gameType].mode[
                         mode
                       ].starPlayer = 1)
@@ -314,8 +369,11 @@ const slice = createSlice({
                     duration: duration,
                     wins: 0,
                     losses: 1,
+
                     winRatio: -1,
-                    lossesByTrophies: 2 * brawlerTrophies,
+                    lossesByTrophies: isPowerPlay
+                      ? brawlerTrophiesOrPPTrophies * opposingTeamTrophies
+                      : lossTrophies * opposingTeamTrophies,
                     winsByTrophies: 0,
                     map: {},
                     starPlayer: 0,
@@ -327,39 +385,46 @@ const slice = createSlice({
                     mapName
                   ]
                 ) {
-                  if (element.battle.trophyChange) {
-                    mode !== "soloShowdown" && mode !== "duoShowdown"
-                      ? (playerStats.season[season].type[gameType].mode[
-                          mode
-                        ].map[mapName].games += 1)
-                      : null;
+                  mode !== "soloShowdown" && mode !== "duoShowdown"
+                    ? (playerStats.season[season].type[gameType].mode[mode].map[
+                        mapName
+                      ].games += 1)
+                    : null;
+                  playerStats.season[season].type[gameType].mode[mode].map[
+                    mapName
+                  ].duration += duration;
+                  playerStats.season[season].type[gameType].mode[mode].map[
+                    mapName
+                  ].avgDuration =
                     playerStats.season[season].type[gameType].mode[mode].map[
                       mapName
-                    ].duration += duration;
+                    ].duration /
                     playerStats.season[season].type[gameType].mode[mode].map[
                       mapName
-                    ].avgDuration =
-                      playerStats.season[season].type[gameType].mode[mode].map[
-                        mapName
-                      ].duration /
-                      playerStats.season[season].type[gameType].mode[mode].map[
-                        mapName
-                      ].games;
-                  }
-                  if (winTrophies) {
+                    ].games;
+
+                  if (
+                    winTrophies ||
+                    (isPowerPlay === true &&
+                      element.battle.result === "victory")
+                  ) {
                     playerStats.season[season].type[gameType].mode[mode].map[
                       mapName
                     ].wins += 1;
                     playerStats.season[season].type[gameType].mode[mode].map[
                       mapName
-                    ].winsByTrophies += 2 * brawlerTrophies * winTrophies;
+                    ].winsByTrophies += isPowerPlay
+                      ? brawlerTrophiesOrPPTrophies * opposingTeamTrophies
+                      : winTrophies * opposingTeamTrophies;
                   } else {
                     playerStats.season[season].type[gameType].mode[mode].map[
                       mapName
                     ].losses += 1;
                     playerStats.season[season].type[gameType].mode[mode].map[
                       mapName
-                    ].lossesByTrophies += 2 * brawlerTrophies * lossTrophies;
+                    ].lossesByTrophies += isPowerPlay
+                      ? brawlerTrophiesOrPPTrophies * opposingTeamTrophies
+                      : lossTrophies * opposingTeamTrophies;
                   }
                   if (
                     playerStats.season[season].type[gameType].mode[mode].map[
@@ -369,7 +434,7 @@ const slice = createSlice({
                       mapName
                     ].winsByTrophies !== 0
                   ) {
-                    isStarPlayer !== 0
+                    isStarPlayer !== 0 && !isPowerPlay
                       ? (playerStats.season[season].type[gameType].mode[
                           mode
                         ].map[mapName].starPlayer += 1)
@@ -386,11 +451,15 @@ const slice = createSlice({
                       ].lossesByTrophies
                     );
                   } else {
-                    if (winTrophies) {
+                    if (
+                      winTrophies |
+                      (isPowerPlay === true &&
+                        element.battle.result === "victory")
+                    ) {
                       playerStats.season[season].type[gameType].mode[mode].map[
                         mapName
                       ].winRatio += 1;
-                      isStarPlayer !== 0
+                      isStarPlayer !== 0 && !isPowerPlay
                         ? (playerStats.season[season].type[gameType].mode[
                             mode
                           ].map[mapName].starPlayer += 1)
@@ -401,7 +470,10 @@ const slice = createSlice({
                       ].winRatio -= 1;
                     }
                   }
-                } else if (winTrophies) {
+                } else if (
+                  winTrophies ||
+                  (isPowerPlay === true && element.battle.result === "victory")
+                ) {
                   playerStats.season[season].type[gameType].mode[mode].map[
                     mapName
                   ] = {
@@ -413,11 +485,13 @@ const slice = createSlice({
                     losses: 0,
                     winRatio: 1,
                     lossesByTrophies: 0,
-                    winsByTrophies: brawlerTrophies * 2 * trophyWins,
+                    winsByTrophies: isPowerPlay
+                      ? brawlerTrophiesOrPPTrophies * opposingTeamTrophies
+                      : winTrophies * opposingTeamTrophies,
                     brawler: {},
                     starPlayer: 0,
                   };
-                  isStarPlayer
+                  isStarPlayer && !isPowerPlay
                     ? (playerStats.season[season].type[gameType].mode[mode].map[
                         mapName
                       ].starPlayer += 1)
@@ -433,7 +507,9 @@ const slice = createSlice({
                     wins: 0,
                     losses: 1,
                     winRatio: 0,
-                    lossesByTrophies: 2 * brawlerTrophies * trophyLosses,
+                    lossesByTrophies: isPowerPlay
+                      ? brawlerTrophiesOrPPTrophies * opposingTeamTrophies
+                      : lossTrophies * opposingTeamTrophies,
                     winsByTrophies: 0,
                     brawler: {},
                     starPlayer: 0,
@@ -444,42 +520,46 @@ const slice = createSlice({
                     mapName
                   ].brawler[brawlerName]
                 ) {
-                  if (element.battle.trophyChange) {
-                    mode !== "soloShowdown" && mode !== "duoShowdown"
-                      ? (playerStats.season[season].type[gameType].mode[
-                          mode
-                        ].map[mapName].brawler[brawlerName].games += 1)
-                      : null;
+                  mode !== "soloShowdown" && mode !== "duoShowdown"
+                    ? (playerStats.season[season].type[gameType].mode[mode].map[
+                        mapName
+                      ].brawler[brawlerName].games += 1)
+                    : null;
+                  playerStats.season[season].type[gameType].mode[mode].map[
+                    mapName
+                  ].brawler[brawlerName].duration += duration;
+                  playerStats.season[season].type[gameType].mode[mode].map[
+                    mapName
+                  ].brawler[brawlerName].avgDuration =
                     playerStats.season[season].type[gameType].mode[mode].map[
                       mapName
-                    ].brawler[brawlerName].duration += duration;
+                    ].brawler[brawlerName].duration /
                     playerStats.season[season].type[gameType].mode[mode].map[
                       mapName
-                    ].brawler[brawlerName].avgDuration =
-                      playerStats.season[season].type[gameType].mode[mode].map[
-                        mapName
-                      ].brawler[brawlerName].duration /
-                      playerStats.season[season].type[gameType].mode[mode].map[
-                        mapName
-                      ].brawler[brawlerName].games;
-                  }
+                    ].brawler[brawlerName].games;
 
-                  if (winTrophies) {
+                  if (
+                    winTrophies ||
+                    (isPowerPlay === true &&
+                      element.battle.result === "victory")
+                  ) {
                     playerStats.season[season].type[gameType].mode[mode].map[
                       mapName
                     ].brawler[brawlerName].wins += 1;
                     playerStats.season[season].type[gameType].mode[mode].map[
                       mapName
-                    ].brawler[brawlerName].winsByTrophies +=
-                      2 * brawlerTrophies * winTrophies;
+                    ].brawler[brawlerName].winsByTrophies += isPowerPlay
+                      ? brawlerTrophiesOrPPTrophies * opposingTeamTrophies
+                      : winTrophies * opposingTeamTrophies;
                   } else {
                     playerStats.season[season].type[gameType].mode[mode].map[
                       mapName
                     ].brawler[brawlerName].losses += 1;
                     playerStats.season[season].type[gameType].mode[mode].map[
                       mapName
-                    ].brawler[brawlerName].lossesByTrophies +=
-                      2 * brawlerTrophies * lossTrophies;
+                    ].brawler[brawlerName].lossesByTrophies += isPowerPlay
+                      ? brawlerTrophiesOrPPTrophies * opposingTeamTrophies
+                      : lossTrophies * opposingTeamTrophies;
                   }
                   if (
                     playerStats.season[season].type[gameType].mode[mode].map[
@@ -489,7 +569,7 @@ const slice = createSlice({
                       mapName
                     ].brawler[brawlerName].winsByTrophies !== 0
                   ) {
-                    isStarPlayer !== 0
+                    isStarPlayer !== 0 && !isPowerPlay
                       ? (playerStats.season[season].type[gameType].mode[
                           mode
                         ].map[mapName].brawler[brawlerName].starPlayer += 1)
@@ -505,8 +585,12 @@ const slice = createSlice({
                       ].brawler[brawlerName].lossesByTrophies
                     );
                   } else {
-                    if (winTrophies) {
-                      isStarPlayer !== 0
+                    if (
+                      winTrophies ||
+                      (isPowerPlay === true &&
+                        element.battle.result === "victory")
+                    ) {
+                      isStarPlayer !== 0 && !isPowerPlay
                         ? (playerStats.season[season].type[gameType].mode[
                             mode
                           ].map[mapName].brawler[brawlerName].starPlayer += 1)
@@ -523,7 +607,10 @@ const slice = createSlice({
                         mapName
                       ].brawler[brawlerName].winRatio -= 1;
                   }
-                } else if (winTrophies) {
+                } else if (
+                  winTrophies ||
+                  (isPowerPlay === true && element.battle.result === "victory")
+                ) {
                   playerStats.season[season].type[gameType].mode[mode].map[
                     mapName
                   ].brawler[brawlerName] = {
@@ -535,7 +622,9 @@ const slice = createSlice({
                     losses: 0,
                     winRatio: 1,
                     lossesByTrophies: 0,
-                    winsByTrophies: 2 * brawlerTrophies * winTrophies,
+                    winsByTrophies: isPowerPlay
+                      ? brawlerTrophiesOrPPTrophies * opposingTeamTrophies
+                      : winTrophies * opposingTeamTrophies,
                     starPlayer: 0,
                     team: {},
                   };
@@ -555,7 +644,9 @@ const slice = createSlice({
                     wins: 0,
                     losses: 1,
                     winRatio: -1,
-                    lossesByTrophies: 2 * brawlerTrophies * lossTrophies,
+                    lossesByTrophies: isPowerPlay
+                      ? brawlerTrophiesOrPPTrophies * opposingTeamTrophies
+                      : lossTrophies * opposingTeamTrophies,
                     winsByTrophies: 0,
                     starPlayer: 0,
                     team: {},
@@ -586,14 +677,21 @@ const slice = createSlice({
                       ].brawler[brawlerName].team[brawlersTeam].games;
                   }
 
-                  if (winTrophies) {
+                  if (
+                    winTrophies ||
+                    (isPowerPlay === true &&
+                      element.battle.result === "victory")
+                  ) {
                     playerStats.season[season].type[gameType].mode[mode].map[
                       mapName
                     ].brawler[brawlerName].team[brawlersTeam].wins += 1;
                     playerStats.season[season].type[gameType].mode[mode].map[
                       mapName
-                    ].brawler[brawlerName].team[brawlersTeam].winsByTrophies +=
-                      2 * trophiesTeam * winTrophies;
+                    ].brawler[brawlerName].team[
+                      brawlersTeam
+                    ].winsByTrophies += isPowerPlay
+                      ? brawlerTrophiesOrPPTrophies * opposingTeamTrophies
+                      : winTrophies * opposingTeamTrophies;
                   } else {
                     playerStats.season[season].type[gameType].mode[mode].map[
                       mapName
@@ -602,7 +700,9 @@ const slice = createSlice({
                       mapName
                     ].brawler[brawlerName].team[
                       brawlersTeam
-                    ].lossesByTrophies += 2 * trophiesTeam * lossTrophies;
+                    ].lossesByTrophies += isPowerPlay
+                      ? brawlerTrophiesOrPPTrophies * opposingTeamTrophies
+                      : lossTrophies * opposingTeamTrophies;
                   }
                   if (
                     playerStats.season[season].type[gameType].mode[mode].map[
@@ -614,7 +714,7 @@ const slice = createSlice({
                     ].brawler[brawlerName].team[brawlersTeam].winsByTrophies !==
                       0
                   ) {
-                    isStarPlayer !== 0
+                    isStarPlayer !== 0 && !isPowerPlay
                       ? (playerStats.season[season].type[gameType].mode[
                           mode
                         ].map[mapName].brawler[brawlerName].team[
@@ -634,8 +734,12 @@ const slice = createSlice({
                       ].brawler[brawlerName].team[brawlersTeam].lossesByTrophies
                     );
                   } else {
-                    if (winTrophies) {
-                      isStarPlayer !== 0
+                    if (
+                      winTrophies ||
+                      (isPowerPlay === true &&
+                        element.battle.result === "victory")
+                    ) {
+                      isStarPlayer !== 0 && !isPowerPlay
                         ? (playerStats.season[season].type[gameType].mode[
                             mode
                           ].map[mapName].brawler[brawlerName].team[
@@ -656,9 +760,10 @@ const slice = createSlice({
                       ].brawler[brawlerName].team[brawlersTeam].winRatio = 0;
                   }
                 } else if (
-                  mode !== "soloShowdown" &&
-                  mode !== "duoShowdown" &&
-                  winTrophies
+                  (mode !== "soloShowdown" &&
+                    mode !== "duoShowdown" &&
+                    winTrophies) ||
+                  (isPowerPlay === true && element.battle.result === "victory")
                 ) {
                   playerStats.season[season].type[gameType].mode[mode].map[
                     mapName
@@ -670,7 +775,9 @@ const slice = createSlice({
                     losses: 0,
                     winRatio: 1,
                     lossesByTrophies: 0,
-                    winsByTrophies: 2 * trophiesTeam * trophyWins,
+                    winsByTrophies: isPowerPlay
+                      ? brawlerTrophiesOrPPTrophies * opposingTeamTrophies
+                      : winTrophies * opposingTeamTrophies,
                     starPlayer: 0,
                     id1: brawlersIDTeam[0],
                     id2: brawlersIDTeam[1],
@@ -685,7 +792,9 @@ const slice = createSlice({
                 } else if (
                   mode !== "soloShowdown" &&
                   mode !== "duoShowdown" &&
-                  lossTrophies
+                  lossTrophies ||
+                  (isPowerPlay === true &&
+                    element.battle.result === "defeat")
                 ) {
                   playerStats.season[season].type[gameType].mode[mode].map[
                     mapName
@@ -696,7 +805,9 @@ const slice = createSlice({
                     wins: 0,
                     losses: 1,
                     winRatio: 0,
-                    lossesByTrophies: 2 * trophiesTeam * trophyLosses,
+                    lossesByTrophies: isPowerPlay
+                      ? brawlerTrophiesOrPPTrophies * opposingTeamTrophies
+                      : lossTrophies * opposingTeamTrophies,
                     winsByTrophies: 0,
                     starPlayer: 0,
                     id1: brawlersIDTeam[0],
@@ -855,7 +966,8 @@ const slice = createSlice({
                       2,
                     duration: stored[brawler].duration + next[brawler].duration,
                     brawlerID: stored[brawler].brawlerID,
-                    starPlayer:stored[brawler].starPlayer+  next[brawler].starPlayer
+                    starPlayer:
+                      stored[brawler].starPlayer + next[brawler].starPlayer,
                   };
                   if (result[brawler].lossesByTrophies !== 0) {
                     result[brawler].winRatio =
@@ -878,7 +990,7 @@ const slice = createSlice({
                     duration: next[brawler].duration,
                     avgDuration: next[brawler].avgDuration,
                     brawlerID: next[brawler].brawlerID,
-                    starPlayer: next[brawler].starPlayer
+                    starPlayer: next[brawler].starPlayer,
                   };
                 } else if (stored[brawler]) {
                   //  console.log("called 6");
@@ -890,8 +1002,8 @@ const slice = createSlice({
             return result;
           };
 
-         //
-         let reducerTeams = (stored, next) => {
+          //
+          let reducerTeams = (stored, next) => {
             //console.log(next);
             //console.log(stored);
             let result = {};
@@ -912,7 +1024,6 @@ const slice = createSlice({
                 if (stored[team] && next[team]) {
                   // console.log("called 4");
                   result[team] = {
-
                     games: stored[team].games + next[team].games,
                     wins: stored[team].wins + next[team].wins,
                     losses: stored[team].losses + next[team].losses,
@@ -923,14 +1034,12 @@ const slice = createSlice({
                       stored[team].winsByTrophies + next[team.winsByTrophies],
                     winRatio: stored[team].winRatio + next[team].winRatio,
                     avgDuration:
-                      (stored[team].avgDuration +
-                        next[team].avgDuration) /
-                      2,
+                      (stored[team].avgDuration + next[team].avgDuration) / 2,
                     duration: stored[team].duration + next[team].duration,
                     id1: stored[team].id1,
                     id2: stored[team].id2,
                     id3: stored[team].id3,
-                    starPlayer: stored[team].starPlayer+ next[team].starPlayer
+                    starPlayer: stored[team].starPlayer + next[team].starPlayer,
                   };
                 } else if (next[team]) {
                   //  console.log("called 5");
@@ -946,7 +1055,7 @@ const slice = createSlice({
                     id3: next[team].id3,
                     duration: next[team].duration,
                     avgDuration: next[team].avgDuration,
-                    starPlayer:next[team].starPlayer
+                    starPlayer: next[team].starPlayer,
                   };
                 } else if (stored[team]) {
                   //console.log("called 6");
