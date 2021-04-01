@@ -10,6 +10,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "./app/store/configureStore";
 
 import BottomBar from './app/components/modules/BottomBar'
+import PlayerLogin from "./app/view/PlayerStats/PlayerLogin";
 
 
 
@@ -25,7 +26,7 @@ export default function App() {
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
         
-          <BottomBar />
+          <PlayerLogin/>
         </PersistGate>
       </Provider>
     );

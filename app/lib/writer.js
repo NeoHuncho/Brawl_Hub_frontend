@@ -1,13 +1,13 @@
 
 import { store } from "../store/configureStore";
-import { db } from "./initFirebase";
+import { fireStore } from "./initFirebase";
 
 const playerInfoWrite = async () => {
   let state = store.getState();
   console.log(state);
   if (state.battleLogReducer.battleLog[0]) {
     console.log('called writer when battlelog has changed')
-    db.collection("PlayerStats").doc(state.battleLogReducer.userId).set({
+    fireStore.collection("PlayerStats").doc(state.battleLogReducer.userId).set({
       playerId: state.battleLogReducer.userId,
       name: state.battleLogReducer.player.name,
       nameColor: state.battleLogReducer.player.nameColor,
@@ -20,7 +20,7 @@ const playerInfoWrite = async () => {
       time:state.battleLogReducer.time,
     });
   } else
-    db.collection("PlayerStats").doc(state.battleLogReducer.userId).update({
+    fireStore.collection("PlayerStats").doc(state.battleLogReducer.userId).update({
       playerId: state.battleLogReducer.userId,
       name: state.battleLogReducer.player.name,
       nameColor: state.battleLogReducer.player.nameColor,

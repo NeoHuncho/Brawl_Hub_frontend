@@ -20,40 +20,13 @@ import {
   mapsByPerformance,
   mapsByWins,
   teamsByPerformance,
-  teamsByWins,
+
 } from "./CarouselData";
 
 import moreInfoPage from "./moreInfoPage";
 
 export default function CarouselModule({ dataType, style, sort }) {
-  //this is to stop these values re rendering each time the user changes module settings
-  const modesPerformance = modesByPerformance.filter(
-    (v, i, a) => a.findIndex((t) => t.title === v.title) === i
-  );
-  //console.log(modesByPerformance);
-  const modesWins = modesByWins.filter(
-    (v, i, a) => a.findIndex((t) => t.title === v.title) === i
-  );
-  // console.log(modesWins);
-  const brawlersPerformance = brawlersByPerformance.filter(
-    (v, i, a) => a.findIndex((t) => t.title === v.title) === i
-  );
-  const brawlersWins = brawlersByWins.filter(
-    (v, i, a) => a.findIndex((t) => t.title === v.title) === i
-  );
-  // console.log(brawlersWins)
-  const mapsPerformance = mapsByPerformance.filter(
-    (v, i, a) => a.findIndex((t) => t.title === v.title) === i
-  );
-  const mapsWins = mapsByWins.filter(
-    (v, i, a) => a.findIndex((t) => t.title === v.title) === i
-  );
-  const teamsPerformance = teamsByPerformance.filter(
-    (v, i, a) => a.findIndex((t) => t.title === v.title) === i
-  );
-  const teamsWins = teamsByWins.filter(
-    (v, i, a) => a.findIndex((t) => t.title === v.title) === i
-  );
+ 
 
   const carouselRef = useRef(null);
   const [toggleStyle, setToggleStyle] = useState(false);
@@ -65,12 +38,12 @@ export default function CarouselModule({ dataType, style, sort }) {
   const { width: screenWidth } = Dimensions.get("window");
 
   const getBackgroundColor = (item) => {
-    if (item.winRatio >= 7) return "#69b34c";
-    else if (item.winRatio >= 5) return "#acb334";
-    else if (item.winRatio >= 3) return "#fab733";
-    else if (item.winRatio >= 2) return "#ff4e11";
-    else if (item.winRatio >= 1) return "#ff0d0d";
-    else if (item.winRatio < 1) return "#B50A0A";
+    if (item.winRatio >= 7) return "#3c662b";
+    else if (item.winRatio >= 5) return "#2d4d20";
+    else if (item.winRatio >= 3) return "#1e3315";
+    else if (item.winRatio >= 2) return "#820808";
+    else if (item.winRatio >= 1) return "#590505";
+    else if (item.winRatio < 1) return "#4d0505";
   };
 
   const renderItem = ({ item, index }) => {
@@ -93,15 +66,19 @@ export default function CarouselModule({ dataType, style, sort }) {
             dataType !== "map" ? { height: 250 } : { height: 330 },
           ]}
         >
+          <View style={{flexDirection:"row"}}>
           <Text
             style={[
               styles.title,
-              dataType === "team" ? { fontSize: 14 } : null,
+              dataType === "team" ? { fontSize: 15 } : null,
             ]}
             numberOfLines={2}
           >
             {item.title}
           </Text>
+          <Image source={dataType=== 'map'? item.mode:null} style={{width:20,height:20, marginTop:8,marginLeft:5}}/>
+          </View>
+
           <View
             style={{ marginLeft: "auto", marginRight: "auto", marginTop: 10 }}
           >
@@ -121,23 +98,43 @@ export default function CarouselModule({ dataType, style, sort }) {
                   marginBottom: 70,
                 }}
               >
+                <View style={{flexDirection:"row", justifyContent:"center"}}>
                 <Image source={item.brawler1} style={styles.teamImage} />
                 <Image source={item.brawler2} style={styles.teamImage} />
-                <Image source={item.brawler3} style={styles.teamImage} />
+                {item.brawler3!=null?  <Image source={item.brawler3} style={styles.teamImage} />:null }
+               
+
+                </View>
               </View>
             )}
           </View>
 
           <View style={{ marginTop: 5 }}>
             {item.duration ? (
+              <View style={{flexDirection:"row", justifyContent:"center"}}>
+                <Ionicons
+                  style={{marginTop:6, marginRight:3}}
+                  name="timer"
+                  size={15}
+                  color={colors.secondary}
+                />
               <Text style={[styles.performance, { marginTop: 5 }]}>
-                {"GTA: " + item.duration.toFixed(1) + "s"}
+                { item.duration.toFixed(1) + "s"}
               </Text>
+              </View>
             ) : null}
             {item.spRatio ? (
-              <Text style={[styles.performance, { marginTop: 0 }]}>
-                {"SPR: " + item.spRatio.toFixed(2) * 100 + "%"}
+              <View  style={{flexDirection:"row", justifyContent:"center", marginTop:4}}>
+                <Ionicons
+                  style={{ marginRight:3}}
+                  name="star"
+                  size={15}
+                  color={colors.secondary}
+                />
+              <Text style={[styles.performance]}>
+                {(item.spRatio * 100).toFixed(1) + "%"}
               </Text>
+              </View>
             ) : null}
           </View>
           <View
@@ -191,22 +188,22 @@ export default function CarouselModule({ dataType, style, sort }) {
           data={
             sort === 0
               ? dataType === "mode"
-                ? modesPerformance
+                ? modesByPerformance
                 : dataType === "brawler"
-                ? brawlersPerformance
+                ? brawlersByPerformance
                 : dataType === "map"
-                ? mapsPerformance
+                ? mapsByPerformance
                 : dataType === "team"
-                ? teamsPerformance
+                ? teamsByPerformance
                 : null
               : dataType === "mode"
-              ? modesWins
+              ? modesByWins
               : dataType === "brawler"
-              ? brawlersWins
+              ? brawlersByWins
               : dataType === "map"
-              ? mapsWins
+              ? mapsByWins
               : dataType === "team"
-              ? teamsWins
+              ? teamsByWins
               : null
           }
           renderItem={renderItem}
@@ -262,7 +259,6 @@ const styles = StyleSheet.create({
     textShadowRadius: 2,
   },
   performance: {
-    marginTop: 4,
     color: colors.secondary,
     fontFamily: "Lilita-One",
     fontSize: 13,

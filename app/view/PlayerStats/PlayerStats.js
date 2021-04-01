@@ -1,37 +1,65 @@
 import React, { useState, useEffect } from "react";
+
 import {
-  Button,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableHighlight,
   TouchableOpacity,
   View,
+  Image,
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { Ionicons } from "@expo/vector-icons";
 import SegmentedControlTab from "react-native-segmented-control-tab";
-import { Picker } from "@react-native-picker/picker";
 
 import colors from "../../config/colors";
 import { userIdReset } from "../../store/playerIdReducer";
 import WinLossModule from "../../components/modules/WinLossModule";
-import CarouselModule from "../../components/modules/Carousel/CarouselModule";
+//import CarouselModule from "../../components/modules/Carousel/CarouselModule";
 import { processPlayerStats } from "../../components/modules/Carousel/CarouselData";
 import PlayerLogin from "./PlayerLogin";
+import { getAssets, getIconImage } from "../../lib/getAssetsFunctions";
 
 export default function PlayerStats() {
+  getAssets();
   const dispatch = useDispatch();
-  const player = useSelector((state) => state.battleLogReducer.player);
   const playerName = useSelector((state) => state.battleLogReducer.name);
   const playerID = useSelector((state) => state.playerPersistReducer.playerID);
   const season = useSelector((state) => state.battleLogReducer.season);
+  const seasons = useSelector(
+    (state) => state.battleLogReducer.playerStats.season
+  );
+  const types = useSelector(
+    (state) => state.battleLogReducer.playerStats.season[season].type
+  );
 
-  
+  const icon = useSelector((state) =>
+   state.battleLogReducer.icon
+  );
+  const iconImage = getIconImage(icon)
+
+  const sKeys = Object.keys(seasons);
+  const seasonsKey = sKeys.map((x) => "season " + x);
+
+  const typesKey = Object.keys(types)
+    .map((x) =>
+      x === "ranked"
+        ? "Trophies"
+        : x === "soloRanked"
+        ? "Solo PL"
+        : x == "teamRanked"
+        ? "Team PL"
+        : null
+    )
+    .sort()
+    .reverse();
+
   const [styleIndex, setStyleIndex] = useState(0);
   const [sortIndex, setSortIndex] = useState(0);
   const [seasonIndex, setSeasonIndex] = useState(season);
   const [showPreferences, setShowPreferences] = useState(false);
+
+  const [typeIndex, setTypeIndex] = useState(0);
 
   const handleReset = () => {
     // console.log("called");
@@ -48,15 +76,10 @@ export default function PlayerStats() {
       : setShowPreferences(false);
   };
   // console.log("calleddd!");
- 
-//this will intialise the creation of the data for the carousels
-let done=false;
-if(season&& done===false){
-  processPlayerStats(seasonIndex)
-  done=true;
-}
 
+  //this will intialise the creation of the data for the carousels
 
+  processPlayerStats(seasonIndex, typesKey[typeIndex]);
 
   return (
     <>
@@ -64,9 +87,8 @@ if(season&& done===false){
         <ScrollView>
           <View style={styles.container}>
             <View style={styles.nameContainer}>
-              <Text style={styles.name}>
-                {player ? player.name : playerName}
-              </Text>
+             {iconImage? <Image source={{uri: iconImage}} style={{width:30, height:30, marginRight:5, marginTop:5}} />:null}
+              <Text style={styles.name}>{playerName}</Text>
               <TouchableOpacity>
                 <Ionicons
                   onPress={() => handleReset()}
@@ -92,7 +114,7 @@ if(season&& done===false){
                 <>
                   <Text style={styles.sliderTitle}>Choose Season:</Text>
                   <SegmentedControlTab
-                    values={["Season 5", "Season 6"]}
+                    values={seasonsKey}
                     //The plus 5 is because we are starting 5 seasons late
                     // the minus 5 is to convert it back
                     selectedIndex={seasonIndex - 5}
@@ -117,12 +139,22 @@ if(season&& done===false){
                   </View>
                 </>
               )}
+              <View>
+                <SegmentedControlTab
+                  values={typesKey}
+                  enabled={typesKey.length > 1 ? true : false}
+                  selectedIndex={typeIndex}
+                  onTabPress={(index) => setTypeIndex(index)}
+                />
+              </View>
               <View style={{ marginTop: 10 }}>
-                <WinLossModule />
+                {typesKey[typeIndex] === "Trophies" ? (
+                  <WinLossModule type={typeIndex} />
+                ) : null}
               </View>
               <View style={{ marginTop: 18 }}>
                 <Text style={styles.categoryName}>Player Stats by Mode</Text>
-                <CarouselModule
+                {/* <CarouselModule
                   dataType="mode"
                   style={styleIndex}
                   sort={sortIndex}
@@ -146,7 +178,7 @@ if(season&& done===false){
                   dataType="team"
                   style={styleIndex}
                   sort={sortIndex}
-                />
+                /> */}
               </View>
             </View>
           </View>
