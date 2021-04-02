@@ -15,7 +15,7 @@ import SegmentedControlTab from "react-native-segmented-control-tab";
 import colors from "../../config/colors";
 import { userIdReset } from "../../store/playerIdReducer";
 import WinLossModule from "../../components/modules/WinLossModule";
-//import CarouselModule from "../../components/modules/Carousel/CarouselModule";
+// import CarouselModule from "../../components/modules/Carousel/CarouselModule";
 import { processPlayerStats } from "../../components/modules/Carousel/CarouselData";
 import PlayerLogin from "./PlayerLogin";
 import { getAssets, getIconImage } from "../../lib/getAssetsFunctions";

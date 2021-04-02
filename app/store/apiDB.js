@@ -54,9 +54,26 @@ const getStatsFromDB = async(userID)=>{
     return stats
 }
 
-const getGlobalStatsFromDB= async()=>{
-    const globalStats = await db.ref('global/globalStats')
-    return globalStats
-}
+
+const getGlobalStatsFromDB = async () => {
+  const nBrawlers = await db
+    .ref("global/count/numberOfBrawlers")
+    .once("value")
+    .then((snapshot) => snapshot.val());
+  const nGadgets= await db
+    .ref("global/count/numberOfGadgets")
+    .once("value")
+    .then((snapshot) => snapshot.val());
+  const nStarPowers= await db
+    .ref("global/count/numberOfStarPowers")
+    .once("value")
+    .then((snapshot) => snapshot.val());
+  const globalStats = await db
+    .ref("global/globalStats")
+    .once("value")
+    .then((snapshot) => snapshot.val());
+
+  return { nBrawlers,nGadgets,nStarPowers,globalStats };
+};
 
 export { getStatsFirstLogin, getBrawlifyFromDB, getStatsFromDB, getGlobalStatsFromDB};

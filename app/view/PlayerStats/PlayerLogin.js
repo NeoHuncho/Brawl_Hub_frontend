@@ -25,6 +25,8 @@ import {
   iconsReceived,
 } from "../../store/brawlifyReducer";
 
+import {nBrawlersReceived,nGadgetsReceived,nStarsReceived,globalStatsReceived} from '../../store/globalStatsReducer'
+
 import PlayerStats from "./PlayerStats.js";
 import colors from "../../config/colors";
 import { playerInfoWrite } from "../../lib/writer";
@@ -64,10 +66,17 @@ export default function PlayerLogin() {
             const stats = await getStatsFromDB(userId);
             dispatch(receivedPlayerStatsFromDB(stats));
             const { maps, brawlers, events, icons } = await getBrawlifyFromDB();
+            const { nBrawlers,nGadgets,nStarPowers,globalStats } = await getGlobalStatsFromDB();
+            
             dispatch(brawlersReceived(brawlers));
             dispatch(mapsReceived(maps));
             dispatch(eventsReceived(events));
             dispatch(iconsReceived(icons));
+
+            dispatch(nBrawlersReceived(nBrawlers));            
+            dispatch(nGadgetsReceived(nGadgets));            
+            dispatch(nStarsReceived(nStarPowers));            
+            dispatch(globalStatsReceived(globalStats));            
             setValidId(true);
           }
         }

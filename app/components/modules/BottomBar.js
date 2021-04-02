@@ -19,12 +19,13 @@ const BottomBar = () => {
       key: "myStats",
       title: "My Stats",
       icon: "graph-outline",
+      color:'#0a122a'
     },
     {
       key: "Events",
       title: "Events",
       icon: "trophy-outline",
-      color: "#0C1531",
+      color: "#1C3273",
     },
     {
       key: "Bot",
