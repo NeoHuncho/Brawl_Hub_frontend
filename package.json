@@ -6,7 +6,10 @@
     "slug": "your-app-slug",
     "android": {
       "package": "com.brawlhub.1.0.3",
-      "versionCode": 1
+      "versionCode": 1,
+      "config": {
+        "googleMobileAdsAppId": "ca-app-pub-2795080443480499~5524209059"
+      }
     }
   },
   "main": "node_modules/expo/AppEntry.js",
@@ -27,6 +30,7 @@
     "@supabase/supabase-js": "^1.4.1",
     "axios": "^0.21.1",
     "expo": "~40.0.0",
+    "expo-ads-admob": "~8.4.0",
     "expo-app-loading": "^1.0.1",
     "expo-av": "~8.7.0",
     "expo-constants": "~9.3.3",
@@ -39,8 +43,10 @@
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-40.0.1.tar.gz",
+    "react-native-dropdown-picker": "^4.0.2",
     "react-native-multi-switch": "^1.2.0",
     "react-native-paper": "^4.7.2",
+    "react-native-progress": "^4.1.2",
     "react-native-segmented-control-tab": "^3.4.1",
     "react-native-snap-carousel": "^3.9.1",
     "react-native-toggle-element": "^1.0.1",

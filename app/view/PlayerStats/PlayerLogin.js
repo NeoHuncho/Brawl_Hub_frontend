@@ -10,7 +10,16 @@ import {
 } from "react-native";
 import { TextInput } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
+import { AdMobInterstitial, setTestDeviceIDAsync } from "expo-ads-admob";
+import * as Progress from "react-native-progress";
 
+import season6_1 from "../../assets/backgrounds/season6_1.jpg";
+import season6_2 from "../../assets/backgrounds/season6_2.jpg";
+import season6_3 from "../../assets/backgrounds/season6_3.jpg";
+import season5_1 from "../../assets/backgrounds/season5_1.jpg";
+import season5_2 from "../../assets/backgrounds/season5_2.jpg";
+import season5_3 from "../../assets/backgrounds/season5_3.jpg";
+import season4_1 from "../../assets/backgrounds/season4_1.jpg";
 import {
   battleLogAndPlayerReceived,
   processedPlayerStats,
@@ -25,7 +34,12 @@ import {
   iconsReceived,
 } from "../../store/brawlifyReducer";
 
-import {nBrawlersReceived,nGadgetsReceived,nStarsReceived,globalStatsReceived} from '../../store/globalStatsReducer'
+import {
+  nBrawlersReceived,
+  nGadgetsReceived,
+  nStarsReceived,
+  globalStatsReceived,
+} from "../../store/globalStatsReducer";
 
 import PlayerStats from "./PlayerStats.js";
 import colors from "../../config/colors";
@@ -39,10 +53,18 @@ import {
   getStatsFromDB,
 } from "../../store/apiDB";
 
-import moment from "moment";
 import BottomBar from "../../components/modules/BottomBar";
 
-import {eventsData} from '../../components/modules/eventsBoxes/eventsData'
+const backgrounds = [
+  season6_1,
+  season6_2,
+  season6_3,
+  season5_3,
+  season5_2,
+  season5_1,
+  season4_1,
+];
+const randomBackgroundIndex = Math.floor(Math.random() * backgrounds.length);
 export default function PlayerLogin() {
   const dispatch = useDispatch();
   const playerID = useSelector((state) => state.playerPersistReducer.playerID);
@@ -52,6 +74,8 @@ export default function PlayerLogin() {
   const [validId, setValidId] = useState(false);
   const [howToClicked, setHowToClicked] = useState(false);
   const [confirmClicked, setConfirmClicked] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [loadingText, setLoadingText] = useState("");
 
   const [message, setMessage] = useState(
     "Please provide your Brawl Stars player ID"
@@ -63,20 +87,31 @@ export default function PlayerLogin() {
         setUserId(playerID);
         async function fetchMySavedData() {
           if (userId) {
+            await setTestDeviceIDAsync("EMULATOR");
+            setLoadingText("fetching your stats...");
             const stats = await getStatsFromDB(userId);
             dispatch(receivedPlayerStatsFromDB(stats));
+            setProgress(0.5);
             const { maps, brawlers, events, icons } = await getBrawlifyFromDB();
-            const { nBrawlers,nGadgets,nStarPowers,globalStats } = await getGlobalStatsFromDB();
-            
+            setProgress(0.8);
+            setLoadingText("fetching global stats. Hang in there!");
+
+            const {
+              nBrawlers,
+              nGadgets,
+              nStarPowers,
+              globalStats,
+            } = await getGlobalStatsFromDB();
             dispatch(brawlersReceived(brawlers));
             dispatch(mapsReceived(maps));
             dispatch(eventsReceived(events));
             dispatch(iconsReceived(icons));
 
-            dispatch(nBrawlersReceived(nBrawlers));            
-            dispatch(nGadgetsReceived(nGadgets));            
-            dispatch(nStarsReceived(nStarPowers));            
-            dispatch(globalStatsReceived(globalStats));            
+            dispatch(nBrawlersReceived(nBrawlers));
+            dispatch(nGadgetsReceived(nGadgets));
+            dispatch(nStarsReceived(nStarPowers));
+            dispatch(globalStatsReceived(globalStats));
+            setProgress(1);
             setValidId(true);
           }
         }
@@ -92,24 +127,49 @@ export default function PlayerLogin() {
       ) {
         async function fetchMyDataFirstTime() {
           try {
+            let checkDBStats = await getStatsFromDB(userId);
+            setProgress(0.2);
+            if (checkDBStats == null) {
+              let playerStats = await getStatsFirstLogin(userId);
+              dispatch(receivedPlayerStatsFromDB(checkDBStats));
+              setProgress(0.5);
+            } else {
+              dispatch(receivedPlayerStatsFromDB(checkDBStats));
+              setProgress(0.5);
+            }
+
             const { maps, brawlers, events, icons } = await getBrawlifyFromDB();
+            setProgress(0.65);
+            const {
+              nBrawlers,
+              nGadgets,
+              nStarPowers,
+              globalStats,
+            } = await getGlobalStatsFromDB();
+            setProgress(0.8);
+
+            dispatch(nBrawlersReceived(nBrawlers));
+            dispatch(nGadgetsReceived(nGadgets));
+            dispatch(nStarsReceived(nStarPowers));
+            dispatch(globalStatsReceived(globalStats));
+
             dispatch(brawlersReceived(brawlers));
             dispatch(mapsReceived(maps));
             dispatch(eventsReceived(events));
             dispatch(iconsReceived(icons));
-            let checkDBStats = await getStatsFromDB(userId);
-            if (checkDBStats == null) {
-              let playerStats = await getStatsFirstLogin(userId);
-              console.log(playerStats);
-            } else {
-              dispatch(receivedPlayerStatsFromDB(checkDBStats));
-            }
             dispatch(userIdReceived(userId));
-            await eventsData(1,2);
+            setProgress(1);
             setValidId(true);
           } catch (error) {
-            console.log(error);
-            setMessage("Invalid player ID or Supercell is doing maintenance!");
+            if (error.response.status == 404) {
+              setConfirmClicked(false);
+              setMessage("Invalid player ID. Please try Again!");
+            } else {
+              console.log(error.response.status);
+              setMessage(
+                "Invalid player ID or Supercell is doing maintenance!"
+              );
+            }
           }
         }
         // console.log("apiHeroku called in player login component!");
@@ -166,13 +226,38 @@ export default function PlayerLogin() {
           </ImageBackground>
         </View>
       )}
-      {saved === true && !validId && (
+      {(saved === true || confirmClicked == true) && !validId && (
         <View style={styles.container}>
           <ImageBackground
-            source={imageBackground}
+            source={backgrounds[randomBackgroundIndex]}
             style={styles.imageBackground}
-            blurRadius={2}
-          ></ImageBackground>
+          >
+            <Progress.Bar
+              progress={progress}
+              height={10}
+              width={300}
+              style={{
+                marginTop: 100,
+                marginLeft: "auto",
+                marginRight: "auto",
+              }}
+            />
+            <Text
+              style={
+                ([styles.findIdText],
+                {
+                  fontFamily: "Lilita-One",
+                  color: colors.secondary,
+                  fontSize: 14,
+                  marginTop: 20,
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                })
+              }
+            >
+              {loadingText}
+            </Text>
+          </ImageBackground>
         </View>
       )}
 
@@ -191,6 +276,7 @@ const styles = StyleSheet.create({
     flex: 1,
     resizeMode: "cover",
     width: "100%",
+    justifyContent: "center",
   },
 
   inputContainer: {

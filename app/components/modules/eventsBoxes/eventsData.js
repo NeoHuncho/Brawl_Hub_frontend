@@ -10,7 +10,7 @@ const eventsData = () => {
     let eventsActive = state.brawlifyReducer.eventsList.active;
     let eventsUpcoming = state.brawlifyReducer.eventsList.upcoming;
     for (const eventKey in eventsActive) {
-      if (eventsActive[eventKey].slot.id <= 5) {
+      if (eventKey <= 6) {
         eventActiveData.push({
           modeName: eventsActive[eventKey].map.gameMode.name,
           modeImage: eventsActive[eventKey].map.gameMode.imageUrl,
@@ -19,7 +19,7 @@ const eventsData = () => {
           mapName: eventsActive[eventKey].map.name,
           mapEnvironment: eventsActive[eventKey].map.environment.imageUrl,
           endTime: eventsActive[eventKey].endTime,
-          eventID: eventsActive[eventKey].slot.id,
+          // eventID: eventsActive[eventKey].slot.id,
           eventLeftTime: moment.duration(
             moment(eventsActive[eventKey].endTime).diff(moment.now())
           ),
@@ -27,7 +27,7 @@ const eventsData = () => {
       }
     }
     for (const eventKey in eventsUpcoming) {
-      if (eventsUpcoming[eventKey].slot.id <= 5) {
+      if (eventKey <= 6) {
         eventUpcomingData.push({
           modeName: eventsUpcoming[eventKey].map.gameMode.name,
           modeImage: eventsUpcoming[eventKey].map.gameMode.imageUrl,
@@ -35,7 +35,7 @@ const eventsData = () => {
           mapID: eventsActive[eventKey].map.id,
           mapName: eventsUpcoming[eventKey].map.name,
           mapEnvironment: eventsUpcoming[eventKey].map.environment.imageUrl,
-          eventID: eventsUpcoming[eventKey].slot.id,
+          // eventID: eventsUpcoming[eventKey].slot.id,
           eventLeftTime: moment.duration(
             moment(eventsActive[eventKey].endTime).diff(moment.now())
           ),

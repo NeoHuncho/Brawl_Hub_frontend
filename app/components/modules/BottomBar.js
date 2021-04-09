@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { BottomNavigation, Text } from "react-native-paper";
+import { AdMobBanner } from "expo-ads-admob";
 import colors from "../../config/colors";
 import PlayerStats from "../../view/PlayerStats/PlayerStats";
 import BrawlerBot from "../../view/BrawlerBot";
@@ -12,14 +13,13 @@ const BotRoute = () => <BrawlerBot />;
 const EventRoute = () => <Events />;
 
 const BottomBar = () => {
-
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
     {
       key: "myStats",
       title: "My Stats",
       icon: "graph-outline",
-      color:'#0a122a'
+      color: "#0a122a",
     },
     {
       key: "Events",
@@ -53,6 +53,5 @@ const BottomBar = () => {
     </>
   );
 };
-
 
 export default BottomBar;

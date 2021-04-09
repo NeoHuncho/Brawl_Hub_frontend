@@ -1,9 +1,9 @@
 import { store } from "../store/configureStore";
-
-let getModeColors = () => {};
-let getBrawlerColors = () => {};
+import colors from '../config/colors'
+let getModeColor= () => {};
 let getBrawlerImageOld = () => {};
 let getModeImage = () => {};
+let getBrawlerColors = () => {};
 let getBrawlerImage = () => {};
 let getBrawlerName = () => {};
 let getMapName = () => {};
@@ -15,7 +15,7 @@ const getAssets = (seasonIndex, gameTypeName) => {
   let state = store.getState();
 
   //not currently in use
-  getModeColors = (mode) => {
+  getModeColor = (mode) => {
     //console.log(mode);
     let color = undefined;
     mode === "brawlBall"
@@ -264,6 +264,8 @@ const getAssets = (seasonIndex, gameTypeName) => {
         return require("../assets/ModesandMaps/showdown/icon/soloShowdown.png");
       case "duoShowdown":
         return require("../assets/ModesandMaps/showdown/icon/duoShowdown.png");
+      case "knockout":
+        return require("../assets/ModesandMaps/knockout/icon/knockout.png");
     }
   };
 
@@ -330,4 +332,5 @@ export {
   getMapName,
   getModeImage,
   getIconImage,
+  getModeColor
 };

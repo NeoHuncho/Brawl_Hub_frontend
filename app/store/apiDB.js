@@ -3,23 +3,22 @@ import axios from "axios";
 
 const getStatsFirstLogin = async (userID) => {
   return new Promise(function (resolve, reject) {
-  
-    axios.post(
+    axios
+      .post(
         "http://europe-west1-brawl-hub-6a708.cloudfunctions.net/getPlayerBPandStats",
         {
           playerID: userID,
         }
       )
-      .then(
-        (response) => {
-        console.log(response)
-         resolve('all good')
-        },
-        (error) => {
+      .then((response) => {
+        console.log(response);
+        resolve("all good");
+      })
+      .catch(function (error) {
+        if (error) {
           reject(error);
-          console.log(error);
         }
-      );
+      });
   });
 };
 
@@ -41,30 +40,28 @@ const getBrawlifyFromDB = async () => {
     .once("value")
     .then((snapshot) => snapshot.val());
 
-  return { maps, brawlers, events,icons };
+  return { maps, brawlers, events, icons };
 };
 
-const getStatsFromDB = async(userID)=>{
-    let playerRef = db.ref("playerStats/" + userID);
-    let stats= undefined;
-    await playerRef.once('value', data=>{
-       stats= data.val();
-       
-    })
-    return stats
-}
-
+const getStatsFromDB = async (userID) => {
+  let playerRef = db.ref("playerStats/" + userID);
+  let stats = undefined;
+  await playerRef.once("value", (data) => {
+    stats = data.val();
+  });
+  return stats;
+};
 
 const getGlobalStatsFromDB = async () => {
   const nBrawlers = await db
     .ref("global/count/numberOfBrawlers")
     .once("value")
     .then((snapshot) => snapshot.val());
-  const nGadgets= await db
+  const nGadgets = await db
     .ref("global/count/numberOfGadgets")
     .once("value")
     .then((snapshot) => snapshot.val());
-  const nStarPowers= await db
+  const nStarPowers = await db
     .ref("global/count/numberOfStarPowers")
     .once("value")
     .then((snapshot) => snapshot.val());
@@ -73,7 +70,12 @@ const getGlobalStatsFromDB = async () => {
     .once("value")
     .then((snapshot) => snapshot.val());
 
-  return { nBrawlers,nGadgets,nStarPowers,globalStats };
+  return { nBrawlers, nGadgets, nStarPowers, globalStats };
 };
 
-export { getStatsFirstLogin, getBrawlifyFromDB, getStatsFromDB, getGlobalStatsFromDB};
+export {
+  getStatsFirstLogin,
+  getBrawlifyFromDB,
+  getStatsFromDB,
+  getGlobalStatsFromDB,
+};

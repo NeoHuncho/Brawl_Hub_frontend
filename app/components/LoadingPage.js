@@ -1,19 +1,29 @@
-import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
 
 export default function LoadingPage() {
-    return (
-        <View style={styles.container}>
-            <Text style={{fontSize:40}} >Loading</Text>
-        </View>
-    )
+  return (
+    <View style={styles.container}>
+      <Text
+        style={{
+          fontSize: 30,
+          fontFamily: "Lilita-One",
+          textAlign: "center",
+          marginTop: 200,
+          color: "white",
+        }}
+      >
+        Please reload app to sign into another account! Thank you.
+      </Text>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-      margin:100,
-      flex: 1,
-      backgroundColor: "#1C3273",
-    },
-  });
-  
+  container: {
+    flex: 1,
+    backgroundColor: "#1C3273",
+    alignItems: "center",
+    alignContent: "center",
+  },
+});

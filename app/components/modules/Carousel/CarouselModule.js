@@ -20,14 +20,11 @@ import {
   mapsByPerformance,
   mapsByWins,
   teamsByPerformance,
-
 } from "./CarouselData";
 
-import moreInfoPage from "./moreInfoPage";
+import moreInfoPage from "../moreInfoPage";
 
 export default function CarouselModule({ dataType, style, sort }) {
- 
-
   const carouselRef = useRef(null);
   const [toggleStyle, setToggleStyle] = useState(false);
 
@@ -38,12 +35,21 @@ export default function CarouselModule({ dataType, style, sort }) {
   const { width: screenWidth } = Dimensions.get("window");
 
   const getBackgroundColor = (item) => {
-    if (item.winRatio >= 7) return "#3c662b";
-    else if (item.winRatio >= 5) return "#2d4d20";
-    else if (item.winRatio >= 3) return "#1e3315";
-    else if (item.winRatio >= 2) return "#820808";
-    else if (item.winRatio >= 1) return "#590505";
-    else if (item.winRatio < 1) return "#4d0505";
+    if (item.winRatio >= 7) return "#003924";
+    else if (item.winRatio >= 5) return "#005841";
+    else if (item.winRatio >= 3) return "#AF9500";
+    else if (item.winRatio >= 2) return "#CCB33B";
+    else if (item.winRatio >= 1) return "#850000";
+    else if (item.winRatio < 1) return "#650000";
+  };
+
+  const getMessage = (item) => {
+    if (item.winRatio >= 7) return "GREAT";
+    else if (item.winRatio >= 5) return "GOOD";
+    else if (item.winRatio >= 3) return "OKAY";
+    else if (item.winRatio >= 2) return "AVERAGE";
+    else if (item.winRatio >= 1) return "BAD";
+    else if (item.winRatio < 1) return "AWFUL";
   };
 
   const renderItem = ({ item, index }) => {
@@ -66,17 +72,21 @@ export default function CarouselModule({ dataType, style, sort }) {
             dataType !== "map" ? { height: 250 } : { height: 330 },
           ]}
         >
-          <View style={{flexDirection:"row"}}>
-          <Text
-            style={[
-              styles.title,
-              dataType === "team" ? { fontSize: 15 } : null,
-            ]}
-            numberOfLines={2}
-          >
-            {item.title}
-          </Text>
-          <Image source={dataType=== 'map'? item.mode:null} style={{width:20,height:20, marginTop:8,marginLeft:5}}/>
+          <View style={{ flexDirection: "row" }}>
+            <Text
+              style={[
+                styles.title,
+                dataType === "team" ? { fontSize: 15 } : null,
+              ]}
+              numberOfLines={2}
+            >
+              {item.title}
+            </Text>
+            <Text style={[styles.title,{fontSize:8, position:"absolute", left:1, top:30}, dataType=='team'?{top:24}:null]}>{getMessage(item)}</Text>
+            <Image
+              source={dataType === "map" ? item.mode : null}
+              style={{ width: 20, height: 20, marginTop: 8, marginLeft: 5 }}
+            />
           </View>
 
           <View
@@ -98,12 +108,14 @@ export default function CarouselModule({ dataType, style, sort }) {
                   marginBottom: 70,
                 }}
               >
-                <View style={{flexDirection:"row", justifyContent:"center"}}>
-                <Image source={item.brawler1} style={styles.teamImage} />
-                <Image source={item.brawler2} style={styles.teamImage} />
-                {item.brawler3!=null?  <Image source={item.brawler3} style={styles.teamImage} />:null }
-               
-
+                <View
+                  style={{ flexDirection: "row", justifyContent: "center" }}
+                >
+                  <Image source={item.brawler1} style={styles.teamImage} />
+                  <Image source={item.brawler2} style={styles.teamImage} />
+                  {item.brawler3 != null ? (
+                    <Image source={item.brawler3} style={styles.teamImage} />
+                  ) : null}
                 </View>
               </View>
             )}
@@ -111,29 +123,35 @@ export default function CarouselModule({ dataType, style, sort }) {
 
           <View style={{ marginTop: 5 }}>
             {item.duration ? (
-              <View style={{flexDirection:"row", justifyContent:"center"}}>
+              <View style={{ flexDirection: "row", justifyContent: "center" }}>
                 <Ionicons
-                  style={{marginTop:6, marginRight:3}}
+                  style={{ marginTop: 6, marginRight: 3 }}
                   name="timer"
                   size={15}
                   color={colors.secondary}
                 />
-              <Text style={[styles.performance, { marginTop: 5 }]}>
-                { item.duration.toFixed(1) + "s"}
-              </Text>
+                <Text style={[styles.performance, { marginTop: 5 }]}>
+                  {item.duration.toFixed(1) + "s"}
+                </Text>
               </View>
             ) : null}
             {item.spRatio ? (
-              <View  style={{flexDirection:"row", justifyContent:"center", marginTop:4}}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  marginTop: 4,
+                }}
+              >
                 <Ionicons
-                  style={{ marginRight:3}}
+                  style={{ marginRight: 3 }}
                   name="star"
                   size={15}
                   color={colors.secondary}
                 />
-              <Text style={[styles.performance]}>
-                {(item.spRatio * 100).toFixed(1) + "%"}
-              </Text>
+                <Text style={[styles.performance]}>
+                  {(item.spRatio * 100).toFixed(1) + "%"}
+                </Text>
               </View>
             ) : null}
           </View>
@@ -152,7 +170,7 @@ export default function CarouselModule({ dataType, style, sort }) {
                   alignContent: "center",
                 },
                 item.duration && item.spRatio
-                  ? { marginTop: 25 }
+                  ? { marginTop: 20 }
                   : item.duration || item.spRatio
                   ? { marginTop: 43 }
                   : { marginTop: 65 },
