@@ -5,6 +5,7 @@ import AsyncStorage from "@react-native-community/async-storage";
 
 import reducers from "./reducers";
 
+
 const persistConfig = {
   // Root
   key: "root",
@@ -13,9 +14,9 @@ const persistConfig = {
   storage: AsyncStorage,
   // Whitelist (Save Specific Reducers)
   //"playerPersistReducer",
-  whitelist: ["playerPersistReducer"],
+  whitelist: ["playerPersistReducer",],
   // Blacklist (Don't Save Specific Reducers)
-  blacklist: ["battleLogReducer","globalStatsReducer","brawlifyReducer"],
+  blacklist: ["battleLogReducer","globalStatsReducer","brawlifyReducer",'uiReducerNoPersist'],
 };
 
 const persistedReducer = persistReducer(persistConfig, reducers);

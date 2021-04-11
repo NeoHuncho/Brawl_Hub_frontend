@@ -3,17 +3,21 @@ import { createSlice } from "@reduxjs/toolkit";
 const slice = createSlice({
   name: "uiData",
   initialState: {
-    title:undefined
+    isOpen:false,
+    type:null,
+    name:null
   },
   reducers: {
     moreInfoCarouselOpen: (uiData, action) => {
 
-    uiData.title=action.payload
-
-
+    uiData.isOpen=action.payload.isOpen
+    uiData.type= action.payload.type
+    uiData.name=action.payload.name
     },
     moreInfoCarouselClosed: (uiData, action) => {
-      uiData.title = undefined;
+      uiData.isOpen=false
+      uiData.type=null
+      uiData.name=null
     },
   },
 });

@@ -1,10 +1,13 @@
 import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native';
+import colors from '../config/colors'
 
-export default function BrawlerBot() {
+export default function playerStatsMoreInfo(type,typeName) {
     return (
         <View style={styles.container}>
-            <Text></Text>
+           <View style={styles.titleAndImage}>
+                
+           </View>
         </View>
     )
 }
@@ -12,7 +15,10 @@ export default function BrawlerBot() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#142352',
+        backgroundColor: colors.background,
         alignItems: "center",
+      },
+      titleAndImage:{
+
       }
 })

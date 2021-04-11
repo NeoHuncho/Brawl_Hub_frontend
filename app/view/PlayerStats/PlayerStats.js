@@ -10,6 +10,7 @@ import {
   Image,
   SafeAreaView,
   StatusBar,
+  ImageBackground,
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { Ionicons } from "@expo/vector-icons";
@@ -22,40 +23,49 @@ import CarouselModule from "../../components/modules/Carousel/CarouselModule";
 import { processPlayerStats } from "../../components/modules/Carousel/CarouselData";
 import { getAssets, getIconImage } from "../../lib/getAssetsFunctions";
 import LoadingPage from "../../components/LoadingPage";
+import imageBackground from "../../assets/background-login.jpg";
+import PlayerStatsMoreInfo from "../PlayerStats/playerStatsMoreInfo";
 
-export default function PlayerStats() {
+const PlayerStats = () => {
   getAssets();
   const dispatch = useDispatch();
   const playerName = useSelector((state) => state.battleLogReducer.name);
   const playerID = useSelector((state) => state.playerPersistReducer.playerID);
   const season = useSelector((state) => state.battleLogReducer.season);
-  const seasons = useSelector(
-    (state) => state.battleLogReducer.playerStats.season
-  );
-  const types = useSelector(
-    (state) => state.battleLogReducer.playerStats.season[season].type
+  const icon = useSelector((state) => state.battleLogReducer.icon);
+  const playerStats = useSelector(
+    (state) => state.battleLogReducer.playerStats
   );
 
-  const icon = useSelector((state) => state.battleLogReducer.icon);
   const iconImage = getIconImage(icon);
 
-  const sKeys = Object.keys(seasons);
-  const seasonsKey = sKeys.map((x) => "season " + x);
+  let seasons = null;
+  let types = null;
+  let sKeys = null;
+  let seasonsKey = null;
+  let typesKey = null;
 
+  if (playerStats !== "no data") {
+    seasons = useSelector((state) => state.battleLogReducer.playerStats.season);
+    types = useSelector(
+      (state) => state.battleLogReducer.playerStats.season[season].type
+    );
+    sKeys = Object.keys(seasons);
+    seasonsKey = sKeys.map((x) => "season " + x);
 
-  const typesKey = Object.keys(types)
-    .map((x) =>
-      x === "ranked"
-        ? "Trophies"
-        : x === "soloRanked"
-        ? "Solo PL"
-        : x == "teamRanked"
-        ? "Team PL"
-        : null
-    )
-    .sort()
-    .reverse();
-
+    typesKey = Object.keys(types)
+      .map((x) =>
+        x === "ranked"
+          ? "Trophies"
+          : x === "soloRanked"
+          ? "PL Solo"
+          : x == "teamRanked"
+          ? "PL Team"
+          : null
+      )
+      .sort()
+      .reverse();
+  }
 
   // const typesKey = [
   //   trophiesExist == true ? (
@@ -74,14 +84,24 @@ export default function PlayerStats() {
   //     </>
   //   ) : null,
   // ];
-  console.log(typesKey)
+  console.log(typesKey);
 
   const [styleIndex, setStyleIndex] = useState(0);
   const [sortIndex, setSortIndex] = useState(0);
   const [seasonIndex, setSeasonIndex] = useState(season);
   const [showPreferences, setShowPreferences] = useState(false);
+  const [moreInfoCarouselOpen, setMoreInfoCarouselOpen] = useState(false);
 
   const [typeIndex, setTypeIndex] = useState(0);
+  if (playerStats !== "no data") {
+    processPlayerStats(seasonIndex, typesKey[typeIndex]);
+    const isOpen = useSelector((state) => state.uiReducerNoPersist.isOpen);
+    if (moreInfoCarouselOpen === false) {
+      if (isOpen === true) {
+        setMoreInfoCarouselOpen(isOpen);
+      }
+    }
+  }
 
   const handleReset = () => {
     // console.log("called");
@@ -101,15 +121,15 @@ export default function PlayerStats() {
     await setTestDeviceIDAsync("EMULATOR");
   };
   setTest();
-  // console.log("calleddd!");
+  //
 
   //this will intialise the creation of the data for the carousels
 
-  processPlayerStats(seasonIndex, typesKey[typeIndex]);
-
   return (
     <>
-      {playerID ? (
+      {playerID &&
+      playerStats !== "no data" &&
+      moreInfoCarouselOpen === false ? (
         <SafeAreaView>
           <AdMobBanner
             bannerSize="smartBanner"
@@ -203,18 +223,17 @@ export default function PlayerStats() {
                     style={styleIndex}
                     sort={sortIndex}
                   />
+                  <Text style={styles.categoryName}>Player Stats by Map</Text>
+                  <CarouselModule
+                    dataType="map"
+                    style={styleIndex}
+                    sort={sortIndex}
+                  />
                   <Text style={styles.categoryName}>
                     Player Stats by Brawler
                   </Text>
                   <CarouselModule
                     dataType="brawler"
-                    style={styleIndex}
-                    sort={sortIndex}
-                  />
-
-                  <Text style={styles.categoryName}>Player Stats by Map</Text>
-                  <CarouselModule
-                    dataType="map"
                     style={styleIndex}
                     sort={sortIndex}
                   />
@@ -231,10 +250,46 @@ export default function PlayerStats() {
           </ScrollView>
         </SafeAreaView>
       ) : null}
+      {playerStats === "no data" && playerID ? (
+        <ImageBackground
+          source={imageBackground}
+          style={[styles.imageBackground]}
+          blurRadius={2}
+        >
+          <View style={[styles.nameContainer, { top: -280 }]}>
+            {iconImage ? (
+              <Image
+                source={{ uri: iconImage }}
+                style={{
+                  width: 30,
+                  height: 30,
+                  marginRight: 5,
+                  marginTop: 5,
+                }}
+              />
+            ) : null}
+            <Text style={styles.name}>{playerName}</Text>
+            <TouchableOpacity>
+              <Ionicons
+                onPress={() => handleReset()}
+                style={styles.icon}
+                name="exit"
+                size={24}
+                color={colors.secondary}
+              ></Ionicons>
+            </TouchableOpacity>
+          </View>
+          <Text style={[styles.name, { fontSize: 20 }]}>
+            {`You don't have any ranked or Power League games in your battlelog.
+Your stats will be automatically updated when you do!`}
+          </Text>
+        </ImageBackground>
+      ) : null}
       {!playerID ? <LoadingPage /> : null}
+      {moreInfoCarouselOpen !== false && <PlayerStatsMoreInfo />}
     </>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -244,6 +299,12 @@ const styles = StyleSheet.create({
   nameContainer: {
     marginTop: 20,
     flexDirection: "row",
+    justifyContent: "center",
+  },
+  imageBackground: {
+    flex: 1,
+    resizeMode: "cover",
+    width: "100%",
     justifyContent: "center",
   },
   name: {
@@ -279,3 +340,4 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
 });
+export default PlayerStats;

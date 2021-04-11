@@ -1,4 +1,5 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+
 import {
   View,
   Text,
@@ -20,19 +21,19 @@ import {
   mapsByPerformance,
   mapsByWins,
   teamsByPerformance,
+  teamsByWins,
 } from "./CarouselData";
-
-import moreInfoPage from "../moreInfoPage";
+import infoButton from "../../../assets/icons/infoButton.png";
+import { useDispatch } from "react-redux";
+import { moreInfoCarouselOpen } from "../../../store/uiReducerNoPersist";
 
 export default function CarouselModule({ dataType, style, sort }) {
+  const dispatch = useDispatch();
   const carouselRef = useRef(null);
-  const [toggleStyle, setToggleStyle] = useState(false);
 
   const goForward = () => {
     carouselRef.current.snapToNext();
   };
-
-  const { width: screenWidth } = Dimensions.get("window");
 
   const getBackgroundColor = (item) => {
     if (item.winRatio >= 7) return "#003924";
@@ -52,9 +53,14 @@ export default function CarouselModule({ dataType, style, sort }) {
     else if (item.winRatio < 1) return "AWFUL";
   };
 
+  const onPressCarousel = (name) => {
+    console.log("calleddd!");
+    dispatch(
+      moreInfoCarouselOpen({ isOpen: true, type: dataType, name: name })
+    );
+  };
+
   const renderItem = ({ item, index }) => {
-    // console.log("new");
-    // console.log(item);
     return (
       <View style={styles.item}>
         <View
@@ -82,17 +88,48 @@ export default function CarouselModule({ dataType, style, sort }) {
             >
               {item.title}
             </Text>
-            <Text style={[styles.title,{fontSize:8, position:"absolute", left:1, top:30}, dataType=='team'?{top:24}:null]}>{getMessage(item)}</Text>
+            <Text
+              style={[
+                styles.title,
+                { fontSize: 8, position: "absolute", left: 1, top: 30 },
+                dataType == "team" ? { top: 24 } : null,
+              ]}
+            >
+              {getMessage(item)}
+            </Text>
             <Image
               source={dataType === "map" ? item.mode : null}
               style={{ width: 20, height: 20, marginTop: 8, marginLeft: 5 }}
             />
+            {dataType !== "team" && dataType !== "brawler" && (
+              <TouchableOpacity
+                onPress={() => onPressCarousel(item.title)}
+                style={{
+                  position: "absolute",
+                  right: 0,
+                  top: 0,
+                }}
+              >
+               <Text style={styles.statsTextMode}>More stats</Text>
+                <Image
+                  source={require("../../../assets/icons/infoButton.png")}
+                  style={{ width: 30, height: 30 }}
+                />
+              </TouchableOpacity>
+            )}
           </View>
 
           <View
             style={{ marginLeft: "auto", marginRight: "auto", marginTop: 10 }}
           >
-            {dataType !== "team" && (
+            {dataType !== "team" && dataType !== "brawler" && (
+              <Image
+                source={item.image}
+                containerStyle={styles.imageContainer}
+                style={[dataType !== "map" ? styles.image : styles.mapImage]}
+              />
+            )}
+            {dataType === "brawler" && (
               <Image
                 source={item.image}
                 containerStyle={styles.imageContainer}
@@ -199,7 +236,7 @@ export default function CarouselModule({ dataType, style, sort }) {
         <Carousel
           shouldOptimizeUpdates={false}
           layout={style === 0 ? "default" : style === 1 ? "tinder" : "stack"}
-          layoutCardOffset={30}
+          layoutCardOffset={110}
           ref={carouselRef}
           sliderWidth={390}
           itemWidth={300}
@@ -253,6 +290,17 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 8,
   },
+  statsTextMode: {
+    position: "absolute",
+    fontSize: 7,
+    color: colors.secondary,
+    fontFamily: "Lilita-One",
+    right:1,
+    top:30,
+    textAlign:"center"
+    
+  },
+
   image: {
     width: 100,
     height: 100,

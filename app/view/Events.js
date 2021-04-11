@@ -27,9 +27,10 @@ export default function Events() {
   const [seasonIndex, setSeasonIndex] = useState(season - 5);
 
   const season = useSelector((state) => state.battleLogReducer.season);
-  const seasons = useSelector(
-    (state) => state.battleLogReducer.playerStats.season
-  );
+  const seasons={5:null}
+  // const seasons = useSelector(
+  //   (state) => state.battleLogReducer.playerStats.season
+  // );
   const rangesFromDB = getRanges();
   const listRangesItems = [];
 

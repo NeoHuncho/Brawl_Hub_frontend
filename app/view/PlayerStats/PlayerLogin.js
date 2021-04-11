@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { TextInput } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
-import { AdMobInterstitial, setTestDeviceIDAsync } from "expo-ads-admob";
+import { setTestDeviceIDAsync } from "expo-ads-admob";
 import * as Progress from "react-native-progress";
 
 import season6_1 from "../../assets/backgrounds/season6_1.jpg";
@@ -20,12 +20,7 @@ import season5_1 from "../../assets/backgrounds/season5_1.jpg";
 import season5_2 from "../../assets/backgrounds/season5_2.jpg";
 import season5_3 from "../../assets/backgrounds/season5_3.jpg";
 import season4_1 from "../../assets/backgrounds/season4_1.jpg";
-import {
-  battleLogAndPlayerReceived,
-  processedPlayerStats,
-  receivedPlayerStatsFromDB,
-  compiledPlayerStats,
-} from "../../store/battleLogReducer";
+import { receivedPlayerStatsFromDB } from "../../store/battleLogReducer";
 import { userIdReceived } from "../../store/playerIdReducer";
 import {
   mapsReceived,
@@ -41,9 +36,8 @@ import {
   globalStatsReceived,
 } from "../../store/globalStatsReducer";
 
-import PlayerStats from "./PlayerStats.js";
 import colors from "../../config/colors";
-import { playerInfoWrite } from "../../lib/writer";
+
 import imageBackground from "../../assets/background-login.jpg";
 
 import {
@@ -129,10 +123,12 @@ export default function PlayerLogin() {
           try {
             let checkDBStats = await getStatsFromDB(userId);
             setProgress(0.2);
+            setLoadingText("fetching your stats...");
             if (checkDBStats == null) {
               let playerStats = await getStatsFirstLogin(userId);
-              dispatch(receivedPlayerStatsFromDB(checkDBStats));
+              dispatch(receivedPlayerStatsFromDB(playerStats));
               setProgress(0.5);
+        
             } else {
               dispatch(receivedPlayerStatsFromDB(checkDBStats));
               setProgress(0.5);
@@ -140,6 +136,7 @@ export default function PlayerLogin() {
 
             const { maps, brawlers, events, icons } = await getBrawlifyFromDB();
             setProgress(0.65);
+            setLoadingText("fetching global stats. Hang in there!");
             const {
               nBrawlers,
               nGadgets,
@@ -161,14 +158,18 @@ export default function PlayerLogin() {
             setProgress(1);
             setValidId(true);
           } catch (error) {
-            if (error.response.status == 404) {
-              setConfirmClicked(false);
-              setMessage("Invalid player ID. Please try Again!");
+            if (error.response) {
+              if (error.response.status == 404) {
+                setConfirmClicked(false);
+                setMessage("Invalid player ID. Please try Again!");
+              } else {
+                console.log(error.response.status);
+                setMessage(
+                  "Invalid player ID or Supercell is doing maintenance!"
+                );
+              }
             } else {
-              console.log(error.response.status);
-              setMessage(
-                "Invalid player ID or Supercell is doing maintenance!"
-              );
+              console.log(error);
             }
           }
         }
@@ -181,7 +182,7 @@ export default function PlayerLogin() {
 
   return (
     <>
-      {!validId && saved !== true && (
+      {!validId && saved !== true && confirmClicked == false && (
         <View style={styles.container}>
           <ImageBackground
             source={imageBackground}
@@ -280,7 +281,6 @@ const styles = StyleSheet.create({
   },
 
   inputContainer: {
-    marginTop: 180,
     marginBottom: 50,
     alignItems: "center",
   },
