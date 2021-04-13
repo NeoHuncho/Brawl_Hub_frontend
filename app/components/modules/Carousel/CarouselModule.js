@@ -25,7 +25,7 @@ import {
 } from "./CarouselData";
 import infoButton from "../../../assets/icons/infoButton.png";
 import { useDispatch } from "react-redux";
-import { moreInfoCarouselOpen } from "../../../store/uiReducerNoPersist";
+import { moreInfoCarouselOpen } from "../../../store/reducers/uiReducerNoPersist";
 
 export default function CarouselModule({ dataType, style, sort }) {
   const dispatch = useDispatch();
@@ -53,10 +53,10 @@ export default function CarouselModule({ dataType, style, sort }) {
     else if (item.winRatio < 1) return "AWFUL";
   };
 
-  const onPressCarousel = (name) => {
-    console.log("calleddd!");
+  const onPressCarousel = (displayName,name,mode,image) => {
+    // console.log("calleddd!");
     dispatch(
-      moreInfoCarouselOpen({ isOpen: true, type: dataType, name: name })
+      moreInfoCarouselOpen({ isOpen: true, displayName:displayName, type: dataType, name: name, mode:mode, image:image })
     );
   };
 
@@ -103,7 +103,7 @@ export default function CarouselModule({ dataType, style, sort }) {
             />
             {dataType !== "team" && dataType !== "brawler" && (
               <TouchableOpacity
-                onPress={() => onPressCarousel(item.title)}
+                onPress={() => onPressCarousel(item.title,item.titleCamel,item.mode,item.image)}
                 style={{
                   position: "absolute",
                   right: 0,
@@ -122,14 +122,7 @@ export default function CarouselModule({ dataType, style, sort }) {
           <View
             style={{ marginLeft: "auto", marginRight: "auto", marginTop: 10 }}
           >
-            {dataType !== "team" && dataType !== "brawler" && (
-              <Image
-                source={item.image}
-                containerStyle={styles.imageContainer}
-                style={[dataType !== "map" ? styles.image : styles.mapImage]}
-              />
-            )}
-            {dataType === "brawler" && (
+            {dataType !== "team"  && (
               <Image
                 source={item.image}
                 containerStyle={styles.imageContainer}
@@ -236,7 +229,7 @@ export default function CarouselModule({ dataType, style, sort }) {
         <Carousel
           shouldOptimizeUpdates={false}
           layout={style === 0 ? "default" : style === 1 ? "tinder" : "stack"}
-          layoutCardOffset={110}
+          layoutCardOffset={30}
           ref={carouselRef}
           sliderWidth={390}
           itemWidth={300}

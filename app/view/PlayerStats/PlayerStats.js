@@ -17,7 +17,9 @@ import { Ionicons } from "@expo/vector-icons";
 import SegmentedControlTab from "react-native-segmented-control-tab";
 
 import colors from "../../config/colors";
-import { userIdReset } from "../../store/playerIdReducer";
+import { userIdReset } from "../../store/reducers/playerIdReducer";
+import { receivedGameTypeAndSeason } from "../../store/reducers/uiReducerNoPersist";
+import {preferencesCarousel } from "../../store/reducers/uiReducerPersist";
 import WinLossModule from "../../components/modules/WinLossModule";
 import CarouselModule from "../../components/modules/Carousel/CarouselModule";
 import { processPlayerStats } from "../../components/modules/Carousel/CarouselData";
@@ -36,6 +38,7 @@ const PlayerStats = () => {
   const playerStats = useSelector(
     (state) => state.battleLogReducer.playerStats
   );
+  const preferencesCarouselStored = useSelector((state) => state.uiReducerPersist);
 
   const iconImage = getIconImage(icon);
 
@@ -45,7 +48,7 @@ const PlayerStats = () => {
   let seasonsKey = null;
   let typesKey = null;
 
-  if (playerStats !== "no data") {
+  if (playerStats !== "no data"|| playerStats!=={'season':{}}) {
     seasons = useSelector((state) => state.battleLogReducer.playerStats.season);
     types = useSelector(
       (state) => state.battleLogReducer.playerStats.season[season].type
@@ -84,20 +87,36 @@ const PlayerStats = () => {
   //     </>
   //   ) : null,
   // ];
-  console.log(typesKey);
+  // console.log(typesKey);
 
-  const [styleIndex, setStyleIndex] = useState(0);
-  const [sortIndex, setSortIndex] = useState(0);
+  const [styleIndex, setStyleIndex] = useState(preferencesCarouselStored.styleIndex);
+  const [sortIndex, setSortIndex] = useState(preferencesCarouselStored.sortIndex);
   const [seasonIndex, setSeasonIndex] = useState(season);
   const [showPreferences, setShowPreferences] = useState(false);
   const [moreInfoCarouselOpen, setMoreInfoCarouselOpen] = useState(false);
 
   const [typeIndex, setTypeIndex] = useState(0);
-  if (playerStats !== "no data") {
-    processPlayerStats(seasonIndex, typesKey[typeIndex]);
+  if (playerStats !== "no data"|| playerStats!={'season':{}}) {
+    dispatch(
+      preferencesCarousel({
+        sortIndex:sortIndex,
+        styleIndex:styleIndex
+      })
+    );
+    dispatch(
+      receivedGameTypeAndSeason({
+        seasonIndex: seasonIndex,
+        gameType: typesKey[typeIndex],
+      })
+    );
+    processPlayerStats(seasonIndex, typesKey[typeIndex], null, null);
     const isOpen = useSelector((state) => state.uiReducerNoPersist.isOpen);
     if (moreInfoCarouselOpen === false) {
       if (isOpen === true) {
+        setMoreInfoCarouselOpen(isOpen);
+      }
+    } else if (moreInfoCarouselOpen === true) {
+      if (isOpen === false) {
         setMoreInfoCarouselOpen(isOpen);
       }
     }
@@ -108,7 +127,7 @@ const PlayerStats = () => {
     try {
       dispatch(userIdReset());
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 
@@ -128,7 +147,7 @@ const PlayerStats = () => {
   return (
     <>
       {playerID &&
-      playerStats !== "no data" &&
+      playerStats !== "no data" && playerStats!=={'season':{}} &&
       moreInfoCarouselOpen === false ? (
         <SafeAreaView>
           <AdMobBanner

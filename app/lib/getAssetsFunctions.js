@@ -312,7 +312,7 @@ const getAssets = (seasonIndex, gameTypeName) => {
 
   getIconImage = (iconID) => {
     let iconUrl = undefined;
-    console.log(iconID)
+    // console.log(iconID)
     for (let iconKey in state.brawlifyReducer.iconsList) {
       if (iconKey == iconID) { 
          iconUrl = state.brawlifyReducer.iconsList[iconKey].imageUrl;

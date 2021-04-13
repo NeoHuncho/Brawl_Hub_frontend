@@ -1,3 +1,4 @@
+//expo build:android -t apk
 import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
@@ -20,21 +21,21 @@ import season5_1 from "../../assets/backgrounds/season5_1.jpg";
 import season5_2 from "../../assets/backgrounds/season5_2.jpg";
 import season5_3 from "../../assets/backgrounds/season5_3.jpg";
 import season4_1 from "../../assets/backgrounds/season4_1.jpg";
-import { receivedPlayerStatsFromDB } from "../../store/battleLogReducer";
-import { userIdReceived } from "../../store/playerIdReducer";
+import { receivedPlayerStatsFromDB } from "../../store/reducers/battleLogReducer";
+import { userIdReceived } from "../../store/reducers/playerIdReducer";
 import {
   mapsReceived,
   brawlersReceived,
   eventsReceived,
   iconsReceived,
-} from "../../store/brawlifyReducer";
+} from "../../store/reducers/brawlifyReducer";
 
 import {
   nBrawlersReceived,
   nGadgetsReceived,
   nStarsReceived,
   globalStatsReceived,
-} from "../../store/globalStatsReducer";
+} from "../../store/reducers/globalStatsReducer";
 
 import colors from "../../config/colors";
 
@@ -43,6 +44,7 @@ import imageBackground from "../../assets/background-login.jpg";
 import {
   getBrawlifyFromDB,
   getGlobalStatsFromDB,
+  getGlobalNumbersFromDB,
   getStatsFirstLogin,
   getStatsFromDB,
 } from "../../store/apiDB";
@@ -93,9 +95,8 @@ export default function PlayerLogin() {
             const {
               nBrawlers,
               nGadgets,
-              nStarPowers,
-              globalStats,
-            } = await getGlobalStatsFromDB();
+              nStarPowers
+            } = await getGlobalNumbersFromDB();
             dispatch(brawlersReceived(brawlers));
             dispatch(mapsReceived(maps));
             dispatch(eventsReceived(events));
@@ -104,9 +105,10 @@ export default function PlayerLogin() {
             dispatch(nBrawlersReceived(nBrawlers));
             dispatch(nGadgetsReceived(nGadgets));
             dispatch(nStarsReceived(nStarPowers));
-            dispatch(globalStatsReceived(globalStats));
             setProgress(1);
             setValidId(true);
+            const globalStats= await getGlobalStatsFromDB();
+            dispatch(globalStatsReceived(globalStats));
           }
         }
         fetchMySavedData();
@@ -125,8 +127,9 @@ export default function PlayerLogin() {
             setProgress(0.2);
             setLoadingText("fetching your stats...");
             if (checkDBStats == null) {
-              let playerStats = await getStatsFirstLogin(userId);
-              dispatch(receivedPlayerStatsFromDB(playerStats));
+              await getStatsFirstLogin(userId);
+              let statsFromDB = await getStatsFromDB(userId);
+              dispatch(receivedPlayerStatsFromDB(statsFromDB));
               setProgress(0.5);
         
             } else {

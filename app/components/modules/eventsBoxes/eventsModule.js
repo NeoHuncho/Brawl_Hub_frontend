@@ -20,11 +20,11 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
   let season = useSelector((state) => state.battleLogReducer.season);
   let powerLeagueStatsSolo = useSelector(
     (state) =>
-      state.globalStatsReducer.globalStats[season]["powerLeagueSolo"][range]
+      state.globalStatsReducer.globalStats["powerLeagueSolo"][range]
   );
   let powerLeagueStatsTeam = useSelector(
     (state) =>
-      state.globalStatsReducer.globalStats[season]["powerLeagueTeam"][range]
+      state.globalStatsReducer.globalStats["powerLeagueTeam"][range]
   );
   if (typeIndex == 1) {
     powerLeagueStats = powerLeagueStatsSolo;
@@ -55,7 +55,7 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
       let teamBrawler1 = null;
       let teamBrawler2 = null;
       let teamBrawler3 = null;
-      console.log(sortedTeams);
+      // console.log(sortedTeams);
       if (sortedTeams) {
         if (sortedTeams.length != 0) {
           teamBrawler1 = sortedTeams[0].ID.slice(0, 8);
@@ -224,7 +224,7 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
       for (let mapID in powerLeagueStats[modeName]) {
         sortedBrawlers.push(bestBrawlers(typeIndex, range, modeName, mapID));
         let sortedTeams = bestTeams(typeIndex, range, modeName, mapID);
-        console.log(sortedTeams);
+        // console.log(sortedTeams);
         if (sortedTeams) {
           if (sortedTeams.length != 0) {
             teamBrawler1.push(sortedTeams[0].ID.slice(0, 8));
@@ -697,7 +697,7 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                     </View>
                   </View>
                 )}
-                {maps[2] && (
+                {maps[3] && (
                   <View
                     style={[
                       styles.square,
@@ -707,13 +707,13 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                     <Text
                       style={[styles.text, { marginTop: 4, marginLeft: 4,fontSize:11 }]}
                     >
-                      {getMapName(maps[2])=='Some Assembly Required'?'Some Assembly R.':getMapName(maps[2]) }
+                      {getMapName(maps[3])=='Some Assembly Required'?'Some Assembly R.':getMapName(maps[3]) }
                     </Text>
                     <View style={{ flexDirection: "row" }}>
                       <View style={{ marginLeft: 4 }}>
                         {sortedBrawlers && (
                           <>
-                            {sortedBrawlers[2] && (
+                            {sortedBrawlers[3] && (
                               <>
                                 <Text
                                   style={[
@@ -725,7 +725,7 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                                 </Text>
 
                                 <View style={{ flexDirection: "row" }}>
-                                  {sortedBrawlers[2][0] && (
+                                  {sortedBrawlers[3][0] && (
                                     <Image
                                       style={[
                                         styles.brawlerImage,
@@ -738,11 +738,11 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                                         },
                                       ]}
                                       source={getBrawlerImage(
-                                        sortedBrawlers[2][0].ID
+                                        sortedBrawlers[3][0].ID
                                       )}
                                     />
                                   )}
-                                  {sortedBrawlers[2][1] && (
+                                  {sortedBrawlers[3][1] && (
                                     <Image
                                       style={[
                                         styles.brawlerImage,
@@ -755,11 +755,11 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                                         },
                                       ]}
                                       source={getBrawlerImage(
-                                        sortedBrawlers[2][1].ID
+                                        sortedBrawlers[3][1].ID
                                       )}
                                     />
                                   )}
-                                  {sortedBrawlers[2][2] && (
+                                  {sortedBrawlers[3][2] && (
                                     <Image
                                       style={[
                                         styles.brawlerImage,
@@ -772,7 +772,7 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                                         },
                                       ]}
                                       source={getBrawlerImage(
-                                        sortedBrawlers[2][2].ID
+                                        sortedBrawlers[3][2].ID
                                       )}
                                     />
                                   )}
@@ -781,9 +781,9 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                             )}
                           </>
                         )}
-                        {teamBrawler1[2] && (
+                        {teamBrawler1[3] && (
                           <>
-                            {teamBrawler1[2].length != 0 && (
+                            {teamBrawler1[3].length != 0 && (
                               <Text
                                 style={[
                                   styles.text,
@@ -803,7 +803,7 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                                   styles.brawlerImage,
                                   { width: 28, height: 28 },
                                 ]}
-                                source={getBrawlerImage(teamBrawler1[2])}
+                                source={getBrawlerImage(teamBrawler1[3])}
                               />
 
                               <Image
@@ -811,7 +811,7 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                                   styles.brawlerImage,
                                   { width: 28, height: 28 },
                                 ]}
-                                source={getBrawlerImage(teamBrawler2[2])}
+                                source={getBrawlerImage(teamBrawler2[3])}
                               />
 
                               {teamBrawler3 ? (
@@ -821,7 +821,7 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                                       styles.brawlerImage,
                                       { width: 28, height: 28 },
                                     ]}
-                                    source={getBrawlerImage(teamBrawler3[2])}
+                                    source={getBrawlerImage(teamBrawler3[3])}
                                   />
                                 ) : null
                               ) : null}
@@ -831,7 +831,7 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                       </View>
 
                       <Image
-                        source={getMapImage(maps[2])}
+                        source={getMapImage(maps[3])}
                         style={{
                           width: 60,
                           height: 100,
@@ -850,7 +850,7 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
         </>
       );
     }
-    console.log(eventModule);
+    // console.log(eventModule);
     return <View>{eventModule}</View>;
   }
 };

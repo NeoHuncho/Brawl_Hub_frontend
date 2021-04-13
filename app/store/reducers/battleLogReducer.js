@@ -20,7 +20,7 @@ const slice = createSlice({
   reducers: {
     receivedPlayerStatsFromDB: (battleLogAndPlayer, action) => {
       let data = action.payload;
-      console.log(data);
+      // console.log(data);
       battleLogAndPlayer.name = data.name;
       battleLogAndPlayer.nameColor = data.nameColor;
       battleLogAndPlayer.icon = data.icon;
@@ -31,7 +31,7 @@ const slice = createSlice({
       battleLogAndPlayer.trophyLosses = data.battleLog.trophyLosses;
       battleLogAndPlayer.numberOfGames = data.battleLog.numberOfGames;
       battleLogAndPlayer.season = data.battleLog.season;
-      if (data.battleLog.playerStats) {
+      if (data.battleLog.playerStats ) {
         battleLogAndPlayer.playerStats = data.battleLog.playerStats.playerStats;
       }
       else{

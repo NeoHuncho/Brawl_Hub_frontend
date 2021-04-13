@@ -16,15 +16,15 @@ const getRanges = () => {
   let teamRanges = [];
 
   ranges.push(
-    Object.keys(state.globalStatsReducer.globalStats[season]["trophies"])
+    Object.keys(state.globalStatsReducer.globalStats["trophies"])
   );
 
   soloRanges.push(
-    Object.keys(state.globalStatsReducer.globalStats[season]["powerLeagueSolo"])
+    Object.keys(state.globalStatsReducer.globalStats["powerLeagueSolo"])
   );
 
   teamRanges.push(
-    Object.keys(state.globalStatsReducer.globalStats[season]["powerLeagueTeam"])
+    Object.keys(state.globalStatsReducer.globalStats["powerLeagueTeam"])
   );
 
   return [ranges, soloRanges, teamRanges];
@@ -39,32 +39,32 @@ const bestBrawlers = (type, range, modeName, mapID) => {
   if (type == 2) type = "powerLeagueTeam";
 
   modeName = camelize(modeName);
-  console.log(type, range, modeName, mapID);
-  if (state.globalStatsReducer.globalStats[season][type][range]) {
-    if (state.globalStatsReducer.globalStats[season][type][range][modeName]) {
+  // console.log(type, range, modeName, mapID);
+  if (state.globalStatsReducer.globalStats[type][range]) {
+    if (state.globalStatsReducer.globalStats[type][range][modeName]) {
       if (
-        state.globalStatsReducer.globalStats[season][type][range][modeName][
+        state.globalStatsReducer.globalStats[type][range][modeName][
           mapID
         ]
       ) {
         if (
-          state.globalStatsReducer.globalStats[season][type][range][modeName][
+          state.globalStatsReducer.globalStats[type][range][modeName][
             mapID
           ].performanceBrawlers
         ) {
           let data =
-            state.globalStatsReducer.globalStats[season][type][range][modeName][
+            state.globalStatsReducer.globalStats[type][range][modeName][
               mapID
             ].performanceBrawlers;
-          console.log(data);
+          // console.log(data);
 
           let performanceBrawlers = Object.keys(data).map((i) => data[i]);
-          console.log(performanceBrawlers);
+          // console.log(performanceBrawlers);
 
           let brawlersSorted = performanceBrawlers
             .sort((a, b) => (a.points < b.points ? 1 : -1))
-            .filter((x) => x.count >= 1);
-          console.log(brawlersSorted);
+            .filter((x) => x.count >= 10);
+          // console.log(brawlersSorted);
           return brawlersSorted;
         }
       }
@@ -82,20 +82,20 @@ const bestTeams = (type, range, modeName, mapID) => {
 
   modeName = camelize(modeName);
 
-  if (state.globalStatsReducer.globalStats[season][type][range]) {
-    if (state.globalStatsReducer.globalStats[season][type][range][modeName]) {
+  if (state.globalStatsReducer.globalStats[type][range]) {
+    if (state.globalStatsReducer.globalStats[type][range][modeName]) {
       if (
-        state.globalStatsReducer.globalStats[season][type][range][modeName][
+        state.globalStatsReducer.globalStats[type][range][modeName][
           mapID
         ]
       ) {
         if (
-          state.globalStatsReducer.globalStats[season][type][range][modeName][
+          state.globalStatsReducer.globalStats[type][range][modeName][
             mapID
           ].performanceTeams
         ) {
           let data =
-            state.globalStatsReducer.globalStats[season][type][range][modeName][
+            state.globalStatsReducer.globalStats[type][range][modeName][
               mapID
             ].performanceTeams;
           //console.log(data);
@@ -105,7 +105,7 @@ const bestTeams = (type, range, modeName, mapID) => {
           let teamsSorted = performanceTeams
             .sort((a, b) => (a.points < b.points ? 1 : -1))
             .filter((x) => x.count >= 1);
-          console.log(teamsSorted);
+          // console.log(teamsSorted);
           return teamsSorted;
         }
       }
@@ -113,6 +113,6 @@ const bestTeams = (type, range, modeName, mapID) => {
   }
 };
 
-const unsubscribe = store.subscribe(bestBrawlers, bestTeams);
+const unsubscribe = store.subscribe(bestBrawlers, bestTeams,getRanges);
 unsubscribe();
-export { getRanges, bestBrawlers, bestTeams };
+export { getRanges, bestBrawlers, bestTeams,camelize };

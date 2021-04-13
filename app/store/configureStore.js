@@ -14,7 +14,7 @@ const persistConfig = {
   storage: AsyncStorage,
   // Whitelist (Save Specific Reducers)
   //"playerPersistReducer",
-  whitelist: ["playerPersistReducer",],
+  whitelist: ["playerPersistReducer",'uiReducerPersist'],
   // Blacklist (Don't Save Specific Reducers)
   blacklist: ["battleLogReducer","globalStatsReducer","brawlifyReducer",'uiReducerNoPersist'],
 };

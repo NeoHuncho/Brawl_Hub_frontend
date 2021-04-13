@@ -27,7 +27,7 @@ const eventsData = () => {
       }
     }
     for (const eventKey in eventsUpcoming) {
-      if (eventsUpcoming[eventKey].slot.id <=6) {
+      if (eventsUpcoming[eventKey].slot.id <=5) {
         eventUpcomingData.push({
           modeName: eventsUpcoming[eventKey].map.gameMode.name,
           modeImage: eventsUpcoming[eventKey].map.gameMode.imageUrl,
