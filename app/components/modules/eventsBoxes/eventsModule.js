@@ -1,5 +1,12 @@
 import React from "react";
-import { View, StyleSheet, ImageBackground, Text, Image } from "react-native";
+import {
+  View,
+  StyleSheet,
+  ImageBackground,
+  Text,
+  Image,
+  TouchableOpacity,
+} from "react-native";
 import moment from "moment";
 import { eventsData, eventActiveData, eventUpcomingData } from "./eventsData";
 import colors from "../../../config/colors";
@@ -12,19 +19,38 @@ import {
   getModeImage,
   getModeColor,
 } from "../../../lib/getAssetsFunctions";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { moreInfoEventOpen } from "../../../store/reducers/uiReducerNoPersist";
 
 const EventsModule = ({ seasonIndex, typeIndex, range }) => {
+  const dispatch = useDispatch();
+  const onPressEvent = (
+    type,
+    mapName,
+    modeImage,
+    mapImage,
+    sortedBrawlers,
+    sortedTeams
+  ) => {
+    dispatch(
+      moreInfoEventOpen({
+        isOpen: true,
+        type: type,
+        name: mapName,
+        mode: modeImage,
+        image: mapImage,
+        sortedBrawlers: sortedBrawlers,
+        sortedTeams: sortedTeams,
+      })
+    );
+  };
   eventsData();
   let powerLeagueStats = null;
-  let season = useSelector((state) => state.battleLogReducer.season);
   let powerLeagueStatsSolo = useSelector(
-    (state) =>
-      state.globalStatsReducer.globalStats["powerLeagueSolo"][range]
+    (state) => state.globalStatsReducer.globalStats["powerLeagueSolo"][range]
   );
   let powerLeagueStatsTeam = useSelector(
-    (state) =>
-      state.globalStatsReducer.globalStats["powerLeagueTeam"][range]
+    (state) => state.globalStatsReducer.globalStats["powerLeagueTeam"][range]
   );
   if (typeIndex == 1) {
     powerLeagueStats = powerLeagueStatsSolo;
@@ -52,6 +78,7 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
         event.modeName,
         event.mapID
       );
+      
       let teamBrawler1 = null;
       let teamBrawler2 = null;
       let teamBrawler3 = null;
@@ -85,6 +112,7 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                   fontSize: 14,
                   fontFamily: "Lilita-One",
                   color: colors.secondary,
+                  marginLeft: 4,
                 }}
               >
                 {event.mapName}
@@ -96,12 +124,39 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                   fontFamily: "Lilita-One",
                   color: colors.secondary,
                   position: "absolute",
-                  right: 0,
+                  right: 30,
                   top: 3,
                 }}
               >
                 {`${event.eventLeftTime.hours()}h: ${event.eventLeftTime.minutes()}m left`}
               </Text>
+              {(sortedBrawlers != undefined || sortedTeams != undefined) && (
+                <TouchableOpacity
+                  onPress={() =>
+                    onPressEvent(
+                      "trophies",
+                      event.mapName,
+                      event.modeImage,
+                      event.mapImage,
+                      sortedBrawlers,
+                      sortedTeams
+                    )
+                  }
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    top: -3,
+                  }}
+                >
+                  <Image
+                    source={require("../../../assets/icons/infoButton.png")}
+                    style={{
+                      width: 25,
+                      height: 25,
+                    }}
+                  />
+                </TouchableOpacity>
+              )}
             </View>
           </View>
           <View
@@ -259,9 +314,14 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                     ]}
                   >
                     <Text
-                      style={[styles.text, { marginTop: 4, marginLeft: 4,fontSize:11 }]}
+                      style={[
+                        styles.text,
+                        { marginTop: 4, marginLeft: 4, fontSize: 11 },
+                      ]}
                     >
-                      {getMapName(maps[0])=='Some Assembly Required'?'Some Assembly R.':getMapName(maps[0]) }
+                      {getMapName(maps[0]) == "Some Assembly Required"
+                        ? "Some Assembly R."
+                        : getMapName(maps[0])}
                     </Text>
                     <View style={{ flexDirection: "row" }}>
                       <View style={{ marginLeft: 4 }}>
@@ -387,15 +447,37 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                       <Image
                         source={getMapImage(maps[0])}
                         style={{
-                          width: 60,
-                          height: 100,
-                          position:"absolute",
-                          right:5,
-                          top:-10
-                          
+                          width: 55,
+                          height: 85,
+                          position: "absolute",
+                          right: 10,
+                          top: 6,
                         }}
                       />
                     </View>
+                    <TouchableOpacity
+                      onPress={() =>
+                        onPressEvent(
+                          "trophies",
+                          event.mapName,
+                          event.modeImage,
+                          event.mapImage
+                        )
+                      }
+                      style={{
+                        position: "absolute",
+                        right: 4,
+                        top: 3.5,
+                      }}
+                    >
+                      <Image
+                        source={require("../../../assets/icons/infoButton.png")}
+                        style={{
+                          width: 20,
+                          height: 20,
+                        }}
+                      />
+                    </TouchableOpacity>
                   </View>
                 )}
                 {maps[1] && (
@@ -409,9 +491,14 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                     ]}
                   >
                     <Text
-                      style={[styles.text, { marginTop: 4, marginLeft: 4,fontSize:11 }]}
+                      style={[
+                        styles.text,
+                        { marginTop: 4, marginLeft: 4, fontSize: 11 },
+                      ]}
                     >
-                      {getMapName(maps[1])=='Some Assembly Required'?'Some Assembly R.':getMapName(maps[1]) }
+                      {getMapName(maps[1]) == "Some Assembly Required"
+                        ? "Some Assembly R."
+                        : getMapName(maps[1])}
                     </Text>
                     <View style={{ flexDirection: "row" }}>
                       <View style={{ marginLeft: 4 }}>
@@ -537,15 +624,37 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                       <Image
                         source={getMapImage(maps[1])}
                         style={{
-                          width: 60,
-                          height: 100,
-                          position:"absolute",
-                          right:5,
-                          top:-10
-                          
+                          width: 55,
+                          height: 85,
+                          position: "absolute",
+                          right: 10,
+                          top: 6,
                         }}
                       />
                     </View>
+                    <TouchableOpacity
+                      onPress={() =>
+                        onPressEvent(
+                          "trophies",
+                          event.mapName,
+                          event.modeImage,
+                          event.mapImage
+                        )
+                      }
+                      style={{
+                        position: "absolute",
+                        right: 4,
+                        top: 3.5,
+                      }}
+                    >
+                      <Image
+                        source={require("../../../assets/icons/infoButton.png")}
+                        style={{
+                          width: 20,
+                          height: 20,
+                        }}
+                      />
+                    </TouchableOpacity>
                   </View>
                 )}
               </View>
@@ -554,13 +663,21 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                   <View
                     style={[
                       styles.square,
-                      { backgroundColor: getModeColor(modeName), marginRight:10 },
+                      {
+                        backgroundColor: getModeColor(modeName),
+                        marginRight: 10,
+                      },
                     ]}
                   >
                     <Text
-                      style={[styles.text, { marginTop: 4, marginLeft: 4,fontSize:11 }]}
+                      style={[
+                        styles.text,
+                        { marginTop: 4, marginLeft: 4, fontSize: 11 },
+                      ]}
                     >
-                      {getMapName(maps[2])=='Some Assembly Required'?'Some Assembly R.':getMapName(maps[2]) }
+                      {getMapName(maps[2]) == "Some Assembly Required"
+                        ? "Some Assembly R."
+                        : getMapName(maps[2])}
                     </Text>
                     <View style={{ flexDirection: "row" }}>
                       <View style={{ marginLeft: 4 }}>
@@ -686,15 +803,37 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                       <Image
                         source={getMapImage(maps[2])}
                         style={{
-                          width: 60,
-                          height: 100,
-                          position:"absolute",
-                          right:5,
-                          top:-10
-                          
+                          width: 55,
+                          height: 85,
+                          position: "absolute",
+                          right: 10,
+                          top: 6,
                         }}
                       />
                     </View>
+                    <TouchableOpacity
+                      onPress={() =>
+                        onPressEvent(
+                          "trophies",
+                          event.mapName,
+                          event.modeImage,
+                          event.mapImage
+                        )
+                      }
+                      style={{
+                        position: "absolute",
+                        right: 4,
+                        top: 3.5,
+                      }}
+                    >
+                      <Image
+                        source={require("../../../assets/icons/infoButton.png")}
+                        style={{
+                          width: 20,
+                          height: 20,
+                        }}
+                      />
+                    </TouchableOpacity>
                   </View>
                 )}
                 {maps[3] && (
@@ -705,9 +844,14 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                     ]}
                   >
                     <Text
-                      style={[styles.text, { marginTop: 4, marginLeft: 4,fontSize:11 }]}
+                      style={[
+                        styles.text,
+                        { marginTop: 4, marginLeft: 4, fontSize: 11 },
+                      ]}
                     >
-                      {getMapName(maps[3])=='Some Assembly Required'?'Some Assembly R.':getMapName(maps[3]) }
+                      {getMapName(maps[3]) == "Some Assembly Required"
+                        ? "Some Assembly R."
+                        : getMapName(maps[3])}
                     </Text>
                     <View style={{ flexDirection: "row" }}>
                       <View style={{ marginLeft: 4 }}>
@@ -833,15 +977,37 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                       <Image
                         source={getMapImage(maps[3])}
                         style={{
-                          width: 60,
-                          height: 100,
-                          position:"absolute",
-                          right:5,
-                          top:-10
-                          
+                          width: 55,
+                          height: 85,
+                          position: "absolute",
+                          right: 10,
+                          top: 6,
                         }}
                       />
                     </View>
+                    <TouchableOpacity
+                      onPress={() =>
+                        onPressEvent(
+                          "trophies",
+                          event.mapName,
+                          event.modeImage,
+                          event.mapImage
+                        )
+                      }
+                      style={{
+                        position: "absolute",
+                        right: 4,
+                        top: 3.5,
+                      }}
+                    >
+                      <Image
+                        source={require("../../../assets/icons/infoButton.png")}
+                        style={{
+                          width: 20,
+                          height: 20,
+                        }}
+                      />
+                    </TouchableOpacity>
                   </View>
                 )}
               </View>
@@ -879,7 +1045,7 @@ const styles = StyleSheet.create({
     height: null,
   },
   modeImage: {
-    flex: 0.4,
+    flex: 0.15,
     resizeMode: "contain",
   },
   text: {

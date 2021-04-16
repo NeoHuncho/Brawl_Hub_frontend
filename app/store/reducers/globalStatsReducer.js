@@ -3,31 +3,42 @@ import { createSlice } from "@reduxjs/toolkit";
 const slice = createSlice({
   name: "globalStats",
   initialState: {
-numberOfBrawlers:undefined,
-numberOfGadgets: undefined,
-numberOfStarPowers:undefined,
-globalStats: undefined
+    numberOfBrawlers: undefined,
+    numberOfGadgets: undefined,
+    numberOfStarPowers: undefined,
+    minBrawlerEvent: undefined,
+    minTeamEvent: undefined,
+    minBrawlerPL: undefined,
+    minTeamPL: undefined,
+    seasonGlobal: undefined,
+    globalStats: undefined,
+    slotNumberActive:undefined,
+    slotNumberUpcoming: undefined
   },
   reducers: {
-    nBrawlersReceived: (globalStats, action) => {
+    globalCountsReceived: (globalStats, action) => {
       const data = action.payload;
-      globalStats.numberOfBrawlers = data;
+      globalStats.numberOfBrawlers = data.nBrawlers;
+      globalStats.numberOfGadgets = data.nGadgets;
+      globalStats.numberOfStarPowers = data.nStarPowers;
+      globalStats.minBrawlerEvent = data.minBrawlerEvent;
+      globalStats.minTeamEvent = data.minTeamEvent;
+      globalStats.minBrawlerPL = data.minBrawlerPL;
+      globalStats.minTeamPL = data.minTeamPL;
+      globalStats.seasonGlobal = data.seasonGlobal;
+      globalStats.slotNumberActive=data.slotNumActive;
+      globalStats.slotNumberUpcoming= data.slotNumUpcoming
     },
-    nGadgetsReceived: (globalStats, action) => {
-      const data = action.payload;
-      globalStats.numberOfGadgets = data;
-    },
-    nStarsReceived:(globalStats, action)=>{
-      const data= action.payload;
-      globalStats.numberOfStarPowers= data
-    },
-    globalStatsReceived:(globalStats, action)=>{
-      const data= action.payload;
-      globalStats.globalStats= data
-    }
 
+    globalStatsReceived: (globalStats, action) => {
+      const data = action.payload;
+      globalStats.globalStats = data;
+    },
   },
 });
 
-export const { nBrawlersReceived,nGadgetsReceived,nStarsReceived,globalStatsReceived} = slice.actions;
+export const {
+  globalCountsReceived,
+  globalStatsReceived,
+} = slice.actions;
 export default slice.reducer;

@@ -23,24 +23,17 @@ const getStatsFirstLogin = async (userID) => {
 };
 
 const getBrawlifyFromDB = async () => {
-  const maps = await db
-    .ref("global/brawlify/maps")
-    .once("value")
-    .then((snapshot) => snapshot.val());
-  const brawlers = await db
-    .ref("global/brawlify/brawlers")
-    .once("value")
-    .then((snapshot) => snapshot.val());
-  const events = await db
-    .ref("global/brawlify/events")
-    .once("value")
-    .then((snapshot) => snapshot.val());
-  const icons = await db
-    .ref("global/brawlify/icons/player")
+  
+  const brawlify = await db
+    .ref("global/brawlify")
     .once("value")
     .then((snapshot) => snapshot.val());
 
-  return { maps, brawlers, events, icons };
+  const maps = brawlify['maps'];
+  const brawlers = brawlify['brawlers']
+  const icons = brawlify['icons']['player']
+
+  return { maps, brawlers, icons };
 };
 
 const getStatsFromDB = async (userID) => {
@@ -53,24 +46,27 @@ const getStatsFromDB = async (userID) => {
 };
 
 const getGlobalNumbersFromDB = async () => {
-  const nBrawlers = await db
-    .ref("global/count/numberOfBrawlers")
+  const globalCount= await db
+    .ref("global/count")
     .once("value")
     .then((snapshot) => snapshot.val());
-  const nGadgets = await db
-    .ref("global/count/numberOfGadgets")
-    .once("value")
-    .then((snapshot) => snapshot.val());
-  const nStarPowers = await db
-    .ref("global/count/numberOfStarPowers")
-    .once("value")
-    .then((snapshot) => snapshot.val());
+  
+  const nBrawlers = globalCount['numberOfBrawlers']
+  const nGadgets = globalCount['numberOfGadgets']
+  const nStarPowers = globalCount['numberOfStarPowers']
+  const minBrawlerEvent= globalCount['minBrawlerEvent']
+  const minTeamEvent= globalCount['minTeamEvent']
+  const minBrawlerPL= globalCount['minBrawlerPL']
+  const minTeamPL= globalCount['minTeamPL']
+  const seasonGlobal= globalCount['seasonGlobal']
+  const slotNumActive= globalCount['slotNumActive']
+  const slotNumUpcoming= globalCount['slotNumUpcoming']
 
-  return { nBrawlers, nGadgets, nStarPowers};
+  return { nBrawlers, nGadgets, nStarPowers, minBrawlerEvent,minTeamEvent,minBrawlerPL,minTeamPL,seasonGlobal, slotNumActive,slotNumUpcoming};
 };
-const getGlobalStatsFromDB = async () => {
+const getGlobalStatsFromDB = async (season) => {
   const globalStats = await db
-    .ref("global/globalStats/6")
+    .ref("global/globalStatsReduced/"+season)
     .once("value")
     .then((snapshot) => snapshot.val());
 

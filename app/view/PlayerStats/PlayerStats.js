@@ -19,12 +19,12 @@ import SegmentedControlTab from "react-native-segmented-control-tab";
 import colors from "../../config/colors";
 import { userIdReset } from "../../store/reducers/playerIdReducer";
 import { receivedGameTypeAndSeason } from "../../store/reducers/uiReducerNoPersist";
-import {preferencesCarousel } from "../../store/reducers/uiReducerPersist";
+import { preferencesCarousel } from "../../store/reducers/uiReducerPersist";
 import WinLossModule from "../../components/modules/WinLossModule";
 import CarouselModule from "../../components/modules/Carousel/CarouselModule";
 import { processPlayerStats } from "../../components/modules/Carousel/CarouselData";
 import { getAssets, getIconImage } from "../../lib/getAssetsFunctions";
-import LoadingPage from "../../components/LoadingPage";
+import ReloadPage from "../ReloadPage";
 import imageBackground from "../../assets/background-login.jpg";
 import PlayerStatsMoreInfo from "../PlayerStats/playerStatsMoreInfo";
 
@@ -38,7 +38,9 @@ const PlayerStats = () => {
   const playerStats = useSelector(
     (state) => state.battleLogReducer.playerStats
   );
-  const preferencesCarouselStored = useSelector((state) => state.uiReducerPersist);
+  const preferencesCarouselStored = useSelector(
+    (state) => state.uiReducerPersist
+  );
 
   const iconImage = getIconImage(icon);
 
@@ -48,7 +50,7 @@ const PlayerStats = () => {
   let seasonsKey = null;
   let typesKey = null;
 
-  if (playerStats !== "no data"|| playerStats!=={'season':{}}) {
+  if (playerStats !== "no data" || playerStats !== { season: {} }) {
     seasons = useSelector((state) => state.battleLogReducer.playerStats.season);
     types = useSelector(
       (state) => state.battleLogReducer.playerStats.season[season].type
@@ -61,13 +63,17 @@ const PlayerStats = () => {
         x === "ranked"
           ? "Trophies"
           : x === "soloRanked"
-          ? "PL Solo"
+          ? "Solo PL"
           : x == "teamRanked"
-          ? "PL Team"
+          ? "Team PL"
           : null
       )
       .sort()
       .reverse();
+    if (typesKey.length == 3) {
+      typesKey[1] = "Solo PL";
+      typesKey[2] = "Team PL";
+    }
   }
 
   // const typesKey = [
@@ -89,18 +95,22 @@ const PlayerStats = () => {
   // ];
   // console.log(typesKey);
 
-  const [styleIndex, setStyleIndex] = useState(preferencesCarouselStored.styleIndex);
-  const [sortIndex, setSortIndex] = useState(preferencesCarouselStored.sortIndex);
+  const [styleIndex, setStyleIndex] = useState(
+    preferencesCarouselStored.styleIndex
+  );
+  const [sortIndex, setSortIndex] = useState(
+    preferencesCarouselStored.sortIndex
+  );
   const [seasonIndex, setSeasonIndex] = useState(season);
   const [showPreferences, setShowPreferences] = useState(false);
   const [moreInfoCarouselOpen, setMoreInfoCarouselOpen] = useState(false);
 
   const [typeIndex, setTypeIndex] = useState(0);
-  if (playerStats !== "no data"|| playerStats!={'season':{}}) {
+  if (playerStats !== "no data" || playerStats != { season: {} }) {
     dispatch(
       preferencesCarousel({
-        sortIndex:sortIndex,
-        styleIndex:styleIndex
+        sortIndex: sortIndex,
+        styleIndex: styleIndex,
       })
     );
     dispatch(
@@ -109,6 +119,7 @@ const PlayerStats = () => {
         gameType: typesKey[typeIndex],
       })
     );
+    // console.log(typesKey[typeIndex])
     processPlayerStats(seasonIndex, typesKey[typeIndex], null, null);
     const isOpen = useSelector((state) => state.uiReducerNoPersist.isOpen);
     if (moreInfoCarouselOpen === false) {
@@ -146,17 +157,18 @@ const PlayerStats = () => {
 
   return (
     <>
+      <AdMobBanner
+        bannerSize="smartBanner"
+        adUnitID="ca-app-pub-3940256099942544/6300978111"
+        servePersonalizedAds={true} // true or false
+        onDidFailToReceiveAdWithError={(e) => console.log(e)}
+        style={{ marginTop: StatusBar.currentHeight }}
+      />
       {playerID &&
-      playerStats !== "no data" && playerStats!=={'season':{}} &&
+      playerStats !== "no data" &&
+      playerStats !== { season: {} } &&
       moreInfoCarouselOpen === false ? (
         <SafeAreaView>
-          <AdMobBanner
-            bannerSize="smartBanner"
-            adUnitID="ca-app-pub-3940256099942544/6300978111"
-            servePersonalizedAds={true} // true or false
-            onDidFailToReceiveAdWithError={(e) => console.log(e)}
-            style={{ marginTop: StatusBar.currentHeight }}
-          />
           <ScrollView>
             <View style={styles.container}>
               <View style={styles.nameContainer}>
@@ -231,9 +243,7 @@ const PlayerStats = () => {
                   />
                 </View>
                 <View style={{ marginTop: 10 }}>
-                  {typesKey[typeIndex] === "Trophies" ? (
-                    <WinLossModule type={typeIndex} />
-                  ) : null}
+                  <WinLossModule type={typesKey[typeIndex]} />
                 </View>
                 <View style={{ marginTop: 18, marginBottom: 80 }}>
                   <Text style={styles.categoryName}>Player Stats by Mode</Text>
@@ -304,7 +314,7 @@ Your stats will be automatically updated when you do!`}
           </Text>
         </ImageBackground>
       ) : null}
-      {!playerID ? <LoadingPage /> : null}
+      {!playerID ? <ReloadPage /> : null}
       {moreInfoCarouselOpen !== false && <PlayerStatsMoreInfo />}
     </>
   );

@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-export default function LoadingPage() {
+export default function ReloadPage() {
   return (
     <View style={styles.container}>
       <Text

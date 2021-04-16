@@ -15,9 +15,7 @@ const getRanges = () => {
   let soloRanges = [];
   let teamRanges = [];
 
-  ranges.push(
-    Object.keys(state.globalStatsReducer.globalStats["trophies"])
-  );
+  ranges.push(Object.keys(state.globalStatsReducer.globalStats["trophies"]));
 
   soloRanges.push(
     Object.keys(state.globalStatsReducer.globalStats["powerLeagueSolo"])
@@ -33,6 +31,8 @@ const getRanges = () => {
 const bestBrawlers = (type, range, modeName, mapID) => {
   let state = store.getState();
   let season = state.battleLogReducer.season;
+  let minBrawlerEvent = state.globalStatsReducer.minBrawlerEvent;
+  let minBrawlerPL = state.globalStatsReducer.minBrawlerPL;
 
   if (type == 0) type = "trophies";
   if (type == 1) type = "powerLeagueSolo";
@@ -42,28 +42,22 @@ const bestBrawlers = (type, range, modeName, mapID) => {
   // console.log(type, range, modeName, mapID);
   if (state.globalStatsReducer.globalStats[type][range]) {
     if (state.globalStatsReducer.globalStats[type][range][modeName]) {
-      if (
-        state.globalStatsReducer.globalStats[type][range][modeName][
-          mapID
-        ]
-      ) {
+      if (state.globalStatsReducer.globalStats[type][range][modeName][mapID]) {
         if (
-          state.globalStatsReducer.globalStats[type][range][modeName][
-            mapID
-          ].performanceBrawlers
+          state.globalStatsReducer.globalStats[type][range][modeName][mapID]
+            .performanceBrawlers
         ) {
           let data =
-            state.globalStatsReducer.globalStats[type][range][modeName][
-              mapID
-            ].performanceBrawlers;
+            state.globalStatsReducer.globalStats[type][range][modeName][mapID]
+              .performanceBrawlers;
           // console.log(data);
 
           let performanceBrawlers = Object.keys(data).map((i) => data[i]);
           // console.log(performanceBrawlers);
+          let brawlersSorted = performanceBrawlers.sort((a, b) =>
+            a.points < b.points ? 1 : -1
+          );
 
-          let brawlersSorted = performanceBrawlers
-            .sort((a, b) => (a.points < b.points ? 1 : -1))
-            .filter((x) => x.count >= 10);
           // console.log(brawlersSorted);
           return brawlersSorted;
         }
@@ -75,6 +69,8 @@ const bestBrawlers = (type, range, modeName, mapID) => {
 const bestTeams = (type, range, modeName, mapID) => {
   let state = store.getState();
   let season = state.battleLogReducer.season;
+  let minTeamEvent = state.globalStatsReducer.minTeamEvent;
+  let minTeamPL = state.globalStatsReducer.minTeamPL;
 
   if (type == 0) type = "trophies";
   if (type == 1) type = "powerLeagueSolo";
@@ -84,27 +80,22 @@ const bestTeams = (type, range, modeName, mapID) => {
 
   if (state.globalStatsReducer.globalStats[type][range]) {
     if (state.globalStatsReducer.globalStats[type][range][modeName]) {
-      if (
-        state.globalStatsReducer.globalStats[type][range][modeName][
-          mapID
-        ]
-      ) {
+      if (state.globalStatsReducer.globalStats[type][range][modeName][mapID]) {
         if (
-          state.globalStatsReducer.globalStats[type][range][modeName][
-            mapID
-          ].performanceTeams
+          state.globalStatsReducer.globalStats[type][range][modeName][mapID]
+            .performanceTeams
         ) {
           let data =
-            state.globalStatsReducer.globalStats[type][range][modeName][
-              mapID
-            ].performanceTeams;
+            state.globalStatsReducer.globalStats[type][range][modeName][mapID]
+              .performanceTeams;
           //console.log(data);
 
           let performanceTeams = Object.keys(data).map((i) => data[i]);
 
-          let teamsSorted = performanceTeams
-            .sort((a, b) => (a.points < b.points ? 1 : -1))
-            .filter((x) => x.count >= 1);
+          let teamsSorted = performanceTeams.sort((a, b) =>
+            a.points < b.points ? 1 : -1
+          );
+
           // console.log(teamsSorted);
           return teamsSorted;
         }
@@ -113,6 +104,6 @@ const bestTeams = (type, range, modeName, mapID) => {
   }
 };
 
-const unsubscribe = store.subscribe(bestBrawlers, bestTeams,getRanges);
+const unsubscribe = store.subscribe(bestBrawlers, bestTeams, getRanges);
 unsubscribe();
-export { getRanges, bestBrawlers, bestTeams,camelize };
+export { getRanges, bestBrawlers, bestTeams, camelize };

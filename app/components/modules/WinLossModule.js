@@ -4,75 +4,98 @@ import { useSelector } from "react-redux";
 
 import colors from "../../config/colors";
 
-export default function WinLossModule({type}) {
+export default function WinLossModule({ type }) {
+  type === "Trophies"
+    ? (type = "ranked")
+    : type === "Solo PL"
+    ? (type = "soloRanked")
+    : type === "Team PL"
+    ? (type = "teamRanked")
+    : null;
   const trophyWins = useSelector((state) => state.battleLogReducer.trophyWins);
   const trophyLosses = useSelector(
     (state) => state.battleLogReducer.trophyLosses
   );
-
-  //need to continue work 
   const season = useSelector((state) => state.battleLogReducer.season);
-  // const powerPlayModes = useSelector(
-  //   (state) =>
-  //     state.battleLogReducer.playerStats.season[season].type["Power League"]
-  //       .mode
-  // );
-
-
-  let winsRatioLong = (trophyWins / (trophyWins + trophyLosses)) * 100;
-  let losesRatioLong = (trophyLosses / (trophyWins + trophyLosses)) * 100;
-  let winsRatio = +winsRatioLong.toFixed(2);
-  let losesRatio = +losesRatioLong.toFixed(2);
-
-  return (
-    <>
-      {type === 0 && (
-        <>
-          <View
-            style={{ flexDirection: "row", justifyContent: "space-between" }}
-          >
-            <Text style={styles.trophyWins}> +{trophyWins} Trophies</Text>
-            <Text style={styles.trophyLosses}> -{trophyLosses} Trophies</Text>
-          </View>
-          <View style={styles.mainContainer}>
-            <View
-              style={[styles.winsRectangle, { width: `${winsRatioLong}%` }]}
-            >
-              <Text style={styles.winningRatio}>{`${winsRatio}%`}</Text>
-            </View>
-            <View
-              style={[styles.losesRectangle, { width: `${losesRatioLong}%` }]}
-            >
-              <Text style={styles.losesRatio}>{`${losesRatio}%`}</Text>
-            </View>
-          </View>
-        </>
-      )}
-
-      {type === 1 && (
-        <>
-          <View
-            style={{ flexDirection: "row", justifyContent: "space-between" }}
-          >
-            <Text style={styles.trophyWins}> +{trophyWins} Trophies</Text>
-            <Text style={styles.trophyLosses}> -{trophyLosses} Trophies</Text>
-          </View>
-          <View style={styles.mainContainer}>
-            <View
-              style={[styles.winsRectangle, { width: `${winsRatioLong}%` }]}
-            >
-              <Text style={styles.winningRatio}>{`${winsRatio}%`}</Text>
-            </View>
-            <View
-              style={[styles.losesRectangle, { width: `${losesRatioLong}%` }]}
-            >
-              <Text style={styles.losesRatio}>{`${losesRatio}%`}</Text>
-            </View>
-          </View>
-        </>
-      )}
-    </>
+  const playerStats = useSelector(
+    (state) => state.battleLogReducer.playerStats.season[season].type[type]
   );
+
+  if (type == "ranked") {
+    let winsRatioLong = (trophyWins / (trophyWins + trophyLosses)) * 100;
+    let losesRatioLong = (trophyLosses / (trophyWins + trophyLosses)) * 100;
+    let winsRatio = +winsRatioLong.toFixed(2);
+    let losesRatio = +losesRatioLong.toFixed(2);
+
+    return (
+      <>
+        <>
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-between" }}
+          >
+            <Text style={styles.trophyWins}> +{trophyWins} Trophies</Text>
+            <Text style={styles.trophyLosses}> -{trophyLosses} Trophies</Text>
+          </View>
+          <View style={styles.mainContainer}>
+            <View
+              style={[styles.winsRectangle, { width: `${winsRatioLong}%` }]}
+            >
+              <Text style={styles.winningRatio}>{`${winsRatio}%`}</Text>
+            </View>
+            <View
+              style={[styles.losesRectangle, { width: `${losesRatioLong}%` }]}
+            >
+              <Text style={styles.losesRatio}>{`${losesRatio}%`}</Text>
+            </View>
+          </View>
+        </>
+      </>
+    );
+  } else {
+    type === "Solo PL" ? (type = "soloRanked") : (type = "teamRanked");
+    const keys = playerStats.keys.modes;
+    let wins = 0;
+    let losses = 0;
+    let winsByTrophies = 0;
+    let lossesByTrophies = 0;
+    keys.map((x) => {
+      wins += playerStats.mode[x].wins;
+      losses += playerStats.mode[x].losses;
+      winsByTrophies += playerStats.mode[x].winsByTrophies;
+      lossesByTrophies += playerStats.mode[x].lossesByTrophies;
+    });
+    let winsRatioLong =
+      (winsByTrophies / (winsByTrophies + lossesByTrophies)) * 100;
+    let losesRatioLong =
+      (lossesByTrophies / (winsByTrophies + lossesByTrophies)) * 100;
+    let winsRatio = +winsRatioLong.toFixed(2);
+    let losesRatio = +losesRatioLong.toFixed(2);
+    console.log(wins, losses, winsRatio, losesRatio);
+    return (
+      <>
+        <>
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-between" }}
+          >
+            <Text style={styles.trophyWins}> +{wins} Wins </Text>
+            <Text style={styles.trophyLosses}> -{losses} Losses</Text>
+          </View>
+          <View style={styles.mainContainer}>
+            <View
+              style={[styles.winsRectangle, { width: `${winsRatioLong}%` }]}
+            >
+              <Text style={styles.winningRatio}>{`${winsRatio}%`}</Text>
+            </View>
+            <View
+              style={[styles.losesRectangle, { width: `${losesRatioLong}%` }]}
+            >
+              <Text style={styles.losesRatio}>{`${losesRatio}%`}</Text>
+            </View>
+          </View>
+        </>
+      </>
+    );
+  }
 }
 
 const styles = StyleSheet.create({

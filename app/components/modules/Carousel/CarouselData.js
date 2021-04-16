@@ -57,11 +57,14 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
   let season = seasonIndex;
   let gameType = undefined;
 
+  console.log(gameTypeName);
   gameTypeName === "Trophies"
     ? (gameType = "ranked")
-    : gameTypeName == "Solo PL"
+    : gameTypeName === "Solo PL"
     ? (gameType = "soloRanked")
-    : (gameType = "teamRanked");
+    : gameTypeName === "Team PL"
+    ? (gameType = "teamRanked")
+    : null;
 
   if (
     state.battleLogReducer.playerStats.season[season].type[gameType].keys

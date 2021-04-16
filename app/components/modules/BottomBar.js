@@ -4,15 +4,30 @@ import { AdMobBanner } from "expo-ads-admob";
 import colors from "../../config/colors";
 import PlayerStats from "../../view/PlayerStats/PlayerStats";
 import BrawlerBot from "../../view/BrawlerBot";
-import Events from "../../view/Events";
+import Events from "../../view/EventsPage/Events";
+import LoadingPage from "../../view/LoadingPage";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  moreInfoEventClosed,
+  moreInfoCarouselClosed,
+} from "../../store/reducers/uiReducerNoPersist";
 
 const StatsRoute = () => <PlayerStats />;
 
 const BotRoute = () => <BrawlerBot />;
 
-const EventRoute = () => <Events />;
+const EventRoute = () => <LoadingPage />;
 
 const BottomBar = () => {
+  const dispatch = useDispatch();
+
+
+  const handleReturn = () => {
+  
+      dispatch(moreInfoCarouselClosed());
+      dispatch(moreInfoEventClosed());
+    
+  };
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
     {
@@ -45,6 +60,7 @@ const BottomBar = () => {
     <>
       <BottomNavigation
         navigationState={{ index, routes }}
+        onIndexChange={handleReturn()}
         onIndexChange={setIndex}
         renderScene={renderScene}
         shifting={true}

@@ -23,17 +23,11 @@ import season5_3 from "../../assets/backgrounds/season5_3.jpg";
 import season4_1 from "../../assets/backgrounds/season4_1.jpg";
 import { receivedPlayerStatsFromDB } from "../../store/reducers/battleLogReducer";
 import { userIdReceived } from "../../store/reducers/playerIdReducer";
-import {
-  mapsReceived,
-  brawlersReceived,
-  eventsReceived,
-  iconsReceived,
-} from "../../store/reducers/brawlifyReducer";
+import { brawlifyDataReceived } from "../../store/reducers/brawlifyReducer";
+import getEvents from "../../lib/getBrawlifyEvents";
 
 import {
-  nBrawlersReceived,
-  nGadgetsReceived,
-  nStarsReceived,
+  globalCountsReceived,
   globalStatsReceived,
 } from "../../store/reducers/globalStatsReducer";
 
@@ -88,26 +82,48 @@ export default function PlayerLogin() {
             const stats = await getStatsFromDB(userId);
             dispatch(receivedPlayerStatsFromDB(stats));
             setProgress(0.5);
-            const { maps, brawlers, events, icons } = await getBrawlifyFromDB();
+            const { maps, brawlers, icons } = await getBrawlifyFromDB();
             setProgress(0.8);
             setLoadingText("fetching global stats. Hang in there!");
 
             const {
               nBrawlers,
               nGadgets,
-              nStarPowers
+              nStarPowers,
+              minBrawlerEvent,
+              minTeamEvent,
+              minBrawlerPL,
+              minTeamPL,
+              seasonGlobal,
+              slotNumActive,
+              slotNumUpcoming,
             } = await getGlobalNumbersFromDB();
-            dispatch(brawlersReceived(brawlers));
-            dispatch(mapsReceived(maps));
-            dispatch(eventsReceived(events));
-            dispatch(iconsReceived(icons));
 
-            dispatch(nBrawlersReceived(nBrawlers));
-            dispatch(nGadgetsReceived(nGadgets));
-            dispatch(nStarsReceived(nStarPowers));
+            dispatch(
+              brawlifyDataReceived({
+                brawlers: brawlers,
+                maps: maps,
+                icons: icons,
+              })
+            );
+            dispatch(
+              globalCountsReceived({
+                nBrawlers: nBrawlers,
+                nGadgets: nGadgets,
+                nStarPowers: nStarPowers,
+                minBrawlerEvent: minBrawlerEvent,
+                minTeamEvent: minTeamEvent,
+                minBrawlerPL: minBrawlerPL,
+                minTeamPL: minTeamPL,
+                seasonGlobal: seasonGlobal,
+                slotNumActive: slotNumActive,
+                slotNumUpcoming: slotNumUpcoming,
+              })
+            );
             setProgress(1);
             setValidId(true);
-            const globalStats= await getGlobalStatsFromDB();
+            await getEvents();
+            const globalStats = await getGlobalStatsFromDB(seasonGlobal);
             dispatch(globalStatsReceived(globalStats));
           }
         }
@@ -131,35 +147,54 @@ export default function PlayerLogin() {
               let statsFromDB = await getStatsFromDB(userId);
               dispatch(receivedPlayerStatsFromDB(statsFromDB));
               setProgress(0.5);
-        
             } else {
               dispatch(receivedPlayerStatsFromDB(checkDBStats));
               setProgress(0.5);
             }
 
-            const { maps, brawlers, events, icons } = await getBrawlifyFromDB();
+            const { maps, brawlers, icons } = await getBrawlifyFromDB();
             setProgress(0.65);
             setLoadingText("fetching global stats. Hang in there!");
             const {
               nBrawlers,
               nGadgets,
               nStarPowers,
-              globalStats,
-            } = await getGlobalStatsFromDB();
-            setProgress(0.8);
+              minBrawlerEvent,
+              minTeamEvent,
+              minBrawlerPL,
+              minTeamPL,
+              seasonGlobal,
+              slotNumActive,
+              slotNumUpcoming,
+            } = await getGlobalNumbersFromDB();
 
-            dispatch(nBrawlersReceived(nBrawlers));
-            dispatch(nGadgetsReceived(nGadgets));
-            dispatch(nStarsReceived(nStarPowers));
-            dispatch(globalStatsReceived(globalStats));
-
-            dispatch(brawlersReceived(brawlers));
-            dispatch(mapsReceived(maps));
-            dispatch(eventsReceived(events));
-            dispatch(iconsReceived(icons));
-            dispatch(userIdReceived(userId));
+            dispatch(
+              brawlifyDataReceived({
+                brawlers: brawlers,
+                maps: maps,
+                icons: icons,
+              })
+            );
+            dispatch(
+              globalCountsReceived({
+                nBrawlers: nBrawlers,
+                nGadgets: nGadgets,
+                nStarPowers: nStarPowers,
+                minBrawlerEvent: minBrawlerEvent,
+                minTeamEvent: minTeamEvent,
+                minBrawlerPL: minBrawlerPL,
+                minTeamPL: minTeamPL,
+                seasonGlobal: seasonGlobal,
+                slotNumActive: slotNumActive,
+                slotNumUpcoming: slotNumUpcoming,
+              })
+            );
             setProgress(1);
+            dispatch(userIdReceived(userId));
             setValidId(true);
+            await getEvents();
+            const globalStats = await getGlobalStatsFromDB(seasonGlobal);
+            dispatch(globalStatsReceived(globalStats));
           } catch (error) {
             if (error.response) {
               if (error.response.status == 404) {
