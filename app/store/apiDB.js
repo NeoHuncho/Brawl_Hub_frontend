@@ -51,9 +51,9 @@ const getGlobalNumbersFromDB = async () => {
     .once("value")
     .then((snapshot) => snapshot.val());
   
-  const nBrawlers = globalCount['numberOfBrawlers']
-  const nGadgets = globalCount['numberOfGadgets']
-  const nStarPowers = globalCount['numberOfStarPowers']
+  const nBrawlers = globalCount['totals']['numberOfBrawlers']
+  const nGadgets = globalCount['totals']['numberOfGadgets']
+  const nStarPowers = globalCount['totals']['numberOfStarPowers']
   const minBrawlerEvent= globalCount['minBrawlerEvent']
   const minTeamEvent= globalCount['minTeamEvent']
   const minBrawlerPL= globalCount['minBrawlerPL']

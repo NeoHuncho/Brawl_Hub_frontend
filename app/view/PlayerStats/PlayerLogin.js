@@ -70,6 +70,13 @@ export default function PlayerLogin() {
   const [message, setMessage] = useState(
     "Please provide your Brawl Stars player ID"
   );
+  const handleHowToClicked = () => {
+    if (howToClicked == false) {
+      setHowToClicked(true);
+    } else if (howToClicked == true) {
+      setHowToClicked(false);
+    }
+  };
 
   useEffect(() => {
     {
@@ -145,6 +152,7 @@ export default function PlayerLogin() {
             if (checkDBStats == null) {
               await getStatsFirstLogin(userId);
               let statsFromDB = await getStatsFromDB(userId);
+              // console.log(statsFromDB)
               dispatch(receivedPlayerStatsFromDB(statsFromDB));
               setProgress(0.5);
             } else {
@@ -242,12 +250,17 @@ export default function PlayerLogin() {
                 }}
               />
               <Button title="Confirm" onPress={() => setConfirmClicked(true)} />
+              <Text style={[styles.findIdText, { marginTop: 20 }]}>
+                There will NEVER be the LETTER O in your tag!
+              </Text>
+              <Text style={[styles.findIdText, { marginTop: 0 }]}>
+                It will ALWAYS be the NUMBER 0
+              </Text>
             </View>
+
             <View style={styles.imagesContainer}>
-              <TouchableOpacity
-                onPress={(howToClicked) => setHowToClicked(true)}
-              >
-                <Text style={styles.findIdText}>how to find Player ID</Text>
+              <TouchableOpacity onPress={() => handleHowToClicked()}>
+                <Text style={[styles.findIdText,{fontSize:18}]}>Click how to find Player ID</Text>
               </TouchableOpacity>
               {howToClicked && (
                 <>
@@ -272,6 +285,7 @@ export default function PlayerLogin() {
             style={styles.imageBackground}
           >
             <Progress.Bar
+              animated={true}
               progress={progress}
               height={10}
               width={300}
@@ -319,7 +333,7 @@ const styles = StyleSheet.create({
   },
 
   inputContainer: {
-    marginBottom: 50,
+    marginBottom: 20,
     alignItems: "center",
   },
   playerIdInput: {

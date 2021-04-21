@@ -57,7 +57,7 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
   let season = seasonIndex;
   let gameType = undefined;
 
-  console.log(gameTypeName);
+  // console.log(gameTypeName);
   gameTypeName === "Trophies"
     ? (gameType = "ranked")
     : gameTypeName === "Solo PL"

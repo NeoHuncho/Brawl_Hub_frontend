@@ -70,7 +70,7 @@ export default function WinLossModule({ type }) {
       (lossesByTrophies / (winsByTrophies + lossesByTrophies)) * 100;
     let winsRatio = +winsRatioLong.toFixed(2);
     let losesRatio = +losesRatioLong.toFixed(2);
-    console.log(wins, losses, winsRatio, losesRatio);
+    // console.log(wins, losses, winsRatio, losesRatio);
     return (
       <>
         <>

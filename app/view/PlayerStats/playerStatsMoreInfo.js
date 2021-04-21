@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -25,6 +25,8 @@ export default function PlayerStatsMoreInfo() {
   const preferencesCarouselStored = useSelector(
     (state) => state.uiReducerPersist
   );
+
+  const [backClicked, setBackClicked] = useState(false);
   processPlayerStats(
     carouselInfo.seasonIndex,
     carouselInfo.gameType,
@@ -37,6 +39,10 @@ export default function PlayerStatsMoreInfo() {
     dispatch(moreInfoCarouselClosed());
   };
 
+  const handleBackClicked = async () => {
+    setBackClicked(true);
+  };
+
   const setTest = async () => {
     await setTestDeviceIDAsync("EMULATOR");
   };
@@ -46,17 +52,19 @@ export default function PlayerStatsMoreInfo() {
     <>
       {carouselInfo.image && (
         <SafeAreaView style={styles.container}>
-          <TouchableHighlight style={{ position: "absolute", left: 5, top: 5 }}>
-            <Ionicons
-              onPress={() => handleReturn()}
-              style={styles.icon}
-              name="arrow-back-circle"
-              size={50}
-              color={colors.secondary}
-            />
-          </TouchableHighlight>
+          <TouchableOpacity onPress={()=>handleReturn()} style={{ position: "absolute", left: 5, top: 5 }}>
+              <Ionicons
+                name="arrow-back-circle"
+                size={50}
+                style={{ zIndex: 2 }}
+                color={colors.secondary}
+              />
+       
+          </TouchableOpacity>
           <View style={{ marginTop: 10, flexDirection: "row" }}>
-            <Text style={[styles.name]}>{carouselInfo.displayName}</Text>
+            <TouchableOpacity>
+              <Text style={[styles.name]}>{carouselInfo.displayName}</Text>
+            </TouchableOpacity>
             {carouselInfo.mode != undefined && (
               <Image
                 source={carouselInfo.mode}

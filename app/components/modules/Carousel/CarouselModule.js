@@ -53,10 +53,17 @@ export default function CarouselModule({ dataType, style, sort }) {
     else if (item.winRatio < 1) return "AWFUL";
   };
 
-  const onPressCarousel = (displayName,name,mode,image) => {
+  const onPressCarousel = (displayName, name, mode, image) => {
     // console.log("calleddd!");
     dispatch(
-      moreInfoCarouselOpen({ isOpen: true, displayName:displayName, type: dataType, name: name, mode:mode, image:image })
+      moreInfoCarouselOpen({
+        isOpen: true,
+        displayName: displayName,
+        type: dataType,
+        name: name,
+        mode: mode,
+        image: image,
+      })
     );
   };
 
@@ -103,14 +110,21 @@ export default function CarouselModule({ dataType, style, sort }) {
             />
             {dataType !== "team" && dataType !== "brawler" && (
               <TouchableOpacity
-                onPress={() => onPressCarousel(item.title,item.titleCamel,item.mode,item.image)}
+                onPress={() =>
+                  onPressCarousel(
+                    item.title,
+                    item.titleCamel,
+                    item.mode,
+                    item.image
+                  )
+                }
                 style={{
                   position: "absolute",
                   right: 0,
                   top: 0,
                 }}
               >
-               <Text style={styles.statsTextMode}>More stats</Text>
+                <Text style={styles.statsTextMode}>More stats</Text>
                 <Image
                   source={require("../../../assets/icons/infoButton.png")}
                   style={{ width: 30, height: 30 }}
@@ -122,7 +136,7 @@ export default function CarouselModule({ dataType, style, sort }) {
           <View
             style={{ marginLeft: "auto", marginRight: "auto", marginTop: 10 }}
           >
-            {dataType !== "team"  && (
+            {dataType !== "team" && (
               <Image
                 source={item.image}
                 containerStyle={styles.imageContainer}
@@ -206,9 +220,15 @@ export default function CarouselModule({ dataType, style, sort }) {
                   : { marginTop: 65 },
               ]}
             >
-              <Text style={styles.winRatio}>
-                {"Performance:  " + item.winRatio.toFixed(1)}
-              </Text>
+              {item.wins != 0 && item.losses != 0 ? (
+                <Text style={styles.winRatio}>
+                  {"Performance:  " + item.winRatio.toFixed(1)}
+                </Text>
+              ) : (
+                <Text style={styles.winRatio}>
+                  {item.wins!=0?'Wins only':'Losses only'}
+                </Text>
+              )}
             </View>
             <Text style={styles.winLoss}>{"Losses: " + item.losses}</Text>
           </View>
@@ -288,10 +308,9 @@ const styles = StyleSheet.create({
     fontSize: 7,
     color: colors.secondary,
     fontFamily: "Lilita-One",
-    right:1,
-    top:30,
-    textAlign:"center"
-    
+    right: 1,
+    top: 30,
+    textAlign: "center",
   },
 
   image: {

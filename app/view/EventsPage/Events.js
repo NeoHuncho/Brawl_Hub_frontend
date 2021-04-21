@@ -92,14 +92,14 @@ export default function Events() {
                 setTypeIndex(index);
               }}
             />
-            <View style={{ marginTop: 10 }}>
-              <SegmentedControlTab
+            <View>
+              {/* <SegmentedControlTab
                 values={seasonsKey}
                 //The plus 5 is because we are starting 5 seasons late
                 // the minus 5 is to convert it back
                 selectedIndex={seasonIndex - 5}
                 onTabPress={(index) => setSeasonIndex(index + 5)}
-              />
+              /> */}
             </View>
           </View>
           <DropDownPicker
@@ -107,7 +107,6 @@ export default function Events() {
             defaultValue={range}
             containerStyle={{
               height: 40,
-              marginTop: 10,
               marginLeft: 50,
               marginRight: 50,
             }}

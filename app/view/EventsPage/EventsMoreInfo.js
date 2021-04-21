@@ -12,7 +12,13 @@ import {
   FlatList,
 } from "react-native";
 
-import { getBrawlerImage, getBrawlerName } from "../../lib/getAssetsFunctions";
+import {
+  getBrawlerImage,
+  getBrawlerName,
+  getMapImage,
+  getMapName,
+  getModeImage,
+} from "../../lib/getAssetsFunctions";
 import { Ionicons } from "@expo/vector-icons";
 import { useSelector, useDispatch } from "react-redux";
 import SegmentedControlTab from "react-native-segmented-control-tab";
@@ -27,7 +33,12 @@ export default function EventsMoreInfo() {
   const handleReturn = () => {
     dispatch(moreInfoEventClosed());
   };
-  const [typeIndex, setTypeIndex] = useState(0);
+  const [typeIndex, setTypeIndex] = useState(
+    carouselInfo.sortedBrawlers == undefined &&
+      carouselInfo.sortedTeams != undefined
+      ? 1
+      : 0
+  );
   console.log(carouselInfo.sortedTeams);
 
   let topPointsBrawlers = undefined;
@@ -58,6 +69,7 @@ export default function EventsMoreInfo() {
     }
     performanceAgainstBrawler.sort((a, b) => (a.points < b.points ? 1 : -1));
     // console.log(performanceAgainstBrawler)
+
     if (item.performanceAgainstTeam) {
       let teamKeys = Object.keys(item.performanceAgainstTeam);
       teamKeys.map((key) => {
@@ -184,54 +196,88 @@ export default function EventsMoreInfo() {
       {carouselInfo.image && (
         <>
           <SafeAreaView style={styles.container}>
-            <TouchableHighlight
+            <TouchableOpacity
               style={{ position: "absolute", left: 5, top: 5 }}
+              onPress={() => handleReturn()}
             >
               <Ionicons
-                onPress={() => handleReturn()}
                 style={styles.icon}
                 name="arrow-back-circle"
                 size={50}
                 color={colors.secondary}
               />
-            </TouchableHighlight>
+            </TouchableOpacity>
             <View style={{ marginTop: 10, flexDirection: "row" }}>
-              <Text style={[styles.name]}>{carouselInfo.name}</Text>
-
+              <Text style={[styles.name]}>
+                {carouselInfo.type == "trophies"
+                  ? carouselInfo.name
+                  : getMapName(carouselInfo.name)}
+              </Text>
+              {console.log(carouselInfo.mode)}
               <Image
-                source={{ uri: carouselInfo.mode }}
+                source={
+                  carouselInfo.type == "trophies"
+                    ? { uri: carouselInfo.mode }
+                    : getModeImage(carouselInfo.mode)
+                }
                 style={
-                  carouselInfo.mode.includes("Hot")
-                    ? { flex: 0.1, marginLeft: 15 }
-                    : carouselInfo.mode.includes("Knock")
-                    ? { flex: 0.13, marginLeft: 15 }
-                    : carouselInfo.mode.includes("Gem")
-                    ? { flex: 0.16, marginLeft: 15 }
-                    : { flex: 0.16, marginTop: 2, marginLeft: 15 }
+                  carouselInfo.type == "trophies"
+                    ? carouselInfo.mode.includes("Hot")
+                      ? { flex: 0.1, marginLeft: 15 }
+                      : carouselInfo.mode.includes("Knock")
+                      ? { flex: 0.13, marginLeft: 15 }
+                      : carouselInfo.mode.includes("Gem")
+                      ? { flex: 0.16, marginLeft: 15 }
+                      : carouselInfo.mode.includes("Duo")
+                      ? { flex: 0.13, marginLeft: 15 }
+                      : carouselInfo.mode.includes("/Show")
+                      ? { flex: 0.13, marginLeft: 15 }
+                      : { flex: 0.16, marginTop: 2, marginLeft: 15 }
+                    : { width: 30, height: 30, marginLeft: 5 }
                 }
               />
             </View>
             <View>
               <Image
-                source={{ uri: carouselInfo.image }}
+                source={
+                  carouselInfo.type == "trophies"
+                    ? { uri: carouselInfo.image }
+                    : getMapImage(carouselInfo.image)
+                }
                 style={{ width: 120, height: 180, marginTop: 10 }}
               />
             </View>
-            <View style={{ width: 300, marginTop: 20 }}>
-              <SegmentedControlTab
-                values={["brawlers", "teams"]}
-                selectedIndex={typeIndex}
-                onTabPress={(index) => {
-                  setTypeIndex(index);
-                }}
-              />
-            </View>
+            {!carouselInfo.mode.includes("/Show") && (
+              <View style={{ width: 300, marginTop: 20 }}>
+                <SegmentedControlTab
+                  values={["brawlers", "teams"]}
+                  enabled={
+                    carouselInfo.sortedBrawlers != undefined &&
+                    carouselInfo.sortedTeams != undefined
+                      ? true
+                      : carouselInfo.sortedBrawlers == undefined ||
+                        carouselInfo.sortedTeams == undefined
+                      ? false
+                      : false
+                  }
+                  selectedIndex={typeIndex}
+                  onTabPress={(index) => {
+                    setTypeIndex(index);
+                  }}
+                />
+              </View>
+            )}
 
             <View style={{ flexDirection: "row", marginTop: 20 }}>
               <Text
                 style={[
                   styles.columnName,
-                  typeIndex == 0 ? { paddingLeft: 15 } : { paddingLeft: 100 },
+                  carouselInfo.mode.includes("Show") && typeIndex == 0
+                    ? { paddingRight: 10 }
+                    : typeIndex == 0
+                    ? { paddingLeft: 15 }
+                    : { paddingLeft: 100 },
+                  null,
                 ]}
               >
                 Performance
@@ -239,19 +285,25 @@ export default function EventsMoreInfo() {
               <Text
                 style={[
                   styles.columnName,
-                  typeIndex == 0 ? { paddingLeft: 10 } : { paddingLeft: 5 },
+                  carouselInfo.mode.includes("Show")
+                    ? { paddingRight: 80 }
+                    : typeIndex == 0
+                    ? { paddingLeft: 10 }
+                    : { paddingLeft: 5 },
                 ]}
               >
                 Pick Rate
               </Text>
-              <Text
-                style={[
-                  styles.columnName,
-                  typeIndex == 0 ? { paddingLeft: 30 } : { paddingLeft: 5 },
-                ]}
-              >
-                Best Against
-              </Text>
+              {!carouselInfo.mode.includes("Show") && (
+                <Text
+                  style={[
+                    styles.columnName,
+                    typeIndex == 0 ? { paddingLeft: 30 } : { paddingLeft: 5 },
+                  ]}
+                >
+                  Best Against
+                </Text>
+              )}
             </View>
 
             <ScrollView>

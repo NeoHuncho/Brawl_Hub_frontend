@@ -78,7 +78,7 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
         event.modeName,
         event.mapID
       );
-      
+
       let teamBrawler1 = null;
       let teamBrawler2 = null;
       let teamBrawler3 = null;
@@ -271,24 +271,27 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
   } else if (typeIndex >= 1) {
     for (let modeName in powerLeagueStats) {
       let maps = [];
-      let sortedBrawlers = [];
+      let sortedBrawlers = {};
+      let sortedTeams = {};
 
-      let teamBrawler1 = [];
-      let teamBrawler2 = [];
-      let teamBrawler3 = [];
+      let teamBrawler1 = {};
+      let teamBrawler2 = {};
+      let teamBrawler3 = {};
       for (let mapID in powerLeagueStats[modeName]) {
-        sortedBrawlers.push(bestBrawlers(typeIndex, range, modeName, mapID));
-        let sortedTeams = bestTeams(typeIndex, range, modeName, mapID);
-        // console.log(sortedTeams);
-        if (sortedTeams) {
-          if (sortedTeams.length != 0) {
-            teamBrawler1.push(sortedTeams[0].ID.slice(0, 8));
-            teamBrawler2.push(sortedTeams[0].ID.slice(10, 18));
-            teamBrawler3.push(sortedTeams[0].ID.slice(20, 28));
+        sortedBrawlers[mapID] = bestBrawlers(typeIndex, range, modeName, mapID);
+        sortedTeams[mapID] = bestTeams(typeIndex, range, modeName, mapID);
+
+        let bestTeam = bestTeams(typeIndex, range, modeName, mapID);
+        if (bestTeam) {
+          if (bestTeam.length != 0) {
+            teamBrawler1[mapID] = bestTeam[0].ID.slice(0, 8);
+            teamBrawler2[mapID] = bestTeam[0].ID.slice(10, 18);
+            teamBrawler3[mapID] = bestTeam[0].ID.slice(20, 28);
           }
         }
         maps.push(mapID);
       }
+
       eventModule.push(
         <>
           {modeName != "count" && (
@@ -302,102 +305,103 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                   )}
                 </Text>
               </View>
+              {/*Top Row */}
               <View style={{ flexDirection: "row" }}>
-                {maps[0] && (
-                  <View
-                    style={[
-                      styles.square,
-                      {
-                        backgroundColor: getModeColor(modeName),
-                        marginRight: 10,
-                      },
-                    ]}
-                  >
-                    <Text
+                {maps.map((mapID, index) => {
+                  return index <= 1 ? (
+                    <View
                       style={[
-                        styles.text,
-                        { marginTop: 4, marginLeft: 4, fontSize: 11 },
+                        styles.square,
+                        {
+                          backgroundColor: getModeColor(modeName),
+                          marginRight: 10,
+                        },
                       ]}
                     >
-                      {getMapName(maps[0]) == "Some Assembly Required"
-                        ? "Some Assembly R."
-                        : getMapName(maps[0])}
-                    </Text>
-                    <View style={{ flexDirection: "row" }}>
-                      <View style={{ marginLeft: 4 }}>
-                        {sortedBrawlers && (
-                          <>
-                            {sortedBrawlers[0] && (
-                              <>
-                                <Text
-                                  style={[
-                                    styles.text,
-                                    { fontSize: 8, marginTop: 3 },
-                                  ]}
-                                >
-                                  Top 3 Brawlers
-                                </Text>
+                      <Text
+                        style={[
+                          styles.text,
+                          { marginTop: 4, marginLeft: 4, fontSize: 11 },
+                        ]}
+                      >
+                        {getMapName(mapID) == "Some Assembly Required"
+                          ? "Some Assembly R."
+                          : getMapName(mapID)}
+                      </Text>
+                      <View style={{ flexDirection: "row" }}>
+                        <View style={{ marginLeft: 4 }}>
+                          {sortedBrawlers && (
+                            <>
+                              {sortedBrawlers[mapID] && (
+                                <>
+                                  <Text
+                                    style={[
+                                      styles.text,
+                                      { fontSize: 8, marginTop: 3 },
+                                    ]}
+                                  >
+                                    Top 3 Brawlers
+                                  </Text>
 
-                                <View style={{ flexDirection: "row" }}>
-                                  {sortedBrawlers[0][0] && (
-                                    <Image
-                                      style={[
-                                        styles.brawlerImage,
-                                        styles.border,
-                                        {
-                                          borderColor: "gold",
-                                          width: 28,
-                                          height: 28,
-                                          borderWidth: 1,
-                                        },
-                                      ]}
-                                      source={getBrawlerImage(
-                                        sortedBrawlers[0][0].ID
-                                      )}
-                                    />
-                                  )}
-                                  {sortedBrawlers[0][1] && (
-                                    <Image
-                                      style={[
-                                        styles.brawlerImage,
-                                        styles.border,
-                                        {
-                                          borderColor: "silver",
-                                          width: 28,
-                                          height: 28,
-                                          borderWidth: 1,
-                                        },
-                                      ]}
-                                      source={getBrawlerImage(
-                                        sortedBrawlers[0][1].ID
-                                      )}
-                                    />
-                                  )}
-                                  {sortedBrawlers[0][2] && (
-                                    <Image
-                                      style={[
-                                        styles.brawlerImage,
-                                        styles.border,
-                                        {
-                                          borderColor: "#cd7f32",
-                                          width: 28,
-                                          height: 28,
-                                          borderWidth: 1,
-                                        },
-                                      ]}
-                                      source={getBrawlerImage(
-                                        sortedBrawlers[0][2].ID
-                                      )}
-                                    />
-                                  )}
-                                </View>
-                              </>
-                            )}
-                          </>
-                        )}
-                        {teamBrawler1[0] && (
-                          <>
-                            {teamBrawler1[0].length != 0 && (
+                                  <View style={{ flexDirection: "row" }}>
+                                    {sortedBrawlers[mapID][0] && (
+                                      <Image
+                                        style={[
+                                          styles.brawlerImage,
+                                          styles.border,
+                                          {
+                                            borderColor: "gold",
+                                            width: 28,
+                                            height: 28,
+                                            borderWidth: 1,
+                                          },
+                                        ]}
+                                        source={getBrawlerImage(
+                                          sortedBrawlers[mapID][0].ID
+                                        )}
+                                      />
+                                    )}
+                                    {sortedBrawlers[mapID][1] && (
+                                      <Image
+                                        style={[
+                                          styles.brawlerImage,
+                                          styles.border,
+                                          {
+                                            borderColor: "silver",
+                                            width: 28,
+                                            height: 28,
+                                            borderWidth: 1,
+                                          },
+                                        ]}
+                                        source={getBrawlerImage(
+                                          sortedBrawlers[mapID][1].ID
+                                        )}
+                                      />
+                                    )}
+                                    {sortedBrawlers[mapID][2] && (
+                                      <Image
+                                        style={[
+                                          styles.brawlerImage,
+                                          styles.border,
+                                          {
+                                            borderColor: "#cd7f32",
+                                            width: 28,
+                                            height: 28,
+                                            borderWidth: 1,
+                                          },
+                                        ]}
+                                        source={getBrawlerImage(
+                                          sortedBrawlers[mapID][2].ID
+                                        )}
+                                      />
+                                    )}
+                                  </View>
+                                </>
+                              )}
+                            </>
+                          )}
+                          {teamBrawler1[mapID] && (
+                            <>
                               <Text
                                 style={[
                                   styles.text,
@@ -406,354 +410,183 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                               >
                                 Top Team
                               </Text>
-                            )}
-                            <View
-                              style={{
-                                flexDirection: "row",
-                              }}
-                            >
-                              <Image
-                                style={[
-                                  styles.brawlerImage,
-                                  { width: 28, height: 28 },
-                                ]}
-                                source={getBrawlerImage(teamBrawler1[0])}
-                              />
 
-                              <Image
-                                style={[
-                                  styles.brawlerImage,
-                                  { width: 28, height: 28 },
-                                ]}
-                                source={getBrawlerImage(teamBrawler2[0])}
-                              />
-
-                              {teamBrawler3 ? (
-                                teamBrawler3[0].length == 8 ? (
-                                  <Image
-                                    style={[
-                                      styles.brawlerImage,
-                                      { width: 28, height: 28 },
-                                    ]}
-                                    source={getBrawlerImage(teamBrawler3[0])}
-                                  />
-                                ) : null
-                              ) : null}
-                            </View>
-                          </>
-                        )}
-                      </View>
-
-                      <Image
-                        source={getMapImage(maps[0])}
-                        style={{
-                          width: 55,
-                          height: 85,
-                          position: "absolute",
-                          right: 10,
-                          top: 6,
-                        }}
-                      />
-                    </View>
-                    <TouchableOpacity
-                      onPress={() =>
-                        onPressEvent(
-                          "trophies",
-                          event.mapName,
-                          event.modeImage,
-                          event.mapImage
-                        )
-                      }
-                      style={{
-                        position: "absolute",
-                        right: 4,
-                        top: 3.5,
-                      }}
-                    >
-                      <Image
-                        source={require("../../../assets/icons/infoButton.png")}
-                        style={{
-                          width: 20,
-                          height: 20,
-                        }}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                )}
-                {maps[1] && (
-                  <View
-                    style={[
-                      styles.square,
-                      {
-                        backgroundColor: getModeColor(modeName),
-                        marginRight: 10,
-                      },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.text,
-                        { marginTop: 4, marginLeft: 4, fontSize: 11 },
-                      ]}
-                    >
-                      {getMapName(maps[1]) == "Some Assembly Required"
-                        ? "Some Assembly R."
-                        : getMapName(maps[1])}
-                    </Text>
-                    <View style={{ flexDirection: "row" }}>
-                      <View style={{ marginLeft: 4 }}>
-                        {sortedBrawlers && (
-                          <>
-                            {sortedBrawlers[1] && (
-                              <>
-                                <Text
-                                  style={[
-                                    styles.text,
-                                    { fontSize: 8, marginTop: 3 },
-                                  ]}
-                                >
-                                  Top 3 Brawlers
-                                </Text>
-
-                                <View style={{ flexDirection: "row" }}>
-                                  {sortedBrawlers[1][0] && (
-                                    <Image
-                                      style={[
-                                        styles.brawlerImage,
-                                        styles.border,
-                                        {
-                                          borderColor: "gold",
-                                          width: 28,
-                                          height: 28,
-                                          borderWidth: 1,
-                                        },
-                                      ]}
-                                      source={getBrawlerImage(
-                                        sortedBrawlers[1][0].ID
-                                      )}
-                                    />
-                                  )}
-                                  {sortedBrawlers[1][1] && (
-                                    <Image
-                                      style={[
-                                        styles.brawlerImage,
-                                        styles.border,
-                                        {
-                                          borderColor: "silver",
-                                          width: 28,
-                                          height: 28,
-                                          borderWidth: 1,
-                                        },
-                                      ]}
-                                      source={getBrawlerImage(
-                                        sortedBrawlers[1][1].ID
-                                      )}
-                                    />
-                                  )}
-                                  {sortedBrawlers[1][2] && (
-                                    <Image
-                                      style={[
-                                        styles.brawlerImage,
-                                        styles.border,
-                                        {
-                                          borderColor: "#cd7f32",
-                                          width: 28,
-                                          height: 28,
-                                          borderWidth: 1,
-                                        },
-                                      ]}
-                                      source={getBrawlerImage(
-                                        sortedBrawlers[1][2].ID
-                                      )}
-                                    />
-                                  )}
-                                </View>
-                              </>
-                            )}
-                          </>
-                        )}
-                        {teamBrawler1[1] && (
-                          <>
-                            {teamBrawler1[1].length != 0 && (
-                              <Text
-                                style={[
-                                  styles.text,
-                                  { fontSize: 8, marginTop: 5 },
-                                ]}
+                              <View
+                                style={{
+                                  flexDirection: "row",
+                                }}
                               >
-                                Top Team
-                              </Text>
-                            )}
-                            <View
-                              style={{
-                                flexDirection: "row",
-                              }}
-                            >
-                              <Image
-                                style={[
-                                  styles.brawlerImage,
-                                  { width: 28, height: 28 },
-                                ]}
-                                source={getBrawlerImage(teamBrawler1[1])}
-                              />
+                                <Image
+                                  style={[
+                                    styles.brawlerImage,
+                                    { width: 28, height: 28 },
+                                  ]}
+                                  source={getBrawlerImage(teamBrawler1[mapID])}
+                                />
 
-                              <Image
-                                style={[
-                                  styles.brawlerImage,
-                                  { width: 28, height: 28 },
-                                ]}
-                                source={getBrawlerImage(teamBrawler2[1])}
-                              />
+                                <Image
+                                  style={[
+                                    styles.brawlerImage,
+                                    { width: 28, height: 28 },
+                                  ]}
+                                  source={getBrawlerImage(teamBrawler2[mapID])}
+                                />
 
-                              {teamBrawler3 ? (
-                                teamBrawler3[1].length == 8 ? (
+                                {teamBrawler3[mapID] ? (
                                   <Image
                                     style={[
                                       styles.brawlerImage,
                                       { width: 28, height: 28 },
                                     ]}
-                                    source={getBrawlerImage(teamBrawler3[1])}
+                                    source={getBrawlerImage(
+                                      teamBrawler3[mapID]
+                                    )}
                                   />
-                                ) : null
-                              ) : null}
-                            </View>
-                          </>
-                        )}
-                      </View>
+                                ) : null}
+                              </View>
+                            </>
+                          )}
+                        </View>
 
-                      <Image
-                        source={getMapImage(maps[1])}
-                        style={{
-                          width: 55,
-                          height: 85,
-                          position: "absolute",
-                          right: 10,
-                          top: 6,
-                        }}
-                      />
+                        <Image
+                          source={getMapImage(mapID)}
+                          style={{
+                            width: 55,
+                            height: 85,
+                            position: "absolute",
+                            right: 10,
+                            top: 6,
+                          }}
+                        />
+                      </View>
+                      {(sortedBrawlers[mapID] || sortedTeams[mapID]) && (
+                        <TouchableOpacity
+                          onPress={() =>
+                            onPressEvent(
+                              "powerLeague",
+                              mapID,
+                              mapID,
+                              mapID,
+                              sortedBrawlers[mapID],
+                              sortedTeams[mapID]
+                            )
+                          }
+                          style={{
+                            position: "absolute",
+                            right: 4,
+                            top: 3.5,
+                          }}
+                        >
+                          <Image
+                            source={require("../../../assets/icons/infoButton.png")}
+                            style={{
+                              width: 20,
+                              height: 20,
+                            }}
+                          />
+                        </TouchableOpacity>
+                      )}
                     </View>
-                    <TouchableOpacity
-                      onPress={() =>
-                        onPressEvent(
-                          "trophies",
-                          event.mapName,
-                          event.modeImage,
-                          event.mapImage
-                        )
-                      }
-                      style={{
-                        position: "absolute",
-                        right: 4,
-                        top: 3.5,
-                      }}
-                    >
-                      <Image
-                        source={require("../../../assets/icons/infoButton.png")}
-                        style={{
-                          width: 20,
-                          height: 20,
-                        }}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                )}
+                  ) : null;
+                })}
               </View>
+              {/*Bottom Row */}
               <View style={{ flexDirection: "row" }}>
-                {maps[2] && (
-                  <View
-                    style={[
-                      styles.square,
-                      {
-                        backgroundColor: getModeColor(modeName),
-                        marginRight: 10,
-                      },
-                    ]}
-                  >
-                    <Text
+                {maps.map((mapID, index) => {
+                  return index >= 2 ? (
+                    <View
                       style={[
-                        styles.text,
-                        { marginTop: 4, marginLeft: 4, fontSize: 11 },
+                        styles.square,
+                        {
+                          backgroundColor: getModeColor(modeName),
+                          marginRight: 10,
+                        },
                       ]}
                     >
-                      {getMapName(maps[2]) == "Some Assembly Required"
-                        ? "Some Assembly R."
-                        : getMapName(maps[2])}
-                    </Text>
-                    <View style={{ flexDirection: "row" }}>
-                      <View style={{ marginLeft: 4 }}>
-                        {sortedBrawlers && (
-                          <>
-                            {sortedBrawlers[2] && (
-                              <>
-                                <Text
-                                  style={[
-                                    styles.text,
-                                    { fontSize: 8, marginTop: 3 },
-                                  ]}
-                                >
-                                  Top 3 Brawlers
-                                </Text>
+                      <Text
+                        style={[
+                          styles.text,
+                          { marginTop: 4, marginLeft: 4, fontSize: 11 },
+                        ]}
+                      >
+                        {getMapName(mapID) == "Some Assembly Required"
+                          ? "Some Assembly R."
+                          : getMapName(mapID)}
+                      </Text>
+                      <View style={{ flexDirection: "row" }}>
+                        <View style={{ marginLeft: 4 }}>
+                          {sortedBrawlers && (
+                            <>
+                              {sortedBrawlers[mapID] && (
+                                <>
+                                  <Text
+                                    style={[
+                                      styles.text,
+                                      { fontSize: 8, marginTop: 3 },
+                                    ]}
+                                  >
+                                    Top 3 Brawlers
+                                  </Text>
 
-                                <View style={{ flexDirection: "row" }}>
-                                  {sortedBrawlers[2][0] && (
-                                    <Image
-                                      style={[
-                                        styles.brawlerImage,
-                                        styles.border,
-                                        {
-                                          borderColor: "gold",
-                                          width: 28,
-                                          height: 28,
-                                          borderWidth: 1,
-                                        },
-                                      ]}
-                                      source={getBrawlerImage(
-                                        sortedBrawlers[2][0].ID
-                                      )}
-                                    />
-                                  )}
-                                  {sortedBrawlers[2][1] && (
-                                    <Image
-                                      style={[
-                                        styles.brawlerImage,
-                                        styles.border,
-                                        {
-                                          borderColor: "silver",
-                                          width: 28,
-                                          height: 28,
-                                          borderWidth: 1,
-                                        },
-                                      ]}
-                                      source={getBrawlerImage(
-                                        sortedBrawlers[2][1].ID
-                                      )}
-                                    />
-                                  )}
-                                  {sortedBrawlers[2][2] && (
-                                    <Image
-                                      style={[
-                                        styles.brawlerImage,
-                                        styles.border,
-                                        {
-                                          borderColor: "#cd7f32",
-                                          width: 28,
-                                          height: 28,
-                                          borderWidth: 1,
-                                        },
-                                      ]}
-                                      source={getBrawlerImage(
-                                        sortedBrawlers[2][2].ID
-                                      )}
-                                    />
-                                  )}
-                                </View>
-                              </>
-                            )}
-                          </>
-                        )}
-                        {teamBrawler1[2] && (
-                          <>
-                            {teamBrawler1[2].length != 0 && (
+                                  <View style={{ flexDirection: "row" }}>
+                                    {sortedBrawlers[mapID][0] && (
+                                      <Image
+                                        style={[
+                                          styles.brawlerImage,
+                                          styles.border,
+                                          {
+                                            borderColor: "gold",
+                                            width: 28,
+                                            height: 28,
+                                            borderWidth: 1,
+                                          },
+                                        ]}
+                                        source={getBrawlerImage(
+                                          sortedBrawlers[mapID][0].ID
+                                        )}
+                                      />
+                                    )}
+                                    {sortedBrawlers[mapID][1] && (
+                                      <Image
+                                        style={[
+                                          styles.brawlerImage,
+                                          styles.border,
+                                          {
+                                            borderColor: "silver",
+                                            width: 28,
+                                            height: 28,
+                                            borderWidth: 1,
+                                          },
+                                        ]}
+                                        source={getBrawlerImage(
+                                          sortedBrawlers[mapID][1].ID
+                                        )}
+                                      />
+                                    )}
+                                    {sortedBrawlers[mapID][2] && (
+                                      <Image
+                                        style={[
+                                          styles.brawlerImage,
+                                          styles.border,
+                                          {
+                                            borderColor: "#cd7f32",
+                                            width: 28,
+                                            height: 28,
+                                            borderWidth: 1,
+                                          },
+                                        ]}
+                                        source={getBrawlerImage(
+                                          sortedBrawlers[mapID][2].ID
+                                        )}
+                                      />
+                                    )}
+                                  </View>
+                                </>
+                              )}
+                            </>
+                          )}
+                          {teamBrawler1[mapID] && (
+                            <>
                               <Text
                                 style={[
                                   styles.text,
@@ -762,254 +595,85 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                               >
                                 Top Team
                               </Text>
-                            )}
-                            <View
-                              style={{
-                                flexDirection: "row",
-                              }}
-                            >
-                              <Image
-                                style={[
-                                  styles.brawlerImage,
-                                  { width: 28, height: 28 },
-                                ]}
-                                source={getBrawlerImage(teamBrawler1[2])}
-                              />
 
-                              <Image
-                                style={[
-                                  styles.brawlerImage,
-                                  { width: 28, height: 28 },
-                                ]}
-                                source={getBrawlerImage(teamBrawler2[2])}
-                              />
-
-                              {teamBrawler3 ? (
-                                teamBrawler3[1].length == 8 ? (
-                                  <Image
-                                    style={[
-                                      styles.brawlerImage,
-                                      { width: 28, height: 28 },
-                                    ]}
-                                    source={getBrawlerImage(teamBrawler3[2])}
-                                  />
-                                ) : null
-                              ) : null}
-                            </View>
-                          </>
-                        )}
-                      </View>
-
-                      <Image
-                        source={getMapImage(maps[2])}
-                        style={{
-                          width: 55,
-                          height: 85,
-                          position: "absolute",
-                          right: 10,
-                          top: 6,
-                        }}
-                      />
-                    </View>
-                    <TouchableOpacity
-                      onPress={() =>
-                        onPressEvent(
-                          "trophies",
-                          event.mapName,
-                          event.modeImage,
-                          event.mapImage
-                        )
-                      }
-                      style={{
-                        position: "absolute",
-                        right: 4,
-                        top: 3.5,
-                      }}
-                    >
-                      <Image
-                        source={require("../../../assets/icons/infoButton.png")}
-                        style={{
-                          width: 20,
-                          height: 20,
-                        }}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                )}
-                {maps[3] && (
-                  <View
-                    style={[
-                      styles.square,
-                      { backgroundColor: getModeColor(modeName) },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.text,
-                        { marginTop: 4, marginLeft: 4, fontSize: 11 },
-                      ]}
-                    >
-                      {getMapName(maps[3]) == "Some Assembly Required"
-                        ? "Some Assembly R."
-                        : getMapName(maps[3])}
-                    </Text>
-                    <View style={{ flexDirection: "row" }}>
-                      <View style={{ marginLeft: 4 }}>
-                        {sortedBrawlers && (
-                          <>
-                            {sortedBrawlers[3] && (
-                              <>
-                                <Text
-                                  style={[
-                                    styles.text,
-                                    { fontSize: 8, marginTop: 3 },
-                                  ]}
-                                >
-                                  Top 3 Brawlers
-                                </Text>
-
-                                <View style={{ flexDirection: "row" }}>
-                                  {sortedBrawlers[3][0] && (
-                                    <Image
-                                      style={[
-                                        styles.brawlerImage,
-                                        styles.border,
-                                        {
-                                          borderColor: "gold",
-                                          width: 28,
-                                          height: 28,
-                                          borderWidth: 1,
-                                        },
-                                      ]}
-                                      source={getBrawlerImage(
-                                        sortedBrawlers[3][0].ID
-                                      )}
-                                    />
-                                  )}
-                                  {sortedBrawlers[3][1] && (
-                                    <Image
-                                      style={[
-                                        styles.brawlerImage,
-                                        styles.border,
-                                        {
-                                          borderColor: "silver",
-                                          width: 28,
-                                          height: 28,
-                                          borderWidth: 1,
-                                        },
-                                      ]}
-                                      source={getBrawlerImage(
-                                        sortedBrawlers[3][1].ID
-                                      )}
-                                    />
-                                  )}
-                                  {sortedBrawlers[3][2] && (
-                                    <Image
-                                      style={[
-                                        styles.brawlerImage,
-                                        styles.border,
-                                        {
-                                          borderColor: "#cd7f32",
-                                          width: 28,
-                                          height: 28,
-                                          borderWidth: 1,
-                                        },
-                                      ]}
-                                      source={getBrawlerImage(
-                                        sortedBrawlers[3][2].ID
-                                      )}
-                                    />
-                                  )}
-                                </View>
-                              </>
-                            )}
-                          </>
-                        )}
-                        {teamBrawler1[3] && (
-                          <>
-                            {teamBrawler1[3].length != 0 && (
-                              <Text
-                                style={[
-                                  styles.text,
-                                  { fontSize: 8, marginTop: 5 },
-                                ]}
+                              <View
+                                style={{
+                                  flexDirection: "row",
+                                }}
                               >
-                                Top Team
-                              </Text>
-                            )}
-                            <View
-                              style={{
-                                flexDirection: "row",
-                              }}
-                            >
-                              <Image
-                                style={[
-                                  styles.brawlerImage,
-                                  { width: 28, height: 28 },
-                                ]}
-                                source={getBrawlerImage(teamBrawler1[3])}
-                              />
+                                <Image
+                                  style={[
+                                    styles.brawlerImage,
+                                    { width: 28, height: 28 },
+                                  ]}
+                                  source={getBrawlerImage(teamBrawler1[mapID])}
+                                />
 
-                              <Image
-                                style={[
-                                  styles.brawlerImage,
-                                  { width: 28, height: 28 },
-                                ]}
-                                source={getBrawlerImage(teamBrawler2[3])}
-                              />
+                                <Image
+                                  style={[
+                                    styles.brawlerImage,
+                                    { width: 28, height: 28 },
+                                  ]}
+                                  source={getBrawlerImage(teamBrawler2[mapID])}
+                                />
 
-                              {teamBrawler3 ? (
-                                teamBrawler3[1].length == 8 ? (
+                                {teamBrawler3[mapID] ? (
                                   <Image
                                     style={[
                                       styles.brawlerImage,
                                       { width: 28, height: 28 },
                                     ]}
-                                    source={getBrawlerImage(teamBrawler3[3])}
+                                    source={getBrawlerImage(
+                                      teamBrawler3[mapID]
+                                    )}
                                   />
-                                ) : null
-                              ) : null}
-                            </View>
-                          </>
-                        )}
-                      </View>
+                                ) : null}
+                              </View>
+                            </>
+                          )}
+                        </View>
 
-                      <Image
-                        source={getMapImage(maps[3])}
-                        style={{
-                          width: 55,
-                          height: 85,
-                          position: "absolute",
-                          right: 10,
-                          top: 6,
-                        }}
-                      />
+                        <Image
+                          source={getMapImage(mapID)}
+                          style={{
+                            width: 55,
+                            height: 85,
+                            position: "absolute",
+                            right: 10,
+                            top: 6,
+                          }}
+                        />
+                      </View>
+                      {(sortedBrawlers[mapID] || sortedTeams[mapID]) && (
+                        <TouchableOpacity
+                          onPress={() =>
+                            onPressEvent(
+                              "powerLeague",
+                              mapID,
+                              mapID,
+                              mapID,
+                              sortedBrawlers[mapID],
+                              sortedTeams[mapID]
+                            )
+                          }
+                          style={{
+                            position: "absolute",
+                            right: 4,
+                            top: 3.5,
+                          }}
+                        >
+                          <Image
+                            source={require("../../../assets/icons/infoButton.png")}
+                            style={{
+                              width: 20,
+                              height: 20,
+                            }}
+                          />
+                        </TouchableOpacity>
+                      )}
                     </View>
-                    <TouchableOpacity
-                      onPress={() =>
-                        onPressEvent(
-                          "trophies",
-                          event.mapName,
-                          event.modeImage,
-                          event.mapImage
-                        )
-                      }
-                      style={{
-                        position: "absolute",
-                        right: 4,
-                        top: 3.5,
-                      }}
-                    >
-                      <Image
-                        source={require("../../../assets/icons/infoButton.png")}
-                        style={{
-                          width: 20,
-                          height: 20,
-                        }}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                )}
+                  ) : null;
+                })}
               </View>
             </View>
           )}
