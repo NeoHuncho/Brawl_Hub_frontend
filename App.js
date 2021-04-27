@@ -7,6 +7,7 @@ import { useFonts } from "expo-font";
 import { PersistGate } from "redux-persist/integration/react";
 
 
+
 import { store, persistor } from "./app/store/configureStore";
 
 import BottomBar from './app/components/modules/BottomBar'

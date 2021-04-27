@@ -35,11 +35,14 @@ const eventsData = () => {
               moment(eventsActive[eventKey].endTime).diff(moment.now())
             ),
           });
-        } else {
+        } 
+        else {
+          console.log('called!')
           for (const eventKeyUpcoming in eventsUpcoming) {
             if (
               eventsActive[eventKey].slot.id == eventsUpcoming[eventKeyUpcoming].slot.id
             )
+           
               eventActiveData.push({
                 modeName: eventsUpcoming[eventKeyUpcoming].map.gameMode.name,
                 modeImage: eventsUpcoming[eventKeyUpcoming].map.gameMode.imageUrl,

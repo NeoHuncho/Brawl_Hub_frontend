@@ -2,6 +2,8 @@ export default {
     primary: "#fbf5f3",
     secondary: "#FAF2F0",
     background:"#0a122a",
+    background2:'#182B63',
+    background3:'#244094',
     green:'#0b7649',
     red:"#7c0a02",
     modes:{

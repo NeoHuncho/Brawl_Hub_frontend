@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import Carousel from "react-native-snap-carousel";
 import { Ionicons } from "@expo/vector-icons";
+import { AdMobInterstitial } from "expo-ads-admob";
+
 import colors from "../../../config/colors";
 import {
   modesByPerformance,
@@ -25,7 +27,10 @@ import {
 } from "./CarouselData";
 import infoButton from "../../../assets/icons/infoButton.png";
 import { useDispatch } from "react-redux";
-import { moreInfoCarouselOpen } from "../../../store/reducers/uiReducerNoPersist";
+import {
+  moreInfoCarouselOpen,
+  moreInfoCarouselClosed,
+} from "../../../store/reducers/uiReducerNoPersist";
 
 export default function CarouselModule({ dataType, style, sort }) {
   const dispatch = useDispatch();
@@ -36,25 +41,25 @@ export default function CarouselModule({ dataType, style, sort }) {
   };
 
   const getBackgroundColor = (item) => {
-    if (item.winRatio >= 7) return "#003924";
-    else if (item.winRatio >= 5) return "#005841";
-    else if (item.winRatio >= 3) return "#AF9500";
-    else if (item.winRatio >= 2) return "#CCB33B";
-    else if (item.winRatio >= 1) return "#850000";
-    else if (item.winRatio < 1) return "#650000";
+    if (item.winRatio >= 5) return "#003924";
+    else if (item.winRatio >= 3) return "#005841";
+    else if (item.winRatio >= 2) return "#AF9500";
+    else if (item.winRatio >= 1) return "#CCB33B";
+    else if (item.winRatio >= 0.2) return "#850000";
+    else if (item.winRatio < 0.2) return "#650000";
   };
 
   const getMessage = (item) => {
-    if (item.winRatio >= 7) return "GREAT";
-    else if (item.winRatio >= 5) return "GOOD";
-    else if (item.winRatio >= 3) return "OKAY";
-    else if (item.winRatio >= 2) return "AVERAGE";
-    else if (item.winRatio >= 1) return "BAD";
-    else if (item.winRatio < 1) return "AWFUL";
+    if (item.winRatio >= 5) return "GREAT";
+    else if (item.winRatio >= 3) return "GOOD";
+    else if (item.winRatio >= 2) return "OKAY";
+    else if (item.winRatio >= 1) return "AVERAGE";
+    else if (item.winRatio >= 0.2) return "BAD";
+    else if (item.winRatio < 0.2) return "AWFUL";
   };
 
-  const onPressCarousel = (displayName, name, mode, image) => {
-    // console.log("calleddd!");
+  const onPressCarousel = async (displayName, name, mode, image) => {
+    // console.log(displayName, dataType, name, mode, image);
     dispatch(
       moreInfoCarouselOpen({
         isOpen: true,
@@ -67,7 +72,17 @@ export default function CarouselModule({ dataType, style, sort }) {
     );
   };
 
+  const showInterstitial = async () => {
+    await AdMobInterstitial.setAdUnitID(
+      "ca-app-pub-3940256099942544/1033173712"
+    ); // Test ID, Replace with your-admob-unit-id
+    await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
+    if(AdMobInterstitial.getIsReadyAsync())
+    await AdMobInterstitial.showAdAsync();
+  };
+
   const renderItem = ({ item, index }) => {
+    // console.log(item.name, item.mode);
     return (
       <View style={styles.item}>
         <View
@@ -82,7 +97,9 @@ export default function CarouselModule({ dataType, style, sort }) {
             },
             //this is where you can change height of each item
             dataType === "team" ? styles.teamItem : null,
-            dataType !== "map" ? { height: 250 } : { height: 330 },
+            dataType !== "map" && dataType !== "mapMore"
+              ? { height: 250 }
+              : { height: 330 },
           ]}
         >
           <View style={{ flexDirection: "row" }}>
@@ -105,32 +122,37 @@ export default function CarouselModule({ dataType, style, sort }) {
               {getMessage(item)}
             </Text>
             <Image
-              source={dataType === "map" ? item.mode : null}
+              source={
+                dataType === "map" || dataType === "mapMore" ? item.mode : null
+              }
               style={{ width: 20, height: 20, marginTop: 8, marginLeft: 5 }}
             />
-            {dataType !== "team" && dataType !== "brawler" && (
-              <TouchableOpacity
-                onPress={() =>
-                  onPressCarousel(
-                    item.title,
-                    item.titleCamel,
-                    item.mode,
-                    item.image
-                  )
-                }
-                style={{
-                  position: "absolute",
-                  right: 0,
-                  top: 0,
-                }}
-              >
-                <Text style={styles.statsTextMode}>More stats</Text>
-                <Image
-                  source={require("../../../assets/icons/infoButton.png")}
-                  style={{ width: 30, height: 30 }}
-                />
-              </TouchableOpacity>
-            )}
+            {dataType !== "team" &&
+              dataType !== "brawler" &&
+              dataType !== "mapMore" && (
+                <TouchableOpacity
+                  onPress={async () => {
+                    await showInterstitial();
+                    onPressCarousel(
+                      item.title,
+                      item.titleCamel,
+                      item.mode,
+                      item.image
+                    );
+                  }}
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    top: 0,
+                  }}
+                >
+                  <Text style={styles.statsTextMode}>More stats</Text>
+                  <Image
+                    source={require("../../../assets/icons/infoButton.png")}
+                    style={{ width: 30, height: 30 }}
+                  />
+                </TouchableOpacity>
+              )}
           </View>
 
           <View
@@ -140,7 +162,11 @@ export default function CarouselModule({ dataType, style, sort }) {
               <Image
                 source={item.image}
                 containerStyle={styles.imageContainer}
-                style={[dataType !== "map" ? styles.image : styles.mapImage]}
+                style={[
+                  dataType !== "map" && dataType !== "mapMore"
+                    ? styles.image
+                    : styles.mapImage,
+                ]}
               />
             )}
             {dataType === "team" && (
@@ -226,7 +252,7 @@ export default function CarouselModule({ dataType, style, sort }) {
                 </Text>
               ) : (
                 <Text style={styles.winRatio}>
-                  {item.wins!=0?'Wins only':'Losses only'}
+                  {item.wins != 0 ? "Wins only" : "Losses only"}
                 </Text>
               )}
             </View>
@@ -239,7 +265,10 @@ export default function CarouselModule({ dataType, style, sort }) {
 
   return (
     <View
-      style={[styles.container, dataType === "map" ? styles.mapItem : null]}
+      style={[
+        styles.container,
+        dataType === "map" || dataType === "mapMore" ? styles.mapItem : null,
+      ]}
     >
       <View
         style={{
@@ -259,7 +288,7 @@ export default function CarouselModule({ dataType, style, sort }) {
                 ? modesByPerformance
                 : dataType === "brawler"
                 ? brawlersByPerformance
-                : dataType === "map"
+                : dataType === "map" || dataType === "mapMore"
                 ? mapsByPerformance
                 : dataType === "team"
                 ? teamsByPerformance
@@ -268,7 +297,7 @@ export default function CarouselModule({ dataType, style, sort }) {
               ? modesByWins
               : dataType === "brawler"
               ? brawlersByWins
-              : dataType === "map"
+              : dataType === "map" || dataType === "mapMore"
               ? mapsByWins
               : dataType === "team"
               ? teamsByWins

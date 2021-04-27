@@ -39,7 +39,7 @@ export default function EventsMoreInfo() {
       ? 1
       : 0
   );
-  console.log(carouselInfo.sortedTeams);
+  // console.log(carouselInfo.sortedTeams);
 
   let topPointsBrawlers = undefined;
   let totalCountBrawlers = 0;
@@ -78,7 +78,7 @@ export default function EventsMoreInfo() {
     }
     performanceAgainstTeam.sort((a, b) => (a.points < b.points ? 1 : -1));
 
-    console.log(performanceAgainstTeam);
+    // console.log(performanceAgainstTeam);
 
     let performanceBrawlers = Math.round(
       (item.points / topPointsBrawlers) * 100
@@ -207,48 +207,48 @@ export default function EventsMoreInfo() {
                 color={colors.secondary}
               />
             </TouchableOpacity>
-            <View style={{ marginTop: 10, flexDirection: "row" }}>
-              <Text style={[styles.name]}>
+            <View style={{ flexDirection: "row",alignItems:"center" }}>
+                <Image
+                  source={
+                    carouselInfo.type == "trophies"
+                      ? { uri: carouselInfo.mode }
+                      : getModeImage(carouselInfo.mode)
+                  }
+                  style={
+                    carouselInfo.type == "trophies"
+                      ? carouselInfo.mode.includes("Hot")
+                        ? { width: 30, height: 35, marginLeft: 5,marginRight:5 }
+                        : carouselInfo.mode.includes("Knock")
+                        ? { width: 30, height: 30, marginLeft: 5,marginRight:5 }
+                        : carouselInfo.mode.includes("Gem")
+                        ? {width: 30, height: 30, marginLeft: 5,marginRight:5  }
+                        : carouselInfo.mode.includes("Duo")
+                        ? { width: 30, height: 30, marginLeft: 5,marginRight:5  }
+                        : carouselInfo.mode.includes("/Show")
+                        ? { width: 30, height: 35, marginLeft: 5,marginRight:5, marginTop:5  }
+                        : { width: 35, height: 30, marginLeft: 5,marginRight:5, marginBottom:5  }
+                      : { width: 30, height: 30, marginLeft: 5 }
+                  }
+                />
+              <Text style={[styles.name,{marginRight:20,fontSize:18}]}>
                 {carouselInfo.type == "trophies"
                   ? carouselInfo.name
                   : getMapName(carouselInfo.name)}
               </Text>
               {console.log(carouselInfo.mode)}
-              <Image
-                source={
-                  carouselInfo.type == "trophies"
-                    ? { uri: carouselInfo.mode }
-                    : getModeImage(carouselInfo.mode)
-                }
-                style={
-                  carouselInfo.type == "trophies"
-                    ? carouselInfo.mode.includes("Hot")
-                      ? { flex: 0.1, marginLeft: 15 }
-                      : carouselInfo.mode.includes("Knock")
-                      ? { flex: 0.13, marginLeft: 15 }
-                      : carouselInfo.mode.includes("Gem")
-                      ? { flex: 0.16, marginLeft: 15 }
-                      : carouselInfo.mode.includes("Duo")
-                      ? { flex: 0.13, marginLeft: 15 }
-                      : carouselInfo.mode.includes("/Show")
-                      ? { flex: 0.13, marginLeft: 15 }
-                      : { flex: 0.16, marginTop: 2, marginLeft: 15 }
-                    : { width: 30, height: 30, marginLeft: 5 }
-                }
-              />
-            </View>
-            <View>
+      
+         
               <Image
                 source={
                   carouselInfo.type == "trophies"
                     ? { uri: carouselInfo.image }
                     : getMapImage(carouselInfo.image)
                 }
-                style={{ width: 120, height: 180, marginTop: 10 }}
+                style={{ width: 90, height: 135, marginTop: 10 }}
               />
             </View>
             {!carouselInfo.mode.includes("/Show") && (
-              <View style={{ width: 300, marginTop: 20 }}>
+              <View style={{ width: 300, marginTop:10}}>
                 <SegmentedControlTab
                   values={["brawlers", "teams"]}
                   enabled={
@@ -264,11 +264,12 @@ export default function EventsMoreInfo() {
                   onTabPress={(index) => {
                     setTypeIndex(index);
                   }}
+                  tabStyle={{height:30}}
                 />
               </View>
             )}
 
-            <View style={{ flexDirection: "row", marginTop: 20 }}>
+            <View style={{ flexDirection: "row", marginTop: 10}}>
               <Text
                 style={[
                   styles.columnName,
@@ -327,7 +328,7 @@ export default function EventsMoreInfo() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#142352",
+    backgroundColor: colors.background2,
     alignItems: "center",
   },
   stats: {

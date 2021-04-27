@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setTestDeviceIDAsync } from "expo-ads-admob";
 import * as Progress from "react-native-progress";
 
+import { getAssets } from "../../lib/getAssetsFunctions";
 import season6_1 from "../../assets/backgrounds/season6_1.jpg";
 import season6_2 from "../../assets/backgrounds/season6_2.jpg";
 import season6_3 from "../../assets/backgrounds/season6_3.jpg";
@@ -41,6 +42,7 @@ import {
   getGlobalNumbersFromDB,
   getStatsFirstLogin,
   getStatsFromDB,
+  writeLastLogin,
 } from "../../store/apiDB";
 
 import BottomBar from "../../components/modules/BottomBar";
@@ -85,15 +87,18 @@ export default function PlayerLogin() {
         async function fetchMySavedData() {
           if (userId) {
             await setTestDeviceIDAsync("EMULATOR");
-            setLoadingText("fetching your stats...");
-            const stats = await getStatsFromDB(userId);
-            dispatch(receivedPlayerStatsFromDB(stats));
-            setProgress(0.5);
+            setLoadingText("fetching Assets...");
             const { maps, brawlers, icons } = await getBrawlifyFromDB();
-            setProgress(0.8);
-            setLoadingText("fetching global stats. Hang in there!");
-
+            dispatch(
+              brawlifyDataReceived({
+                brawlers: brawlers,
+                maps: maps,
+                icons: icons,
+              })
+            );
             const {
+              rangesMinus,
+              rangesPLMinus,
               nBrawlers,
               nGadgets,
               nStarPowers,
@@ -107,14 +112,9 @@ export default function PlayerLogin() {
             } = await getGlobalNumbersFromDB();
 
             dispatch(
-              brawlifyDataReceived({
-                brawlers: brawlers,
-                maps: maps,
-                icons: icons,
-              })
-            );
-            dispatch(
               globalCountsReceived({
+                rangesMinus: rangesMinus,
+                rangesPLMinus: rangesPLMinus,
                 nBrawlers: nBrawlers,
                 nGadgets: nGadgets,
                 nStarPowers: nStarPowers,
@@ -127,11 +127,19 @@ export default function PlayerLogin() {
                 slotNumUpcoming: slotNumUpcoming,
               })
             );
-            setProgress(1);
-            setValidId(true);
+            setProgress(0.5);
+            await writeLastLogin(userId);
             await getEvents();
             const globalStats = await getGlobalStatsFromDB(seasonGlobal);
             dispatch(globalStatsReceived(globalStats));
+            getAssets();
+            setProgress(0.8);
+            setLoadingText("fetching global stats. Hang in there!");
+
+            setProgress(1);
+            setValidId(true);
+            const stats = await getStatsFromDB(userId);
+            await dispatch(receivedPlayerStatsFromDB(stats));
           }
         }
         fetchMySavedData();
@@ -154,9 +162,11 @@ export default function PlayerLogin() {
               let statsFromDB = await getStatsFromDB(userId);
               // console.log(statsFromDB)
               dispatch(receivedPlayerStatsFromDB(statsFromDB));
+              await writeLastLogin(userId);
               setProgress(0.5);
             } else {
               dispatch(receivedPlayerStatsFromDB(checkDBStats));
+              await writeLastLogin(userId);
               setProgress(0.5);
             }
 
@@ -164,6 +174,8 @@ export default function PlayerLogin() {
             setProgress(0.65);
             setLoadingText("fetching global stats. Hang in there!");
             const {
+              rangesMinus,
+              rangesPLMinus,
               nBrawlers,
               nGadgets,
               nStarPowers,
@@ -185,6 +197,8 @@ export default function PlayerLogin() {
             );
             dispatch(
               globalCountsReceived({
+                rangesMinus: rangesMinus,
+                rangesPLMinus: rangesPLMinus,
                 nBrawlers: nBrawlers,
                 nGadgets: nGadgets,
                 nStarPowers: nStarPowers,
@@ -260,7 +274,9 @@ export default function PlayerLogin() {
 
             <View style={styles.imagesContainer}>
               <TouchableOpacity onPress={() => handleHowToClicked()}>
-                <Text style={[styles.findIdText,{fontSize:18}]}>Click how to find Player ID</Text>
+                <Text style={[styles.findIdText, { fontSize: 18 }]}>
+                  Click how to find Player ID
+                </Text>
               </TouchableOpacity>
               {howToClicked && (
                 <>

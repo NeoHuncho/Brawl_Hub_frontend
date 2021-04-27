@@ -11,10 +11,16 @@ const slice = createSlice({
     numberOfBrawlers: null,
     numberOfStarPowers: null,
     numberOfGadgets: null,
-    playerStats: null,
-    trophyLosses: 0,
+    averageTrophies:0,
+    soloPLTrophies:0,
+    teamPLTrophies:0,
+    avg3vs3Victories:0,
+    avgDuoVictories:0,
+    avgSoloVictories:0,
     trophyWins: 0,
+    trophyLosses: 0,
     numberOfGames: 0,
+    playerStats: null,
     season: null,
   },
   reducers: {
@@ -28,6 +34,8 @@ const slice = createSlice({
       battleLogAndPlayer.numberOfStarPowers = data.generalStats.numberOfStarPowers;
       battleLogAndPlayer.numberOfGadgets = data.generalStats.numberOfGadgets;
       battleLogAndPlayer.averageTrophies = data.generalStats.averageTrophies;
+      battleLogAndPlayer.soloPLTrophies= data.generalStats.plTrophySolo
+      battleLogAndPlayer.teamPLTrophies= data.generalStats.plTrophyTeam
       battleLogAndPlayer.avg3vs3Victories = data.generalStats.avg3vs3Victories;
       battleLogAndPlayer.avgDuoVictories= data.generalStats.avgDuoVictories
       battleLogAndPlayer.avgSoloVictories = data.generalStats.avgSoloVictories;

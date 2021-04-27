@@ -29,6 +29,8 @@ import { getAssets, getIconImage } from "../../lib/getAssetsFunctions";
 import ReloadPage from "../ReloadPage";
 import imageBackground from "../../assets/background-login.jpg";
 import PlayerStatsMoreInfo from "../PlayerStats/playerStatsMoreInfo";
+import FaqPage from "../../components/FaqPage";
+import MessageBox from "../../components/modules/MessageBox";
 
 const PlayerStats = () => {
   getAssets();
@@ -42,6 +44,13 @@ const PlayerStats = () => {
 
   const globalNumbers = useSelector(
     (state) => state.globalStatsReducer.numbers
+  );
+
+  const updateMessage = useSelector(
+    (state) => state.uiReducerPersist.updateMessage
+  );
+  const betaMessage = useSelector(
+    (state) => state.uiReducerPersist.betaMessage
   );
 
   const playerAvgs = {
@@ -61,7 +70,7 @@ const PlayerStats = () => {
     playerNums.numberOfGadgets;
   playerNums.overallPercentage =
     playerNums.overallPlayerNumber / globalNumbers.totalUnlockables;
-  console.log(playerAvgs, playerNums);
+  // console.log(playerAvgs, playerNums);
 
   const playerStats = battleLogReducer.playerStats;
 
@@ -219,6 +228,24 @@ const PlayerStats = () => {
         <SafeAreaView>
           <ScrollView>
             <View style={styles.container}>
+              {updateMessage == true && (
+                <MessageBox
+                  message={
+                    "Your stats will automatically update daily, if you open Brawl Hub at least once every 3 DAYS!"
+                  }
+                  idMessage={"update"}
+                  color={colors.red}
+                />
+              )}
+              {betaMessage == true && (
+                <MessageBox
+                  message={
+                    "This app is in open beta! please report bugs in the menu. (bottom right)"
+                  }
+                  idMessage={"beta"}
+                  color={colors.green}
+                />
+              )}
               <View style={styles.nameContainer}>
                 {iconImage ? (
                   <Image
@@ -303,30 +330,37 @@ const PlayerStats = () => {
               {showSettings == true && (
                 <View style={{ marginTop: 20 }}>
                   <Text style={styles.sliderTitle}>Choose Season:</Text>
-                  <SegmentedControlTab
-                    values={seasonsKey}
-                    //The plus 5 is because we are starting 5 seasons late
-                    // the minus 5 is to convert it back
-                    selectedIndex={seasonIndex - 5}
-                    onTabPress={(index) => setSeasonIndex(index + 5)}
-                  />
-                  <View style={{ marginTop: 10 }}>
-                    <Text style={styles.sliderTitle}>Sort By:</Text>
+                  <View style={{ marginLeft: 20, marginRight: 20 }}>
                     <SegmentedControlTab
-                      tabContainerStyle={{ width: "50%" }}
-                      values={["Performance", "Wins"]}
-                      selectedIndex={sortIndex}
-                      onTabPress={(index) => setSortIndex(index)}
+                      values={seasonsKey}
+                      //The plus 5 is because we are starting 5 seasons late
+                      // the minus 5 is to convert it back
+                      selectedIndex={seasonIndex - 5}
+                      onTabPress={(index) => setSeasonIndex(index + 5)}
                     />
+                    <View style={{ marginTop: 10 }}>
+                      <Text style={styles.sliderTitle}>Sort By:</Text>
+                      <SegmentedControlTab
+                        tabContainerStyle={{ width: "50%" }}
+                        values={["Performance", "Wins"]}
+                        selectedIndex={sortIndex}
+                        onTabPress={(index) => setSortIndex(index)}
+                      />
+                    </View>
+                    <View style={{ marginTop: 10, marginBottom: 20 }}>
+                      <Text style={styles.sliderTitle}>Style:</Text>
+                      <SegmentedControlTab
+                        values={["Carousel", "Tinder", "Stack"]}
+                        selectedIndex={styleIndex}
+                        onTabPress={(index) => setStyleIndex(index)}
+                      />
+                    </View>
                   </View>
-                  <View style={{ marginTop: 10, marginBottom: 20 }}>
-                    <Text style={styles.sliderTitle}>Style:</Text>
-                    <SegmentedControlTab
-                      values={["Carousel", "Tinder", "Stack"]}
-                      selectedIndex={styleIndex}
-                      onTabPress={(index) => setStyleIndex(index)}
-                    />
-                  </View>
+                </View>
+              )}
+              {showFAQ == true && (
+                <View style={{ marginTop: 20 }}>
+                  <FaqPage />
                 </View>
               )}
               <TouchableOpacity onPress={() => handleOverallStatsPress()}>
@@ -337,9 +371,17 @@ const PlayerStats = () => {
                     marginTop: 20,
                   }}
                 >
-                  <Text style={styles.categoryName}>
-                    Show Overall Player Stats
-                  </Text>
+                  <View style={{ flexDirection: "row" }}>
+                    {showOverallStats == false && (
+                      <Ionicons color="white" size={25} name="caret-up" />
+                    )}
+                    {showOverallStats == true && (
+                      <Ionicons color="white" size={25} name="caret-down" />
+                    )}
+                    <Text style={styles.categoryName}>
+                      Show Overall Player Stats
+                    </Text>
+                  </View>
                 </View>
               </TouchableOpacity>
               {showOverallStats == true && (
@@ -561,10 +603,18 @@ const PlayerStats = () => {
                             },
                           ]}
                         >
-                          3 vs 3 
+                          3 vs 3
                         </Text>
                         <Image
-                          style={styles.imageProgress}
+                          style={[
+                            styles.imageProgress,
+                            {
+                              width: 40,
+                              height: 20,
+                              marginBottom: 10,
+                              marginTop: 5,
+                            },
+                          ]}
                           source={require("../../assets/icons/teams.png")}
                         />
                         <Text style={[styles.categoryName, styles.number]}>
@@ -572,9 +622,7 @@ const PlayerStats = () => {
                         </Text>
                         <Progress.Bar
                           animated={true}
-                          progress={
-                            playerAvgs.avg3vs3Victories/100
-                          }
+                          progress={playerAvgs.avg3vs3Victories / 100}
                           height={4}
                           width={40}
                           style={{
@@ -583,7 +631,7 @@ const PlayerStats = () => {
                           }}
                         />
                       </View>
-                      <View style={{marginLeft:35}}>
+                      <View style={{ marginLeft: 35 }}>
                         <Text
                           style={[
                             styles.categoryName,
@@ -591,12 +639,12 @@ const PlayerStats = () => {
                               marginTop: 4,
                               marginBottom: 5,
                               fontSize: 10,
-                              marginLeft:'auto',
-                              marginRight:'auto'
+                              marginLeft: "auto",
+                              marginRight: "auto",
                             },
                           ]}
                         >
-                        Duo
+                          Duo
                         </Text>
                         <Image
                           style={styles.imageProgress}
@@ -607,9 +655,7 @@ const PlayerStats = () => {
                         </Text>
                         <Progress.Bar
                           animated={true}
-                          progress={
-                            playerAvgs.avgDuoVictories/100
-                          }
+                          progress={playerAvgs.avgDuoVictories / 100}
                           height={4}
                           width={40}
                           style={{
@@ -618,7 +664,7 @@ const PlayerStats = () => {
                           }}
                         />
                       </View>
-                      <View style={{marginLeft:35}}>
+                      <View style={{ marginLeft: 35 }}>
                         <Text
                           style={[
                             styles.categoryName,
@@ -626,9 +672,9 @@ const PlayerStats = () => {
                               marginTop: 4,
                               marginBottom: 5,
                               fontSize: 10,
-                              marginLeft:'auto',
-                              marginRight:'auto'
-                            }
+                              marginLeft: "auto",
+                              marginRight: "auto",
+                            },
                           ]}
                         >
                           Solo
@@ -642,9 +688,7 @@ const PlayerStats = () => {
                         </Text>
                         <Progress.Bar
                           animated={true}
-                          progress={
-                            playerAvgs.avgSoloVictories/100
-                          }
+                          progress={playerAvgs.avgSoloVictories / 100}
                           height={4}
                           width={40}
                           style={{
@@ -653,7 +697,7 @@ const PlayerStats = () => {
                           }}
                         />
                       </View>
-                      </View>
+                    </View>
                   </View>
                 </View>
               )}
@@ -690,13 +734,16 @@ const PlayerStats = () => {
                     style={styleIndex}
                     sort={sortIndex}
                   />
-
-                  <Text style={styles.categoryName}>Player Stats by Teams</Text>
-                  <CarouselModule
-                    dataType="team"
-                    style={styleIndex}
-                    sort={sortIndex}
-                  />
+                  <View style={{ marginBottom: 50 }}>
+                    <Text style={styles.categoryName}>
+                      Player Stats by Teams
+                    </Text>
+                    <CarouselModule
+                      dataType="team"
+                      style={styleIndex}
+                      sort={sortIndex}
+                    />
+                  </View>
                 </View>
               </View>
             </View>
@@ -712,7 +759,7 @@ const PlayerStats = () => {
           style={[styles.imageBackground]}
           blurRadius={2}
         >
-          <View style={[styles.nameContainer, { top: -280 }]}>
+          <View style={[styles.nameContainer, { top: -200 }]}>
             {iconImage ? (
               <Image
                 source={{ uri: iconImage }}
@@ -740,6 +787,9 @@ const PlayerStats = () => {
           <Text style={[styles.name, { fontSize: 20 }]}>
             {`You don't have any ranked or Power League games in your battlelog.
 Your stats will be automatically updated when you do!`}
+          </Text>
+          <Text style={[styles.name, {marginTop:10, fontSize: 20 }]}>
+{`If you are seeing this and you shouldn't be, reload the app. `}
           </Text>
         </ImageBackground>
       ) : null}

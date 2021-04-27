@@ -39,10 +39,6 @@ export default function PlayerStatsMoreInfo() {
     dispatch(moreInfoCarouselClosed());
   };
 
-  const handleBackClicked = async () => {
-    setBackClicked(true);
-  };
-
   const setTest = async () => {
     await setTestDeviceIDAsync("EMULATOR");
   };
@@ -52,14 +48,16 @@ export default function PlayerStatsMoreInfo() {
     <>
       {carouselInfo.image && (
         <SafeAreaView style={styles.container}>
-          <TouchableOpacity onPress={()=>handleReturn()} style={{ position: "absolute", left: 5, top: 5 }}>
-              <Ionicons
-                name="arrow-back-circle"
-                size={50}
-                style={{ zIndex: 2 }}
-                color={colors.secondary}
-              />
-       
+          <TouchableOpacity
+            onPress={() => handleReturn()}
+            style={{ position: "absolute", left: 5, top: 5 }}
+          >
+            <Ionicons
+              name="arrow-back-circle"
+              size={50}
+              style={{ zIndex: 2 }}
+              color={colors.secondary}
+            />
           </TouchableOpacity>
           <View style={{ marginTop: 10, flexDirection: "row" }}>
             <TouchableOpacity>
@@ -91,7 +89,7 @@ export default function PlayerStatsMoreInfo() {
                   Player Stats by Map
                 </Text>
                 <CarouselModule
-                  dataType="map"
+                  dataType="mapMore"
                   style={preferencesCarouselStored.styleIndex}
                   sort={preferencesCarouselStored.sortIndex}
                 />

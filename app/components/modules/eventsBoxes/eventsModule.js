@@ -7,7 +7,8 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import moment from "moment";
+import { AdMobInterstitial } from "expo-ads-admob";
+
 import { eventsData, eventActiveData, eventUpcomingData } from "./eventsData";
 import colors from "../../../config/colors";
 import { bestBrawlers, bestTeams } from "../../../lib/getGlobalStatsFunctions";
@@ -63,6 +64,14 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
   function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
+  const showInterstitial = async () => {
+    await AdMobInterstitial.setAdUnitID(
+      "ca-app-pub-3940256099942544/1033173712"
+    ); // Test ID, Replace with your-admob-unit-id
+    await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
+    if (AdMobInterstitial.getIsReadyAsync())
+      await AdMobInterstitial.showAdAsync();
+  };
 
   if (typeIndex == 0) {
     eventActiveData.map((event) => {
@@ -115,7 +124,9 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                   marginLeft: 4,
                 }}
               >
-                {event.mapName}
+                {event.mapName.includes("Required")
+                  ? "Some Assembly R."
+                  : event.mapName}
               </Text>
 
               <Text
@@ -132,7 +143,7 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
               </Text>
               {(sortedBrawlers != undefined || sortedTeams != undefined) && (
                 <TouchableOpacity
-                  onPress={() =>
+                  onPress={async () => {
                     onPressEvent(
                       "trophies",
                       event.mapName,
@@ -140,8 +151,9 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                       event.mapImage,
                       sortedBrawlers,
                       sortedTeams
-                    )
-                  }
+                    );
+                    await showInterstitial();
+                  }}
                   style={{
                     position: "absolute",
                     right: 0,
@@ -461,7 +473,7 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                       </View>
                       {(sortedBrawlers[mapID] || sortedTeams[mapID]) && (
                         <TouchableOpacity
-                          onPress={() =>
+                          onPress={async () => {
                             onPressEvent(
                               "powerLeague",
                               mapID,
@@ -469,8 +481,9 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                               mapID,
                               sortedBrawlers[mapID],
                               sortedTeams[mapID]
-                            )
-                          }
+                            );
+                            await showInterstitial();
+                          }}
                           style={{
                             position: "absolute",
                             right: 4,
@@ -646,7 +659,7 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                       </View>
                       {(sortedBrawlers[mapID] || sortedTeams[mapID]) && (
                         <TouchableOpacity
-                          onPress={() =>
+                          onPress={async () => {
                             onPressEvent(
                               "powerLeague",
                               mapID,
@@ -654,8 +667,9 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                               mapID,
                               sortedBrawlers[mapID],
                               sortedTeams[mapID]
-                            )
-                          }
+                            );
+                            await showInterstitial();
+                          }}
                           style={{
                             position: "absolute",
                             right: 4,

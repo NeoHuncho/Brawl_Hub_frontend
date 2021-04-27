@@ -1,10 +1,13 @@
-import { configureStore, applyMiddleware,getDefaultMiddleware } from "@reduxjs/toolkit"; // this tool allows for store to talk to redux dev tools & dispatch async actions
+import {
+  configureStore,
+  applyMiddleware,
+  getDefaultMiddleware,
+} from "@reduxjs/toolkit"; // this tool allows for store to talk to redux dev tools & dispatch async actions
 
 import { persistReducer, persistStore } from "redux-persist";
 import AsyncStorage from "@react-native-community/async-storage";
-
+import { composeWithDevTools } from "redux-devtools-extension";
 import reducers from "./reducers";
-
 
 const persistConfig = {
   // Root
@@ -14,9 +17,14 @@ const persistConfig = {
   storage: AsyncStorage,
   // Whitelist (Save Specific Reducers)
   //"playerPersistReducer",
-  whitelist: ["playerPersistReducer",'uiReducerPersist'],
+  whitelist: ["playerPersistReducer", "uiReducerPersist"],
   // Blacklist (Don't Save Specific Reducers)
-  blacklist: ["battleLogReducer","globalStatsReducer","brawlifyReducer",'uiReducerNoPersist'],
+  blacklist: [
+    "battleLogReducer",
+    "globalStatsReducer",
+    "brawlifyReducer",
+    "uiReducerNoPersist",
+  ],
 };
 
 const persistedReducer = persistReducer(persistConfig, reducers);

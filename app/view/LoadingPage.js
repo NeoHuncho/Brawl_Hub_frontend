@@ -1,32 +1,16 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { store } from "../store/configureStore";
+
 import { useSelector } from "react-redux";
 import Events from "./EventsPage/Events";
-export default function LoadingPage(page) {
+import { getAssets } from "../lib/getAssetsFunctions";
+export default function LoadingPage() {
+
   let globalStats = useSelector(
-    (state) => state.globalStatsReducer.globalStats
+    (state) => state.brawlifyReducer.brawlersList.list
   );
   if (globalStats != undefined && globalStats != null) {
-    if (globalStats.trophies) {
-      return <Events />;
-    } else {
-      return (
-        <View style={styles.container}>
-          <Text
-            style={{
-              fontSize: 30,
-              fontFamily: "Lilita-One",
-              textAlign: "center",
-              marginTop: 200,
-              color: "white",
-            }}
-          >
-            Loading this page! Will only be one sec
-          </Text>
-        </View>
-      );
-    }
+    return <Events />;
   } else {
     return (
       <View style={styles.container}>
