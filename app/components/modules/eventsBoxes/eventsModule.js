@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   StyleSheet,
@@ -9,9 +9,13 @@ import {
 } from "react-native";
 import { AdMobInterstitial } from "expo-ads-admob";
 
-import { eventsData, eventActiveData, eventUpcomingData } from "./eventsData";
+import { eventsData, eventActiveData } from "./eventsData";
 import colors from "../../../config/colors";
-import { bestBrawlers, bestTeams } from "../../../lib/getGlobalStatsFunctions";
+import {
+  bestBrawlers,
+  bestTeams,
+  camelize,
+} from "../../../lib/getGlobalStatsFunctions";
 import {
   getBrawlerImage,
   getMapName,
@@ -22,8 +26,15 @@ import {
 } from "../../../lib/getAssetsFunctions";
 import { useSelector, useDispatch } from "react-redux";
 import { moreInfoEventOpen } from "../../../store/reducers/uiReducerNoPersist";
+import { getGlobalStatsFromDB } from "../../../store/apiDB";
+import { globalStatsReceived } from "../../../store/reducers/globalStatsReducer";
 
-const EventsModule = ({ seasonIndex, typeIndex, range }) => {
+let countImageAd = 0;
+let countVideoAd = 0;
+const EventsModule = ({ season, typeIndex, range }) => {
+  let globalStats = useSelector(
+    (state) => state.globalStatsReducer.globalStats
+  );
   const dispatch = useDispatch();
   const onPressEvent = (
     type,
@@ -33,6 +44,7 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
     sortedBrawlers,
     sortedTeams
   ) => {
+    // console.log(type);
     dispatch(
       moreInfoEventOpen({
         isOpen: true,
@@ -46,47 +58,65 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
     );
   };
   eventsData();
-  let powerLeagueStats = null;
-  let powerLeagueStatsSolo = useSelector(
-    (state) => state.globalStatsReducer.globalStats["powerLeagueSolo"][range]
-  );
-  let powerLeagueStatsTeam = useSelector(
-    (state) => state.globalStatsReducer.globalStats["powerLeagueTeam"][range]
-  );
-  if (typeIndex == 1) {
-    powerLeagueStats = powerLeagueStatsSolo;
-  } else if (typeIndex == 2) {
-    powerLeagueStats = powerLeagueStatsTeam;
-  }
 
   let eventModule = [];
 
   function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
-  const showInterstitial = async () => {
-    await AdMobInterstitial.setAdUnitID(
-      "ca-app-pub-3940256099942544/1033173712"
-    ); // Test ID, Replace with your-admob-unit-id
-    await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
-    if (AdMobInterstitial.getIsReadyAsync())
+
+  const prepareAds = async () => {
+    if (
+      (countImageAd == 0 && countVideoAd == 0) ||
+      countImageAd == countVideoAd
+    ) {
+      await AdMobInterstitial.setAdUnitID(
+        "ca-app-pub-3940256099942544/1033173712"
+      ); // Test ID, Replace with your-admob-unit-id
+      await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
+    } else if (countImageAd > countVideoAd) {
+      await AdMobInterstitial.setAdUnitID(
+        "ca-app-pub-3940256099942544/8691691433"
+      ); // Test ID, Replace with your-admob-unit-id
+      await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
+    }
+  };
+  prepareAds();
+
+  const showImageInterstitial = async () => {
+    if ((await AdMobInterstitial.getIsReadyAsync()) == true) {
       await AdMobInterstitial.showAdAsync();
+      countImageAd += 1;
+    }
+  };
+  const showVideoInterstitial = async () => {
+    if ((await AdMobInterstitial.getIsReadyAsync()) == true) {
+      await AdMobInterstitial.showAdAsync();
+      countVideoAd += 1;
+    }
   };
 
   if (typeIndex == 0) {
+    let trophiesStats = useSelector(
+      (state) => state.globalStatsReducer.globalStats["trophies"][range]
+    );
+    // console.log("look here g", range);
+
     eventActiveData.map((event) => {
-      let sortedBrawlers = bestBrawlers(
-        typeIndex,
-        range,
-        event.modeName,
-        event.mapID
-      );
-      let sortedTeams = bestTeams(
-        typeIndex,
-        range,
-        event.modeName,
-        event.mapID
-      );
+      let sortedBrawlers = null;
+      let sortedTeams = null;
+      if (trophiesStats[camelize(event.modeName)]) {
+        if (trophiesStats[camelize(event.modeName)][event.mapID]) {
+          sortedBrawlers =
+            trophiesStats[camelize(event.modeName)][event.mapID][
+              "performanceBrawlersReduced"
+            ];
+          sortedTeams =
+            trophiesStats[camelize(event.modeName)][event.mapID][
+              "performanceTeamsReduced"
+            ];
+        }
+      }
 
       let teamBrawler1 = null;
       let teamBrawler2 = null;
@@ -144,15 +174,35 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
               {(sortedBrawlers != undefined || sortedTeams != undefined) && (
                 <TouchableOpacity
                   onPress={async () => {
+                    if (
+                      (countImageAd == 0 && countVideoAd == 0) ||
+                      countImageAd == countVideoAd
+                    ) {
+                      await showImageInterstitial();
+                    } else if (countImageAd > countVideoAd) {
+                      await showVideoInterstitial();
+                    }
+                    let globalStatsFromDB = await getGlobalStatsFromDB(
+                      globalStats,
+                      season,
+                      [camelize(event.modeName), event.mapID],
+                      typeIndex,
+                      range
+                    );
+                    await dispatch(globalStatsReceived(globalStatsFromDB));
+
                     onPressEvent(
                       "trophies",
                       event.mapName,
                       event.modeImage,
                       event.mapImage,
-                      sortedBrawlers,
-                      sortedTeams
+                      globalStatsFromDB["trophies"][range][
+                        camelize(event.modeName)
+                      ][event.mapID]["performanceBrawlers"],
+                      globalStatsFromDB["trophies"][range][
+                        camelize(event.modeName)
+                      ][event.mapID]["performanceTeams"]
                     );
-                    await showInterstitial();
                   }}
                   style={{
                     position: "absolute",
@@ -280,7 +330,10 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
     });
 
     return <View style={{ marginBottom: 10 }}>{eventModule}</View>;
-  } else if (typeIndex >= 1) {
+  } else if (typeIndex == 1) {
+    let powerLeagueStats = useSelector(
+      (state) => state.globalStatsReducer.globalStats["powerLeagueSolo"][range]
+    );
     for (let modeName in powerLeagueStats) {
       let maps = [];
       let sortedBrawlers = {};
@@ -290,17 +343,24 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
       let teamBrawler2 = {};
       let teamBrawler3 = {};
       for (let mapID in powerLeagueStats[modeName]) {
-        sortedBrawlers[mapID] = bestBrawlers(typeIndex, range, modeName, mapID);
-        sortedTeams[mapID] = bestTeams(typeIndex, range, modeName, mapID);
+        if (powerLeagueStats[modeName]) {
+          if (powerLeagueStats[modeName][mapID]) {
+            sortedBrawlers[mapID] =
+              powerLeagueStats[modeName][mapID]["performanceBrawlersReduced"];
+            sortedTeams[mapID] =
+              powerLeagueStats[modeName][mapID]["performanceTeamsReduced"];
 
-        let bestTeam = bestTeams(typeIndex, range, modeName, mapID);
-        if (bestTeam) {
-          if (bestTeam.length != 0) {
-            teamBrawler1[mapID] = bestTeam[0].ID.slice(0, 8);
-            teamBrawler2[mapID] = bestTeam[0].ID.slice(10, 18);
-            teamBrawler3[mapID] = bestTeam[0].ID.slice(20, 28);
+            for (const team in sortedTeams[mapID]) {
+              // console.log(team);
+              if (sortedTeams[mapID][team].ID) {
+                teamBrawler1[mapID] = sortedTeams[mapID][team].ID.slice(0, 8);
+                teamBrawler2[mapID] = sortedTeams[mapID][team].ID.slice(10, 18);
+                teamBrawler3[mapID] = sortedTeams[mapID][team].ID.slice(20, 28);
+              }
+            }
           }
         }
+
         maps.push(mapID);
       }
 
@@ -474,15 +534,36 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                       {(sortedBrawlers[mapID] || sortedTeams[mapID]) && (
                         <TouchableOpacity
                           onPress={async () => {
+                            if (
+                              (countImageAd == 0 && countVideoAd == 0) ||
+                              countImageAd == countVideoAd
+                            )
+                              await showImageInterstitial();
+                            else if (countImageAd > countVideoAd)
+                              await showVideoInterstitial();
+                              // console.log('look here', modeName,mapID)
+                            let globalStatsFromDB = await getGlobalStatsFromDB(
+                              globalStats,
+                              season,
+                              [modeName, mapID],
+                              typeIndex,
+                              range
+                            );
+                            await dispatch(
+                              globalStatsReceived(globalStatsFromDB)
+                            );
                             onPressEvent(
                               "powerLeague",
                               mapID,
                               mapID,
                               mapID,
-                              sortedBrawlers[mapID],
-                              sortedTeams[mapID]
+                              globalStatsFromDB["powerLeagueSolo"][range][
+                                modeName
+                              ][mapID]["performanceBrawlers"],
+                              globalStatsFromDB["powerLeagueSolo"][range][
+                                modeName
+                              ][mapID]["performanceTeams"]
                             );
-                            await showInterstitial();
                           }}
                           style={{
                             position: "absolute",
@@ -660,15 +741,35 @@ const EventsModule = ({ seasonIndex, typeIndex, range }) => {
                       {(sortedBrawlers[mapID] || sortedTeams[mapID]) && (
                         <TouchableOpacity
                           onPress={async () => {
+                            if (
+                              (countImageAd == 0 && countVideoAd == 0) ||
+                              countImageAd == countVideoAd
+                            )
+                              await showImageInterstitial();
+                            else if (countImageAd > countVideoAd)
+                              await showVideoInterstitial();
+                            let globalStatsFromDB = await getGlobalStatsFromDB(
+                              globalStats,
+                              season,
+                              [modeName, mapID],
+                              typeIndex,
+                              range
+                            );
+                            await dispatch(
+                              globalStatsReceived(globalStatsFromDB)
+                            );
                             onPressEvent(
                               "powerLeague",
                               mapID,
                               mapID,
                               mapID,
-                              sortedBrawlers[mapID],
-                              sortedTeams[mapID]
+                              globalStatsFromDB["powerLeagueSolo"][range][
+                                modeName
+                              ][mapID]["performanceBrawlers"],
+                              globalStatsFromDB["powerLeagueSolo"][range][
+                                modeName
+                              ][mapID]["performanceTeams"]
                             );
-                            await showInterstitial();
                           }}
                           style={{
                             position: "absolute",

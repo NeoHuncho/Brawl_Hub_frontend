@@ -8,7 +8,10 @@ const slice = createSlice({
     updateMessage: true,
     betaMessage: true,
     plMessage: true,
-    menuMessage:true
+    menuMessage: true,
+    typeIndex: 0,
+    trophiesRange: 2,
+    plRange: 2,
   },
   reducers: {
     preferencesCarousel: (uiDataPersist, action) => {
@@ -22,8 +25,23 @@ const slice = createSlice({
       if (id == "pl") uiDataPersist.plMessage = false;
       if (id == "menu") uiDataPersist.menuMessage = false;
     },
+    typeIndexChanged: (uiDataPersist, action) => {
+      uiDataPersist.typeIndex = action.payload;
+    },
+    trophiesRangeChanged: (uiDataPersist, action) => {
+      uiDataPersist.trophiesRange = action.payload;
+    },
+    plRangeChanged: (uiDataPersist, action) => {
+      uiDataPersist.plRange = action.payload;
+    },
   },
 });
 
-export const { preferencesCarousel, messageBoxActions } = slice.actions;
+export const {
+  preferencesCarousel,
+  messageBoxActions,
+  typeIndexChanged,
+  trophiesRangeChanged,
+  plRangeChanged,
+} = slice.actions;
 export default slice.reducer;

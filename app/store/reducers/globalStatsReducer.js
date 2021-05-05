@@ -9,8 +9,7 @@ const slice = createSlice({
       numberOfStarPowers: undefined,
       totalUnlockables: undefined,
     },
-    rangesMinus: undefined,
-    rangesPLMinus: undefined,
+    ranges: undefined,
     minBrawlerEvent: undefined,
     minTeamEvent: undefined,
     minBrawlerPL: undefined,
@@ -23,8 +22,7 @@ const slice = createSlice({
   reducers: {
     globalCountsReceived: (globalStats, action) => {
       const data = action.payload;
-      globalStats.rangesMinus = data.rangesMinus;
-      globalStats.rangesPLMinus = data.rangesPLMinus;
+      globalStats.ranges = data.ranges;
       globalStats.numbers.numberOfBrawlers = data.nBrawlers;
       globalStats.numbers.numberOfGadgets = data.nGadgets;
       globalStats.numbers.numberOfStarPowers = data.nStarPowers;

@@ -29,7 +29,7 @@ import { getAssets, getIconImage } from "../../lib/getAssetsFunctions";
 import ReloadPage from "../ReloadPage";
 import imageBackground from "../../assets/background-login.jpg";
 import PlayerStatsMoreInfo from "../PlayerStats/playerStatsMoreInfo";
-import FaqPage from "../../components/FaqPage";
+import FaqPage from "./FaqPage";
 import MessageBox from "../../components/modules/MessageBox";
 
 const PlayerStats = () => {
@@ -228,336 +228,163 @@ const PlayerStats = () => {
         <SafeAreaView>
           <ScrollView>
             <View style={styles.container}>
-              {updateMessage == true && (
-                <MessageBox
-                  message={
-                    "Your stats will automatically update daily, if you open Brawl Hub at least once every 3 DAYS!"
-                  }
-                  idMessage={"update"}
-                  color={colors.red}
-                />
-              )}
-              {betaMessage == true && (
-                <MessageBox
-                  message={
-                    "This app is in open beta! please report bugs in the menu. (bottom right)"
-                  }
-                  idMessage={"beta"}
-                  color={colors.green}
-                />
-              )}
-              <View style={styles.nameContainer}>
-                {iconImage ? (
-                  <Image
-                    source={{ uri: iconImage }}
-                    style={{
-                      width: 30,
-                      height: 30,
-                      marginRight: 5,
-                      marginTop: 5,
-                    }}
+              <View style={{ marginTop: 20 }}>
+                {updateMessage == true && (
+                  <MessageBox
+                    message={
+                      "Your stats will automatically update daily, if you open Brawl Hub at least once every 3 DAYS!"
+                    }
+                    idMessage={"update"}
+                    color={colors.red}
                   />
-                ) : null}
-                <Text style={styles.name}>{playerName}</Text>
-                <TouchableOpacity>
-                  <Ionicons
-                    onPress={() => handleReset()}
-                    style={styles.icon}
-                    name="exit"
-                    size={24}
-                    color={colors.secondary}
-                  ></Ionicons>
-                </TouchableOpacity>
-              </View>
-              <View
-                style={{
-                  flexDirection: "row",
-                  marginLeft: 15,
-                  marginTop: 15,
-                  width: Dimensions.get("window").width,
-                  alignContent: "space-around",
-                }}
-              >
-                <TouchableOpacity
-                  onPress={() => handleSettingsPress()}
-                  style={{ flexDirection: "row", alignItems: "center" }}
-                >
-                  <Ionicons
-                    name="settings"
-                    size={24}
-                    color={colors.secondary}
+                )}
+                {betaMessage == true && (
+                  <MessageBox
+                    message={
+                      "This app is in open beta! please report bugs in the menu. (bottom right)"
+                    }
+                    idMessage={"beta"}
+                    color={colors.green}
                   />
-                  <Text
-                    style={[
-                      styles.categoryName,
-                      {
-                        textAlign: "center",
-                        fontSize: 25,
-                      },
-                    ]}
-                  >
-                    Settings
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => handleFAQPress()}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    position: "absolute",
-                    right: 30,
-                  }}
-                >
-                  <Text
-                    style={[
-                      styles.categoryName,
-                      {
-                        textAlign: "center",
-                        fontSize: 25,
-                      },
-                    ]}
-                  >
-                    F.A.Q
-                  </Text>
-                  <Ionicons
-                    style={{ marginLeft: 5, marginTop: 5 }}
-                    name="book"
-                    size={24}
-                    color={colors.secondary}
-                  />
-                </TouchableOpacity>
-              </View>
-              {showSettings == true && (
-                <View style={{ marginTop: 20 }}>
-                  <Text style={styles.sliderTitle}>Choose Season:</Text>
-                  <View style={{ marginLeft: 20, marginRight: 20 }}>
-                    <SegmentedControlTab
-                      values={seasonsKey}
-                      //The plus 5 is because we are starting 5 seasons late
-                      // the minus 5 is to convert it back
-                      selectedIndex={seasonIndex - 5}
-                      onTabPress={(index) => setSeasonIndex(index + 5)}
-                    />
-                    <View style={{ marginTop: 10 }}>
-                      <Text style={styles.sliderTitle}>Sort By:</Text>
-                      <SegmentedControlTab
-                        tabContainerStyle={{ width: "50%" }}
-                        values={["Performance", "Wins"]}
-                        selectedIndex={sortIndex}
-                        onTabPress={(index) => setSortIndex(index)}
-                      />
-                    </View>
-                    <View style={{ marginTop: 10, marginBottom: 20 }}>
-                      <Text style={styles.sliderTitle}>Style:</Text>
-                      <SegmentedControlTab
-                        values={["Carousel", "Tinder", "Stack"]}
-                        selectedIndex={styleIndex}
-                        onTabPress={(index) => setStyleIndex(index)}
-                      />
-                    </View>
-                  </View>
-                </View>
-              )}
-              {showFAQ == true && (
-                <View style={{ marginTop: 20 }}>
-                  <FaqPage />
-                </View>
-              )}
-              <TouchableOpacity onPress={() => handleOverallStatsPress()}>
-                <View
-                  style={{
-                    alignContent: "center",
-                    alignItems: "center",
-                    marginTop: 20,
-                  }}
-                >
-                  <View style={{ flexDirection: "row" }}>
-                    {showOverallStats == false && (
-                      <Ionicons color="white" size={25} name="caret-up" />
-                    )}
-                    {showOverallStats == true && (
-                      <Ionicons color="white" size={25} name="caret-down" />
-                    )}
-                    <Text style={styles.categoryName}>
-                      Show Overall Player Stats
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-              {showOverallStats == true && (
-                <View style={{ marginTop: 20 }}>
-                  <Text
-                    style={[
-                      styles.categoryName,
-                      { fontSize: 14, marginLeft: "auto", marginRight: "auto" },
-                    ]}
-                  >
-                    Percentage Unlocked
-                  </Text>
-                  <Text
-                    style={[
-                      styles.categoryName,
-                      {
-                        marginTop: 4,
-                        marginBottom: 5,
-                        fontSize: 13,
-                        marginLeft: "auto",
-                        marginRight: "auto",
-                      },
-                    ]}
-                  >
-                    {Math.round(playerNums.overallPercentage * 100) + " %"}
-                  </Text>
-                  <View>
-                    <Progress.Bar
-                      animated={true}
-                      progress={playerNums.overallPercentage}
-                      height={10}
-                      width={200}
+                )}
+                <View style={styles.nameContainer}>
+                  {iconImage ? (
+                    <Image
+                      source={{ uri: iconImage }}
                       style={{
-                        marginLeft: "auto",
-                        marginRight: "auto",
+                        width: 30,
+                        height: 30,
+                        marginRight: 5,
+                        marginTop: 5,
                       }}
                     />
-                  </View>
-                  <View
+                  ) : null}
+                  <Text style={styles.name}>{playerName}</Text>
+                  <TouchableOpacity onPress={() => handleReset()}>
+                    <Ionicons
+                      style={styles.icon}
+                      name="exit"
+                      size={24}
+                      color={colors.secondary}
+                    ></Ionicons>
+                  </TouchableOpacity>
+                </View>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    marginLeft: 15,
+                    marginTop: 15,
+                    width: Dimensions.get("window").width,
+                    alignContent: "space-around",
+                  }}
+                >
+                  <TouchableOpacity
+                    onPress={() => handleSettingsPress()}
+                    style={{ flexDirection: "row", alignItems: "center" }}
+                  >
+                    <Ionicons
+                      name="settings"
+                      size={24}
+                      color={colors.secondary}
+                    />
+                    <Text
+                      style={[
+                        styles.categoryName,
+                        {
+                          textAlign: "center",
+                          fontSize: 25,
+                        },
+                      ]}
+                    >
+                      Settings
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => handleFAQPress()}
                     style={{
                       flexDirection: "row",
-                      marginLeft: "auto",
-                      marginRight: "auto",
-                      marginTop: 10,
+                      alignItems: "center",
+                      position: "absolute",
+                      right: 30,
                     }}
                   >
-                    <View style={{}}>
-                      <Text
-                        style={[
-                          styles.categoryName,
-                          {
-                            marginTop: 4,
-                            marginBottom: 5,
-                            fontSize: 10,
-                          },
-                        ]}
-                      >
-                        Brawlers
-                      </Text>
-                      <Image
-                        style={styles.imageProgress}
-                        source={require("../../assets/icons/brawler.png")}
+                    <Text
+                      style={[
+                        styles.categoryName,
+                        {
+                          textAlign: "center",
+                          fontSize: 25,
+                        },
+                      ]}
+                    >
+                      F.A.Q
+                    </Text>
+                    <Ionicons
+                      style={{ marginLeft: 5, marginTop: 5 }}
+                      name="book"
+                      size={24}
+                      color={colors.secondary}
+                    />
+                  </TouchableOpacity>
+                </View>
+                {showSettings == true && (
+                  <View style={{ marginTop: 20 }}>
+                    <Text style={styles.sliderTitle}>Choose Season:</Text>
+                    <View style={{ marginLeft: 20, marginRight: 20 }}>
+                      <SegmentedControlTab
+                        values={seasonsKey}
+                        //The plus 5 is because we are starting 5 seasons late
+                        // the minus 5 is to convert it back
+                        selectedIndex={seasonIndex - 5}
+                        onTabPress={(index) => setSeasonIndex(index + 5)}
                       />
-                      <Text style={[styles.categoryName, styles.number]}>
-                        {Math.round(
-                          (playerNums.numberOfBrawlers /
-                            globalNumbers.numberOfBrawlers) *
-                            100
-                        ) + "%"}
-                      </Text>
-                      <Progress.Bar
-                        animated={true}
-                        progress={
-                          playerNums.numberOfBrawlers /
-                          globalNumbers.numberOfBrawlers
-                        }
-                        height={4}
-                        width={40}
-                        style={{
-                          marginLeft: "auto",
-                          marginRight: "auto",
-                        }}
-                      />
-                      <Text style={[styles.categoryName, styles.number]}>
-                        {playerNums.numberOfBrawlers +
-                          "/" +
-                          globalNumbers.numberOfBrawlers}
-                      </Text>
+                      <View style={{ marginTop: 10 }}>
+                        <Text style={styles.sliderTitle}>Sort By:</Text>
+                        <SegmentedControlTab
+                          tabContainerStyle={{ width: "50%" }}
+                          values={["Performance", "Wins"]}
+                          selectedIndex={sortIndex}
+                          onTabPress={(index) => setSortIndex(index)}
+                        />
+                      </View>
+                      <View style={{ marginTop: 10, marginBottom: 20 }}>
+                        <Text style={styles.sliderTitle}>Style:</Text>
+                        <SegmentedControlTab
+                          values={["Carousel", "Tinder", "Stack"]}
+                          selectedIndex={styleIndex}
+                          onTabPress={(index) => setStyleIndex(index)}
+                        />
+                      </View>
                     </View>
-                    <View style={{ marginLeft: 20 }}>
-                      <Text
-                        style={[
-                          styles.categoryName,
-                          {
-                            marginTop: 4,
-                            marginBottom: 5,
-                            fontSize: 10,
-                          },
-                        ]}
-                      >
-                        Star Powers
-                      </Text>
-                      <Image
-                        style={styles.imageProgress}
-                        source={require("../../assets/icons/starPower.png")}
-                      />
-                      <Text style={[styles.categoryName, styles.number]}>
-                        {Math.round(
-                          (playerNums.numberOfStarPowers /
-                            globalNumbers.numberOfStarPowers) *
-                            100
-                        ) + "%"}
-                      </Text>
-                      <Progress.Bar
-                        animated={true}
-                        progress={
-                          playerNums.numberOfStarPowers /
-                          globalNumbers.numberOfStarPowers
-                        }
-                        height={4}
-                        width={40}
-                        style={{
-                          marginLeft: "auto",
-                          marginRight: "auto",
-                        }}
-                      />
-                      <Text style={[styles.categoryName, styles.number]}>
-                        {playerNums.numberOfStarPowers +
-                          "/" +
-                          globalNumbers.numberOfStarPowers}
-                      </Text>
-                    </View>
-                    <View style={{ marginLeft: 20 }}>
-                      <Text
-                        style={[
-                          styles.categoryName,
-                          {
-                            marginTop: 4,
-                            marginBottom: 5,
-                            fontSize: 10,
-                          },
-                        ]}
-                      >
-                        Gadgets
-                      </Text>
-                      <Image
-                        style={styles.imageProgress}
-                        source={require("../../assets/icons/gadget.png")}
-                      />
-                      <Text style={[styles.categoryName, styles.number]}>
-                        {Math.round(
-                          (playerNums.numberOfGadgets /
-                            globalNumbers.numberOfGadgets) *
-                            100
-                        ) + "%"}
-                      </Text>
-                      <Progress.Bar
-                        animated={true}
-                        progress={
-                          playerNums.numberOfGadgets /
-                          globalNumbers.numberOfGadgets
-                        }
-                        height={4}
-                        width={40}
-                        style={{
-                          marginLeft: "auto",
-                          marginRight: "auto",
-                        }}
-                      />
-                      <Text style={[styles.categoryName, styles.number]}>
-                        {playerNums.numberOfGadgets +
-                          "/" +
-                          globalNumbers.numberOfGadgets}
+                  </View>
+                )}
+                {showFAQ == true && (
+                  <View style={{ marginTop: 20 }}>
+                    <FaqPage />
+                  </View>
+                )}
+                <TouchableOpacity onPress={() => handleOverallStatsPress()}>
+                  <View
+                    style={{
+                      alignContent: "center",
+                      alignItems: "center",
+                      marginTop: 20,
+                    }}
+                  >
+                    <View style={{ flexDirection: "row" }}>
+                      {showOverallStats == false && (
+                        <Ionicons color="white" size={25} name="caret-up" />
+                      )}
+                      {showOverallStats == true && (
+                        <Ionicons color="white" size={25} name="caret-down" />
+                      )}
+                      <Text style={styles.categoryName}>
+                        Show Overall Player Stats
                       </Text>
                     </View>
                   </View>
+                </TouchableOpacity>
+                {showOverallStats == true && (
                   <View style={{ marginTop: 20 }}>
                     <Text
                       style={[
@@ -569,21 +396,34 @@ const PlayerStats = () => {
                         },
                       ]}
                     >
-                      Average Trophies Per Brawler
+                      Percentage Unlocked
                     </Text>
                     <Text
                       style={[
                         styles.categoryName,
                         {
+                          marginTop: 4,
+                          marginBottom: 5,
                           fontSize: 13,
                           marginLeft: "auto",
                           marginRight: "auto",
-                          marginTop: 5,
                         },
                       ]}
                     >
-                      {playerAvgs.averageTrophies + " Trophies"}
+                      {Math.round(playerNums.overallPercentage * 100) + " %"}
                     </Text>
+                    <View>
+                      <Progress.Bar
+                        animated={true}
+                        progress={playerNums.overallPercentage}
+                        height={10}
+                        width={200}
+                        style={{
+                          marginLeft: "auto",
+                          marginRight: "auto",
+                        }}
+                      />
+                    </View>
                     <View
                       style={{
                         flexDirection: "row",
@@ -603,26 +443,25 @@ const PlayerStats = () => {
                             },
                           ]}
                         >
-                          3 vs 3
+                          Brawlers
                         </Text>
                         <Image
-                          style={[
-                            styles.imageProgress,
-                            {
-                              width: 40,
-                              height: 20,
-                              marginBottom: 10,
-                              marginTop: 5,
-                            },
-                          ]}
-                          source={require("../../assets/icons/teams.png")}
+                          style={styles.imageProgress}
+                          source={require("../../assets/icons/brawler.png")}
                         />
                         <Text style={[styles.categoryName, styles.number]}>
-                          {playerAvgs.avg3vs3Victories + "%"}
+                          {Math.round(
+                            (playerNums.numberOfBrawlers /
+                              globalNumbers.numberOfBrawlers) *
+                              100
+                          ) + "%"}
                         </Text>
                         <Progress.Bar
                           animated={true}
-                          progress={playerAvgs.avg3vs3Victories / 100}
+                          progress={
+                            playerNums.numberOfBrawlers /
+                            globalNumbers.numberOfBrawlers
+                          }
                           height={4}
                           width={40}
                           style={{
@@ -630,8 +469,13 @@ const PlayerStats = () => {
                             marginRight: "auto",
                           }}
                         />
+                        <Text style={[styles.categoryName, styles.number]}>
+                          {playerNums.numberOfBrawlers +
+                            "/" +
+                            globalNumbers.numberOfBrawlers}
+                        </Text>
                       </View>
-                      <View style={{ marginLeft: 35 }}>
+                      <View style={{ marginLeft: 20 }}>
                         <Text
                           style={[
                             styles.categoryName,
@@ -639,23 +483,28 @@ const PlayerStats = () => {
                               marginTop: 4,
                               marginBottom: 5,
                               fontSize: 10,
-                              marginLeft: "auto",
-                              marginRight: "auto",
                             },
                           ]}
                         >
-                          Duo
+                          Star Powers
                         </Text>
                         <Image
                           style={styles.imageProgress}
-                          source={require("../../assets/icons/duoShowdown.png")}
+                          source={require("../../assets/icons/starPower.png")}
                         />
                         <Text style={[styles.categoryName, styles.number]}>
-                          {playerAvgs.avgDuoVictories + "%"}
+                          {Math.round(
+                            (playerNums.numberOfStarPowers /
+                              globalNumbers.numberOfStarPowers) *
+                              100
+                          ) + "%"}
                         </Text>
                         <Progress.Bar
                           animated={true}
-                          progress={playerAvgs.avgDuoVictories / 100}
+                          progress={
+                            playerNums.numberOfStarPowers /
+                            globalNumbers.numberOfStarPowers
+                          }
                           height={4}
                           width={40}
                           style={{
@@ -663,8 +512,13 @@ const PlayerStats = () => {
                             marginRight: "auto",
                           }}
                         />
+                        <Text style={[styles.categoryName, styles.number]}>
+                          {playerNums.numberOfStarPowers +
+                            "/" +
+                            globalNumbers.numberOfStarPowers}
+                        </Text>
                       </View>
-                      <View style={{ marginLeft: 35 }}>
+                      <View style={{ marginLeft: 20 }}>
                         <Text
                           style={[
                             styles.categoryName,
@@ -672,23 +526,28 @@ const PlayerStats = () => {
                               marginTop: 4,
                               marginBottom: 5,
                               fontSize: 10,
-                              marginLeft: "auto",
-                              marginRight: "auto",
                             },
                           ]}
                         >
-                          Solo
+                          Gadgets
                         </Text>
                         <Image
                           style={styles.imageProgress}
-                          source={require("../../assets/icons/showdown.png")}
+                          source={require("../../assets/icons/gadget.png")}
                         />
                         <Text style={[styles.categoryName, styles.number]}>
-                          {playerAvgs.avgSoloVictories + "%"}
+                          {Math.round(
+                            (playerNums.numberOfGadgets /
+                              globalNumbers.numberOfGadgets) *
+                              100
+                          ) + "%"}
                         </Text>
                         <Progress.Bar
                           animated={true}
-                          progress={playerAvgs.avgSoloVictories / 100}
+                          progress={
+                            playerNums.numberOfGadgets /
+                            globalNumbers.numberOfGadgets
+                          }
                           height={4}
                           width={40}
                           style={{
@@ -696,53 +555,201 @@ const PlayerStats = () => {
                             marginRight: "auto",
                           }}
                         />
+                        <Text style={[styles.categoryName, styles.number]}>
+                          {playerNums.numberOfGadgets +
+                            "/" +
+                            globalNumbers.numberOfGadgets}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={{ marginTop: 20 }}>
+                      <Text
+                        style={[
+                          styles.categoryName,
+                          {
+                            fontSize: 14,
+                            marginLeft: "auto",
+                            marginRight: "auto",
+                          },
+                        ]}
+                      >
+                        Average Trophies Per Brawler
+                      </Text>
+                      <Text
+                        style={[
+                          styles.categoryName,
+                          {
+                            fontSize: 13,
+                            marginLeft: "auto",
+                            marginRight: "auto",
+                            marginTop: 5,
+                          },
+                        ]}
+                      >
+                        {playerAvgs.averageTrophies + " Trophies"}
+                      </Text>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          marginLeft: "auto",
+                          marginRight: "auto",
+                          marginTop: 10,
+                        }}
+                      >
+                        <View style={{}}>
+                          <Text
+                            style={[
+                              styles.categoryName,
+                              {
+                                marginTop: 4,
+                                marginBottom: 5,
+                                fontSize: 10,
+                              },
+                            ]}
+                          >
+                            3 vs 3
+                          </Text>
+                          <Image
+                            style={[
+                              styles.imageProgress,
+                              {
+                                width: 40,
+                                height: 20,
+                                marginBottom: 10,
+                                marginTop: 5,
+                              },
+                            ]}
+                            source={require("../../assets/icons/teams.png")}
+                          />
+                          <Text style={[styles.categoryName, styles.number]}>
+                            {playerAvgs.avg3vs3Victories + "%"}
+                          </Text>
+                          <Progress.Bar
+                            animated={true}
+                            progress={playerAvgs.avg3vs3Victories / 100}
+                            height={4}
+                            width={40}
+                            style={{
+                              marginLeft: "auto",
+                              marginRight: "auto",
+                            }}
+                          />
+                        </View>
+                        <View style={{ marginLeft: 35 }}>
+                          <Text
+                            style={[
+                              styles.categoryName,
+                              {
+                                marginTop: 4,
+                                marginBottom: 5,
+                                fontSize: 10,
+                                marginLeft: "auto",
+                                marginRight: "auto",
+                              },
+                            ]}
+                          >
+                            Duo
+                          </Text>
+                          <Image
+                            style={styles.imageProgress}
+                            source={require("../../assets/icons/duoShowdown.png")}
+                          />
+                          <Text style={[styles.categoryName, styles.number]}>
+                            {playerAvgs.avgDuoVictories + "%"}
+                          </Text>
+                          <Progress.Bar
+                            animated={true}
+                            progress={playerAvgs.avgDuoVictories / 100}
+                            height={4}
+                            width={40}
+                            style={{
+                              marginLeft: "auto",
+                              marginRight: "auto",
+                            }}
+                          />
+                        </View>
+                        <View style={{ marginLeft: 35 }}>
+                          <Text
+                            style={[
+                              styles.categoryName,
+                              {
+                                marginTop: 4,
+                                marginBottom: 5,
+                                fontSize: 10,
+                                marginLeft: "auto",
+                                marginRight: "auto",
+                              },
+                            ]}
+                          >
+                            Solo
+                          </Text>
+                          <Image
+                            style={styles.imageProgress}
+                            source={require("../../assets/icons/showdown.png")}
+                          />
+                          <Text style={[styles.categoryName, styles.number]}>
+                            {playerAvgs.avgSoloVictories + "%"}
+                          </Text>
+                          <Progress.Bar
+                            animated={true}
+                            progress={playerAvgs.avgSoloVictories / 100}
+                            height={4}
+                            width={40}
+                            style={{
+                              marginLeft: "auto",
+                              marginRight: "auto",
+                            }}
+                          />
+                        </View>
                       </View>
                     </View>
                   </View>
-                </View>
-              )}
-              <View style={{ marginTop: 30 }}>
-                <View style={{ marginLeft: 15, marginRight: 15 }}>
-                  <SegmentedControlTab
-                    values={typesKey}
-                    enabled={typesKey.length > 1 ? true : false}
-                    selectedIndex={typeIndex}
-                    onTabPress={(index) => setTypeIndex(index)}
-                  />
-                </View>
-                <View style={{ marginTop: 10 }}>
-                  <WinLossModule type={typesKey[typeIndex]} />
-                </View>
-                <View style={{ marginTop: 18, marginBottom: 80 }}>
-                  <Text style={styles.categoryName}>Player Stats by Mode</Text>
-                  <CarouselModule
-                    dataType="mode"
-                    style={styleIndex}
-                    sort={sortIndex}
-                  />
-                  <Text style={styles.categoryName}>Player Stats by Map</Text>
-                  <CarouselModule
-                    dataType="map"
-                    style={styleIndex}
-                    sort={sortIndex}
-                  />
-                  <Text style={styles.categoryName}>
-                    Player Stats by Brawler
-                  </Text>
-                  <CarouselModule
-                    dataType="brawler"
-                    style={styleIndex}
-                    sort={sortIndex}
-                  />
-                  <View style={{ marginBottom: 50 }}>
+                )}
+                <View style={{ marginTop: 30 }}>
+                  <View style={{ marginLeft: 15, marginRight: 15 }}>
+                    <SegmentedControlTab
+                      values={typesKey}
+                      enabled={typesKey.length > 1 ? true : false}
+                      selectedIndex={typeIndex}
+                      onTabPress={(index) => setTypeIndex(index)}
+                    />
+                  </View>
+                  <View style={{ marginTop: 10 }}>
+                    <WinLossModule type={typesKey[typeIndex]} />
+                  </View>
+                  <View style={{ marginTop: 18, marginBottom: 80 }}>
                     <Text style={styles.categoryName}>
-                      Player Stats by Teams
+                      Player Stats by Mode
                     </Text>
                     <CarouselModule
-                      dataType="team"
+                      dataType="mode"
                       style={styleIndex}
                       sort={sortIndex}
                     />
+                    <Text style={styles.categoryName}>Player Stats by Map</Text>
+                    <CarouselModule
+                      dataType="map"
+                      style={styleIndex}
+                      sort={sortIndex}
+                    />
+                    <Text style={styles.categoryName}>
+                      Player Stats by Brawler
+                    </Text>
+                    <CarouselModule
+                      dataType="brawler"
+                      style={styleIndex}
+                      sort={sortIndex}
+                    />
+                    <View style={{ marginBottom: 50 }}>
+                      <Text style={styles.categoryName}>
+                        Player Stats by Teams
+                      </Text>
+                      <CarouselModule
+                        dataType="team"
+                        style={styleIndex}
+                        sort={sortIndex}
+                      />
+                    </View>
                   </View>
                 </View>
               </View>
@@ -788,8 +795,8 @@ const PlayerStats = () => {
             {`You don't have any ranked or Power League games in your battlelog.
 Your stats will be automatically updated when you do!`}
           </Text>
-          <Text style={[styles.name, {marginTop:10, fontSize: 20 }]}>
-{`If you are seeing this and you shouldn't be, reload the app. `}
+          <Text style={[styles.name, { marginTop: 10, fontSize: 20 }]}>
+            {`If you are seeing this and you shouldn't be, reload the app. `}
           </Text>
         </ImageBackground>
       ) : null}
@@ -851,7 +858,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginLeft: 15,
   },
-  radioBtn: {},
   seasonPicker: {
     color: colors.primary,
     width: "100%",

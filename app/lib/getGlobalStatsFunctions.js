@@ -8,38 +8,15 @@ function camelize(str) {
     .replace(/\s+/g, "");
 }
 
-const getRanges = () => {
-  let state = store.getState();
-  let season = state.battleLogReducer.season;
-  let ranges = [];
-  let soloRanges = [];
-  let teamRanges = [];
-
-  ranges.push(Object.keys(state.globalStatsReducer.globalStats["trophies"]));
-
-  soloRanges.push(
-    Object.keys(state.globalStatsReducer.globalStats["powerLeagueSolo"])
-  );
-
-  teamRanges.push(
-    Object.keys(state.globalStatsReducer.globalStats["powerLeagueTeam"])
-  );
-
-  return [ranges, soloRanges, teamRanges];
-};
-
 const bestBrawlers = (type, range, modeName, mapID) => {
   let state = store.getState();
-  let season = state.battleLogReducer.season;
-  let minBrawlerEvent = state.globalStatsReducer.minBrawlerEvent;
-  let minBrawlerPL = state.globalStatsReducer.minBrawlerPL;
+
 
   if (type == 0) type = "trophies";
   if (type == 1) type = "powerLeagueSolo";
-  if (type == 2) type = "powerLeagueTeam";
 
   modeName = camelize(modeName);
-  // console.log(type, range, modeName, mapID);
+  // console.log("look here 2", type, range);
   if (state.globalStatsReducer.globalStats[type][range]) {
     if (state.globalStatsReducer.globalStats[type][range][modeName]) {
       if (state.globalStatsReducer.globalStats[type][range][modeName][mapID]) {
@@ -54,12 +31,9 @@ const bestBrawlers = (type, range, modeName, mapID) => {
 
           let performanceBrawlers = Object.keys(data).map((i) => data[i]);
           // console.log(performanceBrawlers);
-          let brawlersSorted = performanceBrawlers.sort((a, b) =>
-            a.points < b.points ? 1 : -1
-          );
 
           // console.log(brawlersSorted);
-          return brawlersSorted;
+          return performanceBrawlers;
         }
       }
     }
@@ -67,14 +41,12 @@ const bestBrawlers = (type, range, modeName, mapID) => {
 };
 
 const bestTeams = (type, range, modeName, mapID) => {
+  // console.log("look here 3", type, range);
   let state = store.getState();
-  let season = state.battleLogReducer.season;
-  let minTeamEvent = state.globalStatsReducer.minTeamEvent;
-  let minTeamPL = state.globalStatsReducer.minTeamPL;
+
 
   if (type == 0) type = "trophies";
   if (type == 1) type = "powerLeagueSolo";
-  if (type == 2) type = "powerLeagueTeam";
 
   modeName = camelize(modeName);
 
@@ -92,18 +64,14 @@ const bestTeams = (type, range, modeName, mapID) => {
 
           let performanceTeams = Object.keys(data).map((i) => data[i]);
 
-          let teamsSorted = performanceTeams.sort((a, b) =>
-            a.points < b.points ? 1 : -1
-          );
-
           // console.log(teamsSorted);
-          return teamsSorted;
+          return performanceTeams;
         }
       }
     }
   }
 };
 
-const unsubscribe = store.subscribe(bestBrawlers, bestTeams, getRanges);
+const unsubscribe = store.subscribe(bestBrawlers, bestTeams);
 unsubscribe();
-export { getRanges, bestBrawlers, bestTeams, camelize };
+export { bestBrawlers, bestTeams, camelize };

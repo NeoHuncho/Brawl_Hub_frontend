@@ -37,7 +37,7 @@ const eventsData = () => {
           });
         } 
         else {
-          console.log('called!')
+          // console.log('called!')
           for (const eventKeyUpcoming in eventsUpcoming) {
             if (
               eventsActive[eventKey].slot.id == eventsUpcoming[eventKeyUpcoming].slot.id

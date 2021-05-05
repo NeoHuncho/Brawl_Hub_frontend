@@ -2,17 +2,16 @@ import React from "react";
 import { BottomNavigation } from "react-native-paper";
 
 import colors from "../../config/colors";
-import PlayerStats from "../../view/PlayerStats/PlayerStats";
+import PlayerLogin from "../../view/PlayerStats/PlayerLogin";
 import Menu from "../../view/Menu/Menu";
 import Events from '../../view/EventsPage/Events'
-import LoadingPage from "../../view/LoadingPage";
   import { useDispatch} from "react-redux";
 import {
   moreInfoEventClosed,
   moreInfoCarouselClosed,
 } from "../../store/reducers/uiReducerNoPersist";
 
-const StatsRoute = () => <PlayerStats />;
+const StatsRoute = () => <PlayerLogin />;
 
 const MenuRoute = () => <Menu />;
 
@@ -51,8 +50,8 @@ const BottomBar = () => {
   ]);
 
   const renderScene = BottomNavigation.SceneMap({
-    myStats: StatsRoute,
     Events: EventRoute,
+    myStats: StatsRoute,
     Menu: MenuRoute,
   });
 

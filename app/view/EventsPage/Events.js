@@ -8,21 +8,22 @@ import {
   Image,
   SafeAreaView,
   StatusBar,
+  Dimensions,
 } from "react-native";
 
 import SegmentedControlTab from "react-native-segmented-control-tab";
 import DropDownPicker from "react-native-dropdown-picker";
 import { AdMobBanner } from "expo-ads-admob";
+import { Ionicons } from "@expo/vector-icons";
+import { store } from "../../store/configureStore";
+import { useSelector, useDispatch } from "react-redux";
 
-
+import Settings from "./Settings";
 import colors from "../../config/colors";
 import EventsModule from "../../components/modules/eventsBoxes/eventsModule";
 import EventsMoreInfo from "../EventsPage/EventsMoreInfo";
 import MessageBox from "../../components/modules/MessageBox";
-
-import { store } from "../../store/configureStore";
-import { useSelector } from "react-redux";
-import { getRanges } from "../../lib/getGlobalStatsFunctions";
+import FAQevents from "./FAQevents";
 
 import trophy_1 from "../../assets/icons/trophy1.png";
 import trophy_2 from "../../assets/icons/trophy2.png";
@@ -36,34 +37,39 @@ import diamond from "../../assets/icons/diamond.png";
 import mythic from "../../assets/icons/mythic.png";
 import legendary from "../../assets/icons/legendary.png";
 import master from "../../assets/icons/master.png";
+import { getGlobalStatsFromDB } from "../../store/apiDB";
+import { globalStatsReceived } from "../../store/reducers/globalStatsReducer";
 
 export default function Events() {
-
-  const [typeIndex, setTypeIndex] = useState(0);
+  const dispatch = useDispatch();
+  const typeIndexPersist = useSelector(
+    (state) => state.uiReducerPersist.typeIndex
+  );
+  const [typeIndex, setTypeIndex] = useState(typeIndexPersist);
   const [typeIndexChange, setTypeIndexChange] = useState(false);
-  const [seasonIndex, setSeasonIndex] = useState(season - 5);
-  const seasons = { 6: null };
-
+  const [showSettings, setShowSettings] = useState(false);
+  const [showFAQ, setShowFAQ] = useState(false);
   const [moreInfoEventOpen, setMoreInfoEventOpen] = useState(false);
-  const season = useSelector((state) => state.battleLogReducer.season);
+  const [typeIndexChanging, setTypeIndexChanging] = useState(false);
+
+  const season = useSelector((state) => state.globalStatsReducer.seasonGlobal);
+  const globalStatsInStore = useSelector(
+    (state) => state.globalStatsReducer.globalStats
+  );
+  const seasonIndex = season - 5;
   const isOpen = useSelector((state) => state.uiReducerNoPersist.isOpenEvents);
-  const averageTrophiesPlayer = useSelector(
-    (state) => state.battleLogReducer.averageTrophies
-  );
 
-  const soloPLTrophies = useSelector(
-    (state) => state.battleLogReducer.soloPLTrophies
+  const trophiesRange = useSelector(
+    (state) => state.uiReducerPersist.trophiesRange
   );
-  const teamPLTrophies = useSelector(
-    (state) => state.battleLogReducer.teamPLTrophies
-  );
+  const plRange = useSelector((state) => state.uiReducerPersist.plRange);
 
-  const rangesMinus = useSelector(
-    (state) => state.globalStatsReducer.rangesMinus
-  );
-  const rangesPLMinus = useSelector(
-    (state) => state.globalStatsReducer.rangesPLMinus
-  );
+  const handleSettingsPress = () => {
+    showSettings === false ? setShowSettings(true) : setShowSettings(false);
+  };
+  const handleFAQPress = () => {
+    showFAQ === false ? setShowFAQ(true) : setShowFAQ(false);
+  };
 
   const plMessage = useSelector((state) => state.uiReducerPersist.plMessage);
 
@@ -78,18 +84,16 @@ export default function Events() {
     }
   }
 
-  const rangesFromDB = getRanges();
+  const rangesFromDB = useSelector((state) => state.globalStatsReducer.ranges);
   const listRangesItems = [];
 
   let ranges = [
     ["under400", "400-600", "600-800", "800-1000", "1000-1200", "1200+"],
     ["underGold", "gold", "diamond", "mythic", "legendary", "master"],
-    ["underGold", "gold", "diamond", "mythic", "legendary", "master"],
   ];
 
   let logoRanges = [
     [trophy_1, trophy_2, trophy_3, trophy_4, trophy_5],
-    [silver, gold, diamond, mythic, legendary, master],
     [silver, gold, diamond, mythic, legendary, master],
   ];
   const logoRangesOrdered = [];
@@ -106,7 +110,7 @@ export default function Events() {
   ranges = rangesOrdered(
     ranges[typeIndex],
     logoRanges[typeIndex],
-    rangesFromDB[typeIndex][0]
+    rangesFromDB[typeIndex]
   );
   // console.log("sorted", logoRangesOrdered);
   ranges.map((range, index) => {
@@ -127,57 +131,14 @@ export default function Events() {
   });
   // console.log(listRangesItems);
 
-  const rangeFinder = () => {
-    let rangeToApply = null;
-    typeIndex == 0
-      ? averageTrophiesPlayer < 600
-        ? (rangeToApply = ranges.length - rangesMinus[0])
-        : 600 <= averageTrophiesPlayer < 800
-        ? (rangeToApply = ranges.length - rangesMinus[1])
-        : averageTrophiesPlayer > 800
-        ? (rangeToApply = ranges.length - rangesMinus[2])
-        : (rangeToApply = ranges.length - rangesMinus[2])
-      : typeIndex == 1
-      ? soloPLTrophies == 0
-        ? (rangeToApply = ranges.length - rangesPLMinus[0][2])
-        : soloPLTrophies <= 6
-        ? (rangeToApply = ranges.length - rangesPLMinus[0][0])
-        : 6 < soloPLTrophies <= 9
-        ? (rangeToApply = ranges.length - rangesPLMinus[0][1])
-        : 9 < soloPLTrophies <= 12
-        ? (rangeToApply = ranges.length - rangesPLMinus[0][2])
-        : 12 < soloPLTrophies <= 15
-        ? (rangeToApply = ranges.length - rangesPLMinus[0][3])
-        : 15 < soloPLTrophies <= 18
-        ? (rangeToApply = ranges.length - rangesPLMinus[0][4])
-        : 19 <= soloPLTrophies
-        ? (rangeToApply = ranges.length - rangesPLMinus[0][5])
-        : null
-      : typeIndex == 2
-      ? teamPLTrophies == 0
-        ? (rangeToApply = ranges.length - rangesPLMinus[1][2])
-        : teamPLTrophies <= 6
-        ? (rangeToApply = ranges.length - rangesPLMinus[1][0])
-        : 6 < teamPLTrophies <= 9
-        ? (rangeToApply = ranges.length - rangesPLMinus[1][1])
-        : 9 < teamPLTrophies <= 12
-        ? (rangeToApply = ranges.length - rangesPLMinus[1][2])
-        : 12 < teamPLTrophies <= 15
-        ? (rangeToApply = ranges.length - rangesPLMinus[1][3])
-        : 15 < teamPLTrophies <= 18
-        ? (rangeToApply = ranges.length - rangesPLMinus[1][4])
-        : 19 <= teamPLTrophies
-        ? (rangeToApply = ranges.length - rangesPLMinus[1][5])
-        : null
-      : null;
-    return rangeToApply;
-  };
-  console.log(plMessage);
-  const [range, setRange] = useState(ranges[rangeFinder()]);
+  const [range, setRange] = useState(
+    typeIndex == 0 ? ranges[trophiesRange] : ranges[plRange]
+  );
   if (typeIndexChange == true) {
-    setRange(ranges[rangeFinder()]);
+    setRange(typeIndex == 0 ? ranges[trophiesRange] : ranges[plRange]);
     setTypeIndexChange(false);
   }
+  // console.log(range);
 
   // const seasonsKey = sKeys.map((x) => "season " + x);
   return (
@@ -201,12 +162,78 @@ export default function Events() {
       {moreInfoEventOpen === false && (
         <ScrollView style={styles.container}>
           <View style={{ marginTop: 20, margin: 20 }}>
+            <View
+              style={{
+                flexDirection: "row",
+                marginLeft: 15,
+                marginBottom: 15,
+                width: Dimensions.get("window").width,
+                alignContent: "space-around",
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => handleSettingsPress()}
+                style={{ flexDirection: "row", alignItems: "center" }}
+              >
+                <Ionicons name="settings" size={24} color={colors.secondary} />
+                <Text
+                  style={[
+                    styles.categoryName,
+                    {
+                      textAlign: "center",
+                      fontSize: 25,
+                    },
+                  ]}
+                >
+                  Settings
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => handleFAQPress()}
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  position: "absolute",
+                  right: 60,
+                }}
+              >
+                <Text
+                  style={[
+                    styles.categoryName,
+                    {
+                      textAlign: "center",
+                      fontSize: 25,
+                    },
+                  ]}
+                >
+                  F.A.Q
+                </Text>
+                <Ionicons
+                  style={{ marginLeft: 5, marginTop: 5 }}
+                  name="book"
+                  size={24}
+                  color={colors.secondary}
+                />
+              </TouchableOpacity>
+            </View>
+            {showFAQ == true && <FAQevents />}
+            {showSettings == true && <Settings />}
+
             <SegmentedControlTab
-              values={["Trophies", "Solo PL", "Teams PL"]}
+              values={["Trophies", "Power League"]}
               selectedIndex={typeIndex}
-              onTabPress={(index) => {
-                setTypeIndexChange(true);
+              onTabPress={async (index) => {
+                setTypeIndexChanging(true);
+                let globalStats = await getGlobalStatsFromDB(
+                  globalStatsInStore,
+                  season,
+                  "global",
+                  index
+                );
+                await dispatch(globalStatsReceived(globalStats));
                 setTypeIndex(index);
+                setTypeIndexChange(true);
+                setTypeIndexChanging(false);
               }}
             />
             {/* <View> */}
@@ -219,28 +246,46 @@ export default function Events() {
               /> */}
             {/* </View> */}
           </View>
-          <DropDownPicker
-            items={listRangesItems}
-            defaultValue={range}
-            containerStyle={{
-              height: 40,
-              marginLeft: 50,
-              marginRight: 50,
-            }}
-            style={{ backgroundColor: "#fafafa" }}
-            itemStyle={{
-              justifyContent: "flex-start",
-            }}
-            dropDownStyle={{ backgroundColor: "#fafafa" }}
-            onChangeItem={(item) => setRange(item.value)}
-          />
+          {typeIndexChanging == false && (
+            <DropDownPicker
+              items={listRangesItems}
+              defaultValue={range}
+              containerStyle={{
+                height: 40,
+                marginLeft: 50,
+                marginRight: 50,
+              }}
+              style={{ backgroundColor: "#fafafa" }}
+              itemStyle={{
+                justifyContent: "flex-start",
+              }}
+              dropDownStyle={{ backgroundColor: "#fafafa" }}
+              onChangeItem={async (item, index) => {
+                setTypeIndexChanging(true);
+                let globalStats = await getGlobalStatsFromDB(
+                  globalStatsInStore,
+                  season,
+                  "global",
+                  typeIndex,
+                  item.value
+                );
+
+                await dispatch(globalStatsReceived(globalStats));
+                setRange(item.value);
+
+                setTypeIndexChanging(false);
+              }}
+            />
+          )}
 
           <View style={{ alignContent: "center", alignItems: "center" }}>
-            <EventsModule
-              seasonIndex={seasonIndex}
-              typeIndex={typeIndex}
-              range={range}
-            />
+            {typeIndexChanging == false && (
+              <EventsModule
+                season={season}
+                typeIndex={typeIndex}
+                range={range}
+              />
+            )}
           </View>
         </ScrollView>
       )}
@@ -253,6 +298,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#1C3273",
+  },
+  categoryName: {
+    color: colors.primary,
+    fontFamily: "Lilita-One",
+    fontSize: 20,
+    marginLeft: 6,
   },
 });
 const unsubscribe = store.subscribe(Events);

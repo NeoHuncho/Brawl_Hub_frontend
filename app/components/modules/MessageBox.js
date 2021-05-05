@@ -15,7 +15,7 @@ import { messageBoxActions } from "../../store/reducers/uiReducerPersist";
 export default function MessageBox({ message, idMessage, color }) {
   const dispatch = useDispatch();
   const onPressClose = (idMessage) => {
-    console.log(idMessage);
+    // console.log(idMessage);
     dispatch(messageBoxActions(idMessage));
   };
   return (

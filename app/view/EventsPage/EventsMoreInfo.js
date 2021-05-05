@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   TouchableHighlight,
   FlatList,
+  BackHandler,
 } from "react-native";
 
 import {
@@ -27,12 +28,27 @@ import { moreInfoEventClosed } from "../../store/reducers/uiReducerNoPersist";
 import colors from "../../config/colors";
 
 export default function EventsMoreInfo() {
-  const dispatch = useDispatch();
-  const carouselInfo = useSelector((state) => state.uiReducerNoPersist);
-
   const handleReturn = () => {
     dispatch(moreInfoEventClosed());
   };
+
+  useEffect(() => {
+    const backAction = () => {
+      handleReturn();
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+    return () => {
+      backHandler.remove();
+    };
+  }, []);
+  const dispatch = useDispatch();
+  const carouselInfo = useSelector((state) => state.uiReducerNoPersist);
+
   const [typeIndex, setTypeIndex] = useState(
     carouselInfo.sortedBrawlers == undefined &&
       carouselInfo.sortedTeams != undefined
@@ -49,15 +65,18 @@ export default function EventsMoreInfo() {
   if (carouselInfo.sortedBrawlers != undefined) {
     topPointsBrawlers = carouselInfo.sortedBrawlers[0].points;
     carouselInfo.sortedBrawlers.map(
-      (brawler) => (totalCountBrawlers += brawler.count)
+      (brawler) => (totalCountBrawlers += parseInt(brawler.count))
     );
   }
   if (carouselInfo.sortedTeams != undefined) {
     topPointsTeams = carouselInfo.sortedTeams[0].points;
-    carouselInfo.sortedTeams.map((team) => (totalCountTeams += team.count));
+    carouselInfo.sortedTeams.map(
+      (team) => (totalCountTeams += parseInt(team.count))
+    );
   }
 
   const listItem = ({ item }) => {
+
     let performanceAgainstBrawler = [];
     let performanceAgainstTeam = [];
 
@@ -67,7 +86,7 @@ export default function EventsMoreInfo() {
         performanceAgainstBrawler.push(item.performanceAgainstBrawler[key]);
       });
     }
-    performanceAgainstBrawler.sort((a, b) => (a.points < b.points ? 1 : -1));
+
     // console.log(performanceAgainstBrawler)
 
     if (item.performanceAgainstTeam) {
@@ -76,16 +95,19 @@ export default function EventsMoreInfo() {
         performanceAgainstTeam.push(item.performanceAgainstTeam[key]);
       });
     }
-    performanceAgainstTeam.sort((a, b) => (a.points < b.points ? 1 : -1));
 
     // console.log(performanceAgainstTeam);
 
     let performanceBrawlers = Math.round(
       (item.points / topPointsBrawlers) * 100
     );
-    let pickRateBrawlers = Math.round((item.count / totalCountBrawlers) * 100);
+    let pickRateBrawlers = Math.round(
+      (parseInt(item.count) / totalCountBrawlers) * 100
+    );
     let performanceTeams = Math.round((item.points / topPointsTeams) * 100);
-    let pickRateTeams = Math.round((item.count / totalCountTeams) * 100);
+    let pickRateTeams = Math.round(
+      (parseInt(item.count) / totalCountTeams) * 100
+    );
     return (
       <>
         {typeIndex == 0 && (
@@ -207,37 +229,48 @@ export default function EventsMoreInfo() {
                 color={colors.secondary}
               />
             </TouchableOpacity>
-            <View style={{ flexDirection: "row",alignItems:"center" }}>
-                <Image
-                  source={
-                    carouselInfo.type == "trophies"
-                      ? { uri: carouselInfo.mode }
-                      : getModeImage(carouselInfo.mode)
-                  }
-                  style={
-                    carouselInfo.type == "trophies"
-                      ? carouselInfo.mode.includes("Hot")
-                        ? { width: 30, height: 35, marginLeft: 5,marginRight:5 }
-                        : carouselInfo.mode.includes("Knock")
-                        ? { width: 30, height: 30, marginLeft: 5,marginRight:5 }
-                        : carouselInfo.mode.includes("Gem")
-                        ? {width: 30, height: 30, marginLeft: 5,marginRight:5  }
-                        : carouselInfo.mode.includes("Duo")
-                        ? { width: 30, height: 30, marginLeft: 5,marginRight:5  }
-                        : carouselInfo.mode.includes("/Show")
-                        ? { width: 30, height: 35, marginLeft: 5,marginRight:5, marginTop:5  }
-                        : { width: 35, height: 30, marginLeft: 5,marginRight:5, marginBottom:5  }
-                      : { width: 30, height: 30, marginLeft: 5 }
-                  }
-                />
-              <Text style={[styles.name,{marginRight:20,fontSize:18}]}>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Image
+                source={
+                  carouselInfo.type == "trophies"
+                    ? { uri: carouselInfo.mode }
+                    : getModeImage(carouselInfo.mode)
+                }
+                style={
+                  carouselInfo.type == "trophies"
+                    ? carouselInfo.mode.includes("Hot")
+                      ? { width: 30, height: 35, marginLeft: 5, marginRight: 5 }
+                      : carouselInfo.mode.includes("Knock")
+                      ? { width: 30, height: 30, marginLeft: 5, marginRight: 5 }
+                      : carouselInfo.mode.includes("Gem")
+                      ? { width: 30, height: 30, marginLeft: 5, marginRight: 5 }
+                      : carouselInfo.mode.includes("Duo")
+                      ? { width: 30, height: 30, marginLeft: 5, marginRight: 5 }
+                      : carouselInfo.mode.includes("/Show")
+                      ? {
+                          width: 30,
+                          height: 35,
+                          marginLeft: 5,
+                          marginRight: 5,
+                          marginTop: 5,
+                        }
+                      : {
+                          width: 35,
+                          height: 30,
+                          marginLeft: 5,
+                          marginRight: 5,
+                          marginBottom: 5,
+                        }
+                    : { width: 30, height: 30, marginLeft: 5 }
+                }
+              />
+              <Text style={[styles.name, { marginRight: 20, fontSize: 18 }]}>
                 {carouselInfo.type == "trophies"
                   ? carouselInfo.name
                   : getMapName(carouselInfo.name)}
               </Text>
               {console.log(carouselInfo.mode)}
-      
-         
+
               <Image
                 source={
                   carouselInfo.type == "trophies"
@@ -248,7 +281,7 @@ export default function EventsMoreInfo() {
               />
             </View>
             {!carouselInfo.mode.includes("/Show") && (
-              <View style={{ width: 300, marginTop:10}}>
+              <View style={{ width: 300, marginTop: 10 }}>
                 <SegmentedControlTab
                   values={["brawlers", "teams"]}
                   enabled={
@@ -264,12 +297,12 @@ export default function EventsMoreInfo() {
                   onTabPress={(index) => {
                     setTypeIndex(index);
                   }}
-                  tabStyle={{height:30}}
+                  tabStyle={{ height: 30 }}
                 />
               </View>
             )}
 
-            <View style={{ flexDirection: "row", marginTop: 10}}>
+            <View style={{ flexDirection: "row", marginTop: 10 }}>
               <Text
                 style={[
                   styles.columnName,

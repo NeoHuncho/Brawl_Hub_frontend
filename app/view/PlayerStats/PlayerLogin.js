@@ -14,49 +14,21 @@ import { useDispatch, useSelector } from "react-redux";
 import { setTestDeviceIDAsync } from "expo-ads-admob";
 import * as Progress from "react-native-progress";
 
-import { getAssets } from "../../lib/getAssetsFunctions";
-import season6_1 from "../../assets/backgrounds/season6_1.jpg";
-import season6_2 from "../../assets/backgrounds/season6_2.jpg";
-import season6_3 from "../../assets/backgrounds/season6_3.jpg";
-import season5_1 from "../../assets/backgrounds/season5_1.jpg";
-import season5_2 from "../../assets/backgrounds/season5_2.jpg";
-import season5_3 from "../../assets/backgrounds/season5_3.jpg";
-import season4_1 from "../../assets/backgrounds/season4_1.jpg";
 import { receivedPlayerStatsFromDB } from "../../store/reducers/battleLogReducer";
 import { userIdReceived } from "../../store/reducers/playerIdReducer";
-import { brawlifyDataReceived } from "../../store/reducers/brawlifyReducer";
-import getEvents from "../../lib/getBrawlifyEvents";
-
-import {
-  globalCountsReceived,
-  globalStatsReceived,
-} from "../../store/reducers/globalStatsReducer";
 
 import colors from "../../config/colors";
 
 import imageBackground from "../../assets/background-login.jpg";
 
 import {
-  getBrawlifyFromDB,
-  getGlobalStatsFromDB,
-  getGlobalNumbersFromDB,
   getStatsFirstLogin,
   getStatsFromDB,
   writeLastLogin,
 } from "../../store/apiDB";
 
-import BottomBar from "../../components/modules/BottomBar";
+import PlayerStats from "./PlayerStats";
 
-const backgrounds = [
-  season6_1,
-  season6_2,
-  season6_3,
-  season5_3,
-  season5_2,
-  season5_1,
-  season4_1,
-];
-const randomBackgroundIndex = Math.floor(Math.random() * backgrounds.length);
 export default function PlayerLogin() {
   const dispatch = useDispatch();
   const playerID = useSelector((state) => state.playerPersistReducer.playerID);
@@ -87,59 +59,13 @@ export default function PlayerLogin() {
         async function fetchMySavedData() {
           if (userId) {
             await setTestDeviceIDAsync("EMULATOR");
-            setLoadingText("fetching Assets...");
-            const { maps, brawlers, icons } = await getBrawlifyFromDB();
-            dispatch(
-              brawlifyDataReceived({
-                brawlers: brawlers,
-                maps: maps,
-                icons: icons,
-              })
-            );
-            const {
-              rangesMinus,
-              rangesPLMinus,
-              nBrawlers,
-              nGadgets,
-              nStarPowers,
-              minBrawlerEvent,
-              minTeamEvent,
-              minBrawlerPL,
-              minTeamPL,
-              seasonGlobal,
-              slotNumActive,
-              slotNumUpcoming,
-            } = await getGlobalNumbersFromDB();
-
-            dispatch(
-              globalCountsReceived({
-                rangesMinus: rangesMinus,
-                rangesPLMinus: rangesPLMinus,
-                nBrawlers: nBrawlers,
-                nGadgets: nGadgets,
-                nStarPowers: nStarPowers,
-                minBrawlerEvent: minBrawlerEvent,
-                minTeamEvent: minTeamEvent,
-                minBrawlerPL: minBrawlerPL,
-                minTeamPL: minTeamPL,
-                seasonGlobal: seasonGlobal,
-                slotNumActive: slotNumActive,
-                slotNumUpcoming: slotNumUpcoming,
-              })
-            );
+            setLoadingText("fetching Your Stavts...");
             setProgress(0.5);
-            await writeLastLogin(userId);
-            await getEvents();
-            const globalStats = await getGlobalStatsFromDB(seasonGlobal);
-            dispatch(globalStatsReceived(globalStats));
-            getAssets();
             setProgress(0.8);
-            setLoadingText("fetching global stats. Hang in there!");
-
-            setProgress(1);
-            setValidId(true);
             const stats = await getStatsFromDB(userId);
             await dispatch(receivedPlayerStatsFromDB(stats));
+            setProgress(1);
+            setValidId(true);
           }
         }
         fetchMySavedData();
@@ -154,69 +80,39 @@ export default function PlayerLogin() {
       ) {
         async function fetchMyDataFirstTime() {
           try {
-            let checkDBStats = await getStatsFromDB(userId);
             setProgress(0.2);
             setLoadingText("fetching your stats...");
+            setProgress(0.5);
+            let checkDBStats = await getStatsFromDB(userId);
             if (checkDBStats == null) {
               await getStatsFirstLogin(userId);
               let statsFromDB = await getStatsFromDB(userId);
-              // console.log(statsFromDB)
+            //  console.log(statsFromDB.battleLog)
+              if (statsFromDB.battleLog==undefined) {
+                await new Promise((r) => setTimeout(r, 1000));
+                setLoadingText(
+                  `fetching your stats... 
+                  This process be much faster after your first login!`
+                );
+                statsFromDB = await getStatsFromDB(userId);
+                if (statsFromDB.battleLog==undefined) {
+                  await new Promise((r) => setTimeout(r, 2000));
+                  statsFromDB = await getStatsFromDB(userId);
+                }
+              }
+              setLoadingText("fetching your stats... Hang in there!");
+              setProgress(0.8);
               dispatch(receivedPlayerStatsFromDB(statsFromDB));
               await writeLastLogin(userId);
-              setProgress(0.5);
             } else {
+              setLoadingText("fetching your stats... Hang in there!");
+              setProgress(0.8);
               dispatch(receivedPlayerStatsFromDB(checkDBStats));
-              await writeLastLogin(userId);
-              setProgress(0.5);
             }
 
-            const { maps, brawlers, icons } = await getBrawlifyFromDB();
-            setProgress(0.65);
-            setLoadingText("fetching global stats. Hang in there!");
-            const {
-              rangesMinus,
-              rangesPLMinus,
-              nBrawlers,
-              nGadgets,
-              nStarPowers,
-              minBrawlerEvent,
-              minTeamEvent,
-              minBrawlerPL,
-              minTeamPL,
-              seasonGlobal,
-              slotNumActive,
-              slotNumUpcoming,
-            } = await getGlobalNumbersFromDB();
-
-            dispatch(
-              brawlifyDataReceived({
-                brawlers: brawlers,
-                maps: maps,
-                icons: icons,
-              })
-            );
-            dispatch(
-              globalCountsReceived({
-                rangesMinus: rangesMinus,
-                rangesPLMinus: rangesPLMinus,
-                nBrawlers: nBrawlers,
-                nGadgets: nGadgets,
-                nStarPowers: nStarPowers,
-                minBrawlerEvent: minBrawlerEvent,
-                minTeamEvent: minTeamEvent,
-                minBrawlerPL: minBrawlerPL,
-                minTeamPL: minTeamPL,
-                seasonGlobal: seasonGlobal,
-                slotNumActive: slotNumActive,
-                slotNumUpcoming: slotNumUpcoming,
-              })
-            );
-            setProgress(1);
             dispatch(userIdReceived(userId));
+            setProgress(1);
             setValidId(true);
-            await getEvents();
-            const globalStats = await getGlobalStatsFromDB(seasonGlobal);
-            dispatch(globalStatsReceived(globalStats));
           } catch (error) {
             if (error.response) {
               if (error.response.status == 404) {
@@ -247,12 +143,31 @@ export default function PlayerLogin() {
           <ImageBackground
             source={imageBackground}
             style={styles.imageBackground}
-            blurRadius={2}
+            blurRadius={20}
           >
+            <View style={{ marginBottom: 40 }}>
+              <Text
+                style={[
+                  styles.provideIdText,
+                  { fontSize: 30, color: colors.secondary },
+                ]}
+              >
+                View your own stats!
+              </Text>
+              <Text
+                style={[
+                  styles.provideIdText,
+                  { fontSize: 20, color: colors.secondary },
+                ]}
+              >
+                (and get them updated & saved daily)
+              </Text>
+            </View>
             <View style={styles.inputContainer}>
               <Text style={styles.provideIdText}>{message}</Text>
 
               <TextInput
+                onClick={console.log("hello")}
                 type="flat"
                 underlineColor={colors.background}
                 selectionColor={colors.background}
@@ -263,7 +178,13 @@ export default function PlayerLogin() {
                   setMessage("Please provide your Brawl Stars player ID");
                 }}
               />
-              <Button title="Confirm" onPress={() => setConfirmClicked(true)} />
+
+              <View style={{ marginTop: 5 }}>
+                <Button
+                  title="Confirm"
+                  onPress={() => setConfirmClicked(true)}
+                />
+              </View>
               <Text style={[styles.findIdText, { marginTop: 20 }]}>
                 There will NEVER be the LETTER O in your tag!
               </Text>
@@ -297,7 +218,7 @@ export default function PlayerLogin() {
       {(saved === true || confirmClicked == true) && !validId && (
         <View style={styles.container}>
           <ImageBackground
-            source={backgrounds[randomBackgroundIndex]}
+            source={imageBackground}
             style={styles.imageBackground}
           >
             <Progress.Bar
@@ -330,7 +251,7 @@ export default function PlayerLogin() {
         </View>
       )}
 
-      {validId && <BottomBar />}
+      {validId && <PlayerStats />}
     </>
   );
 }
@@ -339,18 +260,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    alignItems: "center",
   },
   imageBackground: {
     flex: 1,
     resizeMode: "cover",
     width: "100%",
+
     justifyContent: "center",
   },
 
   inputContainer: {
     marginBottom: 20,
     alignItems: "center",
+    justifyContent: "center",
   },
   playerIdInput: {
     paddingLeft: 3,

@@ -5,6 +5,8 @@ const slice = createSlice({
   initialState: {
     isOpen: false,
     isOpenEvents:false,
+    typeIndex:null,
+    rangeIndex:null,
     type: null,
     displayName: null,
     name: null,
@@ -54,6 +56,12 @@ const slice = createSlice({
       uiData.sortedBrawlers=null;
       uiData.sortedTeams=null
     },
+    typeIndexChanged:(uiData,action)=>{
+      uiData.typeIndex=action.payload
+    },
+    rangeIndexChanged:(uiData,action)=>{
+      uiData.rangeIndex=action.payload
+    }
   },
 });
 
@@ -63,5 +71,7 @@ export const {
   receivedGameTypeAndSeason,
   moreInfoEventOpen,
   moreInfoEventClosed,
+  typeIndexChanged,
+  rangeIndexChanged
 } = slice.actions;
 export default slice.reducer;
