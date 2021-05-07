@@ -18,7 +18,7 @@ export default function WinLossModule({ type }) {
   );
   const season = useSelector((state) => state.battleLogReducer.season);
   const playerStats = useSelector(
-    (state) => state.battleLogReducer.playerStats.season[season].type[type]
+    (state) => state.battleLogReducer.playerStats
   );
 
   if (type == "ranked") {

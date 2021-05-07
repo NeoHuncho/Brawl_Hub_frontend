@@ -1,10 +1,13 @@
-import { db } from "../lib/initFirebase";
+import { db, fireStore } from "../lib/initFirebase";
 import axios from "axios";
 import moment from "moment";
+import cloneDeep from "lodash.clonedeep";
+import { store } from "../store/configureStore";
+import { camelize } from "../lib/getGlobalStatsFunctions";
 
 const getStatsFirstLogin = async (userID) => {
-  return new Promise(function (resolve, reject) {
-    axios
+  return new Promise(async function (resolve, reject) {
+    await axios
       .post(
         "http://europe-west1-brawl-hub-6a708.cloudfunctions.net/getPlayerBPandStats",
         {
@@ -16,6 +19,7 @@ const getStatsFirstLogin = async (userID) => {
         resolve("all good");
       })
       .catch(function (error) {
+        console.log(userID, error);
         if (error) {
           reject(error);
         }
@@ -24,14 +28,22 @@ const getStatsFirstLogin = async (userID) => {
 };
 
 const writeLastLogin = async (userID) => {
-  let playerRef = db.ref("playerStats/" + userID + "/generalStats/lastLogin");
-  playerRef.set(moment().format("YYYY-MM-DD HH:mm"));
+  console.log(2,userID)
+  try {
+    db.ref(`lastLogin/${userID}`)
+      .set(moment().format("YYYY-MM-DD HH:mm"))
+      .then(() => "nothingness");
+    return;
+  } catch (error) {
+    console.log(error);
+    return;
+  }
 };
 
 const writeError = async (userID, error) => {
-  console.log(userID,error)
-  let playerRef = db.ref("errors/"+userID);
-  playerRef.set(error);
+  // console.log(userID, error);
+  let playerRef = db.ref("errors/" + userID);
+  playerRef.set(error).then(() => "nothingness");
 };
 
 const getBrawlifyFromDB = async () => {
@@ -47,13 +59,22 @@ const getBrawlifyFromDB = async () => {
   return { maps, brawlers, icons };
 };
 
-const getStatsFromDB = async (userID) => {
-  let playerRef = db.ref("playerStats/" + userID);
-  let stats = undefined;
-  await playerRef.once("value", (data) => {
-    stats = data.val();
-  });
-  return stats;
+const getStatsFromDB = async (userID, season) => {
+  console.log("in api db", userID);
+
+  let globalStats = {};
+  try {
+    const snapShot = await fireStore.collection(`S${season}_${userID}`).get();
+    snapShot.docs.map((doc) => {
+      const data = doc.data(); //Here is your content
+      const id = doc.id; //Here is the key of your document
+      globalStats[id] = data;
+    });
+    return globalStats;
+  } catch (error) {
+    console.log("error in getStatsFromDB", error);
+    return "error";
+  }
 };
 
 const getGlobalNumbersFromDB = async () => {
@@ -62,8 +83,7 @@ const getGlobalNumbersFromDB = async () => {
     .once("value")
     .then((snapshot) => snapshot.val());
 
-  const rangesMinus = globalCount["ranges"];
-  const rangesPLMinus = globalCount["rangesPL"];
+  const ranges = globalCount["ranges"];
   const nBrawlers = globalCount["totals"]["numberOfBrawlers"];
   const nGadgets = globalCount["totals"]["numberOfGadgets"];
   const nStarPowers = globalCount["totals"]["numberOfStarPowers"];
@@ -76,8 +96,7 @@ const getGlobalNumbersFromDB = async () => {
   const slotNumUpcoming = globalCount["slotNumUpcoming"];
 
   return {
-    rangesMinus,
-    rangesPLMinus,
+    ranges,
     nBrawlers,
     nGadgets,
     nStarPowers,
@@ -90,13 +109,136 @@ const getGlobalNumbersFromDB = async () => {
     slotNumUpcoming,
   };
 };
-const getGlobalStatsFromDB = async (season) => {
-  const globalStats = await db
-    .ref("global/globalStatsReduced/" + season)
-    .once("value")
-    .then((snapshot) => snapshot.val());
+const getGlobalStatsFromDB = async (
+  gStats,
+  season,
+  scope,
+  typeIndex,
+  rangeName
+) => {
+  // console.log("called getDB", typeIndex, rangeName);
 
-  return globalStats;
+  try {
+    let globalStats = {};
+    gStats == null ? null : (globalStats = cloneDeep(gStats));
+
+    let typeAndRangeNameFinder = (type, rangeTrophies, rangePL) => {
+      let typeName = null;
+      let rangeName = null;
+      type == 0 ? (typeName = "trophies") : (typeName = "powerLeagueSolo");
+      type == 1
+        ? rangePL == 0
+          ? (rangeName = "underGold")
+          : rangePL == 1
+          ? (rangeName = "gold")
+          : rangePL == 2
+          ? (rangeName = "diamond")
+          : rangePL == 3
+          ? (rangeName = "mythic")
+          : rangePL == 4
+          ? (rangeName = "legendary")
+          : (rangePL = 5 ? (rangeName = "master") : null)
+        : type == 0
+        ? rangeTrophies == 0
+          ? (rangeName = "under400")
+          : rangeTrophies == 1
+          ? (rangeName = "400-600")
+          : rangeTrophies == 2
+          ? (rangeName = "600-800")
+          : rangeTrophies == 3
+          ? (rangeName = "800-1000")
+          : rangeTrophies == 4
+          ? (rangeName = "1000-1200")
+          : null
+        : null;
+
+      return { typeName: typeName, rangeNameFromFinder: rangeName };
+    };
+    let state = store.getState();
+    const typeIndexPersist = state.uiReducerPersist.typeIndex;
+
+    const trophiesRange = state.uiReducerPersist.trophiesRange;
+
+    const plRange = state.uiReducerPersist.plRange;
+    let eventsActive = state.brawlifyReducer.eventsList.active;
+    let slotNumberActive = state.globalStatsReducer.slotNumberActive;
+    let events = {};
+    if (typeIndex == 0 || typeIndexPersist == 0) {
+      for (const eventKey in eventsActive) {
+        if (eventsActive[eventKey].slot.id <= slotNumberActive) {
+          if (
+            Math.sign(
+              moment.duration(
+                moment(eventsActive[eventKey].endTime).diff(moment.now())
+              )
+            ) == 1
+          ) {
+            events[camelize(eventsActive[eventKey].map.gameMode.name)] =
+              eventsActive[eventKey].map.id;
+          }
+        }
+      }
+    }
+    // console.log(events);
+    let type = null;
+    let range = null;
+
+    let { typeName, rangeNameFromFinder } = typeAndRangeNameFinder(
+      typeIndex == undefined ? typeIndexPersist : typeIndex,
+      trophiesRange,
+      plRange
+    );
+
+    type = typeName;
+    if (rangeName == undefined) {
+      range = rangeNameFromFinder;
+    } else {
+      range = rangeName;
+    }
+
+    if (scope == "global") {
+      if (globalStats[type]) {
+        // console.log("called no firebases1");
+        if (globalStats[type][range]) {
+          // console.log("called no firebases2");
+          return globalStats;
+        }
+      }
+      await fireStore
+        .collection(`eventsPageBR_TM`)
+        .doc(`S${season}_${type}_${range}`)
+        .get()
+        .then((doc) => {
+          if (!globalStats[type]) globalStats[type] = {};
+          globalStats[type][range] = doc.data();
+        });
+    } else {
+      // console.log("called firebases");
+      // console.log(season, type, scope, range);
+      await fireStore
+        .collection(
+          `S${season}_${type == "trophies" ? "Trophies" : "PL"}_Events`
+        )
+        .doc(`${scope[1]}_${range}`)
+        .get()
+        .then((doc) => {
+          let data = doc.data();
+          if (data["performanceBrawlers"])
+            globalStats[type][range][scope[0]][parseInt(scope[1])][
+              "performanceBrawlers"
+            ] = data["performanceBrawlers"];
+          if (data["performanceTeams"])
+            globalStats[type][range][scope[0]][parseInt(scope[1])][
+              "performanceTeams"
+            ] = data["performanceTeams"];
+        });
+    }
+
+    // console.log("final boss", globalStats[type][range]);
+    return globalStats;
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export {
@@ -106,5 +248,7 @@ export {
   getGlobalNumbersFromDB,
   getGlobalStatsFromDB,
   writeLastLogin,
-  writeError
+  writeError,
 };
+const unsubscribe = store.subscribe(getGlobalStatsFromDB);
+unsubscribe();

@@ -46,7 +46,7 @@ const randomBackgroundIndex = Math.floor(Math.random() * backgrounds.length);
 export default function PlayerLogin() {
   const dispatch = useDispatch();
   const userID = useSelector((state) => state.playerPersistReducer.playerID);
-  const saved = useSelector((state) => state.playerPersistReducer.saved);
+
   const [progress, setProgress] = useState(0);
   const [loadingText, setLoadingText] = useState("");
   const [loaded, setLoaded] = useState(false);
@@ -93,11 +93,16 @@ export default function PlayerLogin() {
           slotNumUpcoming: slotNumUpcoming,
         })
       );
-      if (saved == false) {
+      if (userID != null) {
+        console.log(1,userID)
         await writeLastLogin(userID);
       }
       await getEvents();
-      const globalStats = await getGlobalStatsFromDB(null, seasonGlobal,'global');
+      const globalStats = await getGlobalStatsFromDB(
+        null,
+        seasonGlobal,
+        "global"
+      );
       // console.log('called')
       dispatch(globalStatsReceived(globalStats));
       getAssets();

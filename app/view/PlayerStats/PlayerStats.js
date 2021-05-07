@@ -36,8 +36,9 @@ const PlayerStats = () => {
   getAssets();
   const dispatch = useDispatch();
   const battleLogReducer = useSelector((state) => state.battleLogReducer);
+  console.log("look here", battleLogReducer);
   const playerName = battleLogReducer.name;
-  const season = battleLogReducer.season;
+  const season = 6;
   const icon = battleLogReducer.icon;
 
   const playerID = useSelector((state) => state.playerPersistReducer.playerID);
@@ -81,24 +82,27 @@ const PlayerStats = () => {
   const iconImage = getIconImage(icon);
 
   let seasons = null;
-  let types = null;
-  let sKeys = null;
-  let seasonsKey = null;
+  let types = [];
+
   let typesKey = null;
   // console.log(playerID);
   if (
     playerStats !== "no data" &&
-    playerStats !== { season: {} } &&
+    playerStats !== null &&
     playerStats !== undefined
   ) {
-    seasons = useSelector((state) => state.battleLogReducer.playerStats.season);
-    types = useSelector(
-      (state) => state.battleLogReducer.playerStats.season[season].type
-    );
-    sKeys = Object.keys(seasons);
-    seasonsKey = sKeys.map((x) => "season " + x);
+    seasons = useSelector((state) => [6]);
+    Object.keys(playerStats).map((key) => {
+      key.includes("ranked")
+        ? types.push("ranked")
+        : key.includes("solo")
+        ? types.push("soloRanked")
+        : key.includes("team")
+        ? types.push("teamRanked")
+        : null;
+    });
 
-    typesKey = Object.keys(types)
+    typesKey = types
       .map((x) =>
         x === "ranked"
           ? "Trophies"
@@ -169,7 +173,7 @@ const PlayerStats = () => {
       })
     );
     // console.log(typesKey[typeIndex])
-    processPlayerStats(seasonIndex, typesKey[typeIndex], null, null);
+    // processPlayerStats(seasonIndex, typesKey[typeIndex], null, null);
     const isOpen = useSelector((state) => state.uiReducerNoPersist.isOpen);
     if (moreInfoCarouselOpen === false) {
       if (isOpen === true) {
@@ -332,7 +336,7 @@ const PlayerStats = () => {
                     <Text style={styles.sliderTitle}>Choose Season:</Text>
                     <View style={{ marginLeft: 20, marginRight: 20 }}>
                       <SegmentedControlTab
-                        values={seasonsKey}
+                        values={seasons}
                         //The plus 5 is because we are starting 5 seasons late
                         // the minus 5 is to convert it back
                         selectedIndex={seasonIndex - 5}
@@ -715,13 +719,13 @@ const PlayerStats = () => {
                     />
                   </View>
                   <View style={{ marginTop: 10 }}>
-                    <WinLossModule type={typesKey[typeIndex]} />
+                    {/* <WinLossModule type={typesKey[typeIndex]} /> */}
                   </View>
                   <View style={{ marginTop: 18, marginBottom: 80 }}>
                     <Text style={styles.categoryName}>
                       Player Stats by Mode
                     </Text>
-                    <CarouselModule
+                    {/* <CarouselModule
                       dataType="mode"
                       style={styleIndex}
                       sort={sortIndex}
@@ -749,7 +753,7 @@ const PlayerStats = () => {
                         style={styleIndex}
                         sort={sortIndex}
                       />
-                    </View>
+                    </View> */}
                   </View>
                 </View>
               </View>

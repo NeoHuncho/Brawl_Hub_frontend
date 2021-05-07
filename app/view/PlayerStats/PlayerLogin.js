@@ -33,6 +33,7 @@ export default function PlayerLogin() {
   const dispatch = useDispatch();
   const playerID = useSelector((state) => state.playerPersistReducer.playerID);
   const saved = useSelector((state) => state.playerPersistReducer.saved);
+  const season = useSelector((state) => state.globalStatsReducer.seasonGlobal);
 
   const [userId, setUserId] = useState(); //8LP0P8LVC
   const [validId, setValidId] = useState(false);
@@ -59,10 +60,10 @@ export default function PlayerLogin() {
         async function fetchMySavedData() {
           if (userId) {
             await setTestDeviceIDAsync("EMULATOR");
-            setLoadingText("fetching Your Stavts...");
+            setLoadingText("fetching Your Stats...");
             setProgress(0.5);
             setProgress(0.8);
-            const stats = await getStatsFromDB(userId);
+            const stats = await getStatsFromDB(userId, season);
             await dispatch(receivedPlayerStatsFromDB(stats));
             setProgress(1);
             setValidId(true);
@@ -78,39 +79,70 @@ export default function PlayerLogin() {
         userId.length >= 4 &&
         confirmClicked === true
       ) {
-        async function fetchMyDataFirstTime() {
+        async function fetchMyDataFirstTime(userId) {
           try {
             setProgress(0.2);
-            setLoadingText("fetching your stats...");
+            setLoadingText(
+              "fetching your stats...  This process be much faster after your first login!"
+            );
             setProgress(0.5);
-            let checkDBStats = await getStatsFromDB(userId);
-            if (checkDBStats == null) {
-              await getStatsFirstLogin(userId);
-              let statsFromDB = await getStatsFromDB(userId);
-            //  console.log(statsFromDB.battleLog)
-              if (statsFromDB.battleLog==undefined) {
-                await new Promise((r) => setTimeout(r, 1000));
-                setLoadingText(
-                  `fetching your stats... 
-                  This process be much faster after your first login!`
-                );
-                statsFromDB = await getStatsFromDB(userId);
-                if (statsFromDB.battleLog==undefined) {
-                  await new Promise((r) => setTimeout(r, 2000));
-                  statsFromDB = await getStatsFromDB(userId);
+            console.log(userId);
+            let checkDBStats = await getStatsFromDB(userId, season);
+
+            console.log(1, checkDBStats.length);
+            if (
+              checkDBStats == "error" ||
+              checkDBStats.length == 0 ||
+              checkDBStats.length == undefined
+            ) {
+              try {
+                console.log("calleddd");
+                await getStatsFirstLogin(userId);
+                writeLastLogin(userId);
+                console.log("should not be called");
+                let statsFromDB = await getStatsFromDB(userId, season);
+                //  console.log(statsFromDB.battleLog)
+                if (statsFromDB == "error") {
+                  await new Promise((r) => setTimeout(r, 1000));
+                  setLoadingText(
+                    "fetching your stats...  This process be much faster after your first login!"
+                  );
+                  statsFromDB = await getStatsFromDB(userId, season);
+                  if (statsFromDB == "error") {
+                    await new Promise((r) => setTimeout(r, 2000));
+                    statsFromDB = await getStatsFromDB(userId, season);
+                  }
+                }
+
+                dispatch(userIdReceived(userId));
+                setProgress(0.8);
+                dispatch(receivedPlayerStatsFromDB(statsFromDB));
+              } catch (error) {
+                console.log("look here", error.response.status);
+                if (error.response) {
+                  if (error.response.status == 404) {
+                    setConfirmClicked(false);
+                    setMessage("Invalid player ID. Please try Again!");
+                    return;
+                  } else {
+                    console.log(error.response.status);
+                    setMessage(
+                      "Invalid player ID or Supercell is doing maintenance!"
+                    );
+                    return;
+                  }
+                } else {
+                  console.log(error);
+                  return;
                 }
               }
-              setLoadingText("fetching your stats... Hang in there!");
-              setProgress(0.8);
-              dispatch(receivedPlayerStatsFromDB(statsFromDB));
-              await writeLastLogin(userId);
             } else {
               setLoadingText("fetching your stats... Hang in there!");
               setProgress(0.8);
+              dispatch(userIdReceived(userId));
               dispatch(receivedPlayerStatsFromDB(checkDBStats));
             }
 
-            dispatch(userIdReceived(userId));
             setProgress(1);
             setValidId(true);
           } catch (error) {
@@ -131,7 +163,7 @@ export default function PlayerLogin() {
         }
         // console.log("apiHeroku called in player login component!");
 
-        fetchMyDataFirstTime();
+        fetchMyDataFirstTime(userId);
       }
     }
   }, [userId, confirmClicked]);
@@ -167,7 +199,6 @@ export default function PlayerLogin() {
               <Text style={styles.provideIdText}>{message}</Text>
 
               <TextInput
-                onClick={console.log("hello")}
                 type="flat"
                 underlineColor={colors.background}
                 selectionColor={colors.background}
@@ -240,8 +271,9 @@ export default function PlayerLogin() {
                   color: colors.secondary,
                   fontSize: 14,
                   marginTop: 20,
-                  marginLeft: "auto",
-                  marginRight: "auto",
+                  marginLeft: 30,
+                  marginRight: 30,
+                  textAlign: "center",
                 })
               }
             >
