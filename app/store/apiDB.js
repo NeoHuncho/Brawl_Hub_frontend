@@ -4,6 +4,7 @@ import moment from "moment";
 import cloneDeep from "lodash.clonedeep";
 import { store } from "../store/configureStore";
 import { camelize } from "../lib/getGlobalStatsFunctions";
+import sizeOf from "object-sizeof";
 
 const getStatsFirstLogin = async (userID) => {
   return new Promise(async function (resolve, reject) {
@@ -28,7 +29,7 @@ const getStatsFirstLogin = async (userID) => {
 };
 
 const writeLastLogin = async (userID) => {
-  console.log(2,userID)
+  console.log(2, userID);
   try {
     db.ref(`lastLogin/${userID}`)
       .set(moment().format("YYYY-MM-DD HH:mm"))
@@ -60,16 +61,16 @@ const getBrawlifyFromDB = async () => {
 };
 
 const getStatsFromDB = async (userID, season) => {
-  console.log("in api db", userID);
-
-  let globalStats = {};
   try {
+    console.log("called db");
+    let globalStats = {};
     const snapShot = await fireStore.collection(`S${season}_${userID}`).get();
     snapShot.docs.map((doc) => {
       const data = doc.data(); //Here is your content
       const id = doc.id; //Here is the key of your document
       globalStats[id] = data;
     });
+    console.log(sizeOf(globalStats));
     return globalStats;
   } catch (error) {
     console.log("error in getStatsFromDB", error);

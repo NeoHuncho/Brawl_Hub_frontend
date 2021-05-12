@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-
 import "react-native-url-polyfill/auto";
 
 const slice = createSlice({
@@ -27,7 +26,6 @@ const slice = createSlice({
   reducers: {
     receivedPlayerStatsFromDB: (battleLogAndPlayer, action) => {
       let data = action.payload;
-      console.log('look',data);
       battleLogAndPlayer.name = data.globalStats.name;
       battleLogAndPlayer.nameColor = data.globalStats.nameColor;
       battleLogAndPlayer.icon = data.globalStats.icon;
@@ -44,9 +42,8 @@ const slice = createSlice({
       battleLogAndPlayer.trophyWins = data.globalStats.trophyWins;
       battleLogAndPlayer.trophyLosses = data.globalStats.trophyLosses;
       battleLogAndPlayer.numberOfGames = data.globalStats.numberOfGames;
-      delete data["globalStats"];
 
-      if (data !== {}) {
+      if (data.brawlers !== {} || data.brawlers !== undefined) {
         battleLogAndPlayer.playerStats = data;
       } else {
         battleLogAndPlayer.playerStats = "no data";

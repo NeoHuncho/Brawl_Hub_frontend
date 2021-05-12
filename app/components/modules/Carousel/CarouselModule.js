@@ -73,12 +73,12 @@ export default function CarouselModule({ dataType, style, sort }) {
   };
 
   const showInterstitial = async () => {
-    await AdMobInterstitial.setAdUnitID(
-      "ca-app-pub-3940256099942544/1033173712"
-    ); // Test ID, Replace with your-admob-unit-id
-    await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
-    if(AdMobInterstitial.getIsReadyAsync())
-    await AdMobInterstitial.showAdAsync();
+    // await AdMobInterstitial.setAdUnitID(
+    //   "ca-app-pub-3940256099942544/1033173712"
+    // ); // Test ID, Replace with your-admob-unit-id
+    // await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
+    // if(AdMobInterstitial.getIsReadyAsync())
+    // await AdMobInterstitial.showAdAsync();
   };
 
   const renderItem = ({ item, index }) => {

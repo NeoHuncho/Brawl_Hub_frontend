@@ -13,7 +13,7 @@ const eventsData = () => {
     let slotNumberUpcoming = state.globalStatsReducer.slotNumberUpcoming;
 
     for (const eventKey in eventsActive) {
-      if (eventsActive[eventKey].slot.id <= slotNumberActive) {
+      if (eventsActive[eventKey].slot.id <= slotNumberActive||eventsActive[eventKey].map.gameMode.name=='Takedown'||eventsActive[eventKey].map.gameMode.name=='Lone Star' ) {
         if (
           Math.sign(
             moment.duration(

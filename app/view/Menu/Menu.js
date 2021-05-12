@@ -115,7 +115,19 @@ export default function Menu() {
             color={colors.green}
           />
         )}
-        <View style={styles.container}>{modules}</View>
+        <View style={styles.container}>
+          <Text style={[styles.explanation, { opacity: 0.9, marginTop: 20 }]}>
+            --Available--
+          </Text>
+          {modules[0]}
+          <Text style={[styles.explanation, { opacity: 0.9, marginTop: 20 }]}>
+            --Not Available Yet--
+          </Text>
+          {modules[1]}
+          {modules[2]}
+          {modules[3]}
+          {modules[4]}
+        </View>
         <Modal
           animationType="fade"
           transparent={true}
@@ -155,7 +167,7 @@ export default function Menu() {
                   placeholderTextColor={colors.secondary}
                   onChangeText={(errorText) => setError(errorText)}
                 />
-                <Text style={[styles.explanation,{marginBottom:5}]}>
+                <Text style={[styles.explanation, { marginBottom: 5 }]}>
                   {sent}
                 </Text>
                 <Button
@@ -170,7 +182,7 @@ export default function Menu() {
                   onPress={() => {
                     setExplanationText("");
                     setShowExplanation(false);
-                    setSent('error not sent.')
+                    setSent("error not sent.");
                   }}
                 >
                   <Text style={[styles.explanation, { marginTop: 15 }]}>

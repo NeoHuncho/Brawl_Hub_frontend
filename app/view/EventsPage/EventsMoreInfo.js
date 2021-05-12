@@ -76,7 +76,6 @@ export default function EventsMoreInfo() {
   }
 
   const listItem = ({ item }) => {
-
     let performanceAgainstBrawler = [];
     let performanceAgainstTeam = [];
 
@@ -101,8 +100,13 @@ export default function EventsMoreInfo() {
     let performanceBrawlers = Math.round(
       (item.points / topPointsBrawlers) * 100
     );
-    let pickRateBrawlers = Math.round(
-      (parseInt(item.count) / totalCountBrawlers) * 100
+    let pickRateBrawlers = (
+      (parseInt(item.count) / totalCountBrawlers) *
+      100
+    ).toFixed(
+      ((parseInt(item.count) / totalCountBrawlers) * 100).toFixed(0) == 0
+        ? 1
+        : 0
     );
     let performanceTeams = Math.round((item.points / topPointsTeams) * 100);
     let pickRateTeams = Math.round(
@@ -183,7 +187,7 @@ export default function EventsMoreInfo() {
             </Text>
             {performanceAgainstTeam[0] && (
               <View
-                style={{ flexDirection: "row", position: "absolute", right: 5 }}
+                style={{ flexDirection: "row", position: "absolute", right: 0 }}
               >
                 <Image
                   style={[styles.brawlerAgainstTeam]}

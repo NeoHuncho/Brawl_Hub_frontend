@@ -43,6 +43,7 @@ const bestBrawlers = (type, range, modeName, mapID) => {
 const bestTeams = (type, range, modeName, mapID) => {
   // console.log("look here 3", type, range);
   let state = store.getState();
+  
 
 
   if (type == 0) type = "trophies";

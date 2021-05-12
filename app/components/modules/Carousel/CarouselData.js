@@ -19,22 +19,15 @@ let brawlersByPerformance = undefined;
 let teamsByWins = undefined;
 let teamsByPerformance = undefined;
 
-let pickedModeByPerformance = undefined;
-let pickedModeByWins = undefined;
-let pickedMapByPerformance = undefined;
-let pickedMapByWins = undefined;
-
 let modes = [];
 let brawlers = [];
 let maps = [];
 let teams = [];
 
-let chosenMode = [];
-let chosenMap = [];
-
 let loadedOnceCarouselData = false;
 
 const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
+  getAssets();
   //reseting variable otherwise they add up
   modesByPerformance = undefined;
   modesByWins = undefined;
@@ -67,99 +60,137 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
     : null;
 
   if (
-    state.battleLogReducer.playerStats.season[season].type[gameType].keys
-      .teams &&
+    state.battleLogReducer.playerStats[`${gameType}_maps`] &&
+    state.battleLogReducer.playerStats["brawlers"] &&
+    state.battleLogReducer.playerStats["teams"] &&
     name == null
   ) {
-    playerStats =
-      state.battleLogReducer.playerStats.season[season].type[gameType];
-    // console.log(playerStats);
+    let mapsPS = state.battleLogReducer.playerStats[`${gameType}_maps`];
+    let brawlersPS = state.battleLogReducer.playerStats["brawlers"][gameType];
+    let teamsPS = state.battleLogReducer.playerStats["teams"][gameType];
+    let modesPS = {};
+    Object.values(mapsPS).map((map) => {
+      if (modesPS[map.mode]) {
+        modesPS[map.mode].wins += map.wins;
+        modesPS[map.mode].losses += map.losses;
+        modesPS[map.mode].winRatio =
+          modesPS[map.mode].wins / modesPS[map.mode].losses;
 
-    getAssets();
+        if (
+          map.mode !== "duoShowdown" &&
+          map.mode !== "soloShowdown" &&
+          map.mode !== "loneStar" &&
+          map.mode !== "takedown"
+        ) {
+          modesPS[map.mode].games += map.games;
+          modesPS[map.mode].durationTotal += map.duration;
+          modesPS[map.mode].starPlayer += map.starPlayer;
+          modesPS[map.mode].duration =
+            modesPS[map.mode].durationTotal / modesPS[map.mode].games;
+          modesPS[map.mode].spRatio =
+            modesPS[map.mode].starPlayer / modesPS[map.mode].games;
+          // console.log(modesPS[map.mode].spRatio)
+        }
+      } else {
+        modesPS[map.mode] = {};
 
-    playerStats.keys.modes.map((mode) => {
-      //console.log(mode);
-      if (mode !== "duoShowdown" && mode !== "soloShowdown") {
-        modes.push({
-          image: getModeImage(mode),
-          duration:
-            playerStats.mode[mode].duration / playerStats.mode[mode].games,
-          spRatio:
-            playerStats.mode[mode].starPlayer / playerStats.mode[mode].games,
-          winRatio: playerStats.mode[mode].winRatio,
-          wins: playerStats.mode[mode].wins,
-          losses: playerStats.mode[mode].losses,
-          title: mode.replace(/([A-Z])/g, " $1").replace(/^./, function (str) {
+        modesPS[map.mode].wins = map.wins;
+        modesPS[map.mode].losses = map.losses;
+        modesPS[map.mode].winRatio =
+          modesPS[map.mode].wins / modesPS[map.mode].losses;
+
+        modesPS[map.mode].image = getModeImage(map.mode);
+        modesPS[map.mode].title = map.mode
+          .replace(/([A-Z])/g, " $1")
+          .replace(/^./, function (str) {
             return str.toUpperCase();
-          }),
-          titleCamel: mode,
+          });
+        modesPS[map.mode].titleCamel = map.mode;
+
+        if (
+          map.mode !== "duoShowdown" &&
+          map.mode !== "soloShowdown" &&
+          map.mode !== "loneStar" &&
+          map.mode !== "takedown"
+        ) {
+          modesPS[map.mode].games = map.games;
+          modesPS[map.mode].durationTotal = map.duration;
+          modesPS[map.mode].starPlayer = map.starPlayer;
+          modesPS[map.mode].duration = map.durationTotal / map.games;
+          modesPS[map.mode].spRatio = map.starPlayer / map.games;
+        }
+      }
+    });
+
+    Object.values(modesPS).map((mode) => {
+      //console.log(mode);
+      if (
+        mode !== "duoShowdown" &&
+        mode !== "soloShowdown" &&
+        mode !== "loneStar" &&
+        mode !== "takedown"
+      ) {
+        modes.push({
+          image: getModeImage(mode.titleCamel),
+          duration: mode.duration,
+          spRatio: mode.spRatio,
+          winRatio: mode.winRatio,
+          wins: mode.wins,
+          losses: mode.losses,
+          title: mode.title,
+          titleCamel: mode.titleCamel,
         });
       } else {
         modes.push({
-          image: getModeImage(mode),
-          winRatio: playerStats.mode[mode].winRatio,
-          wins: playerStats.mode[mode].wins,
-          losses: playerStats.mode[mode].losses,
-          title: mode
-            .replace(/([A-Z])/g, " $1")
-            .replace(/^./, function (str) {
-              return str.toUpperCase();
-            })
-            .replace(/Showdown/gm, "S/D"),
-          titleCamel: mode,
+          image: getModeImage(mode.titleCamel),
+          winRatio: mode.winRatio,
+          wins: mode.wins,
+          losses: mode.losses,
+          title: mode.title,
+          titleCamel: mode.titleCamel,
         });
       }
     });
 
-    modesByPerformance = [...modes]
-      .sort((a, b) => (a.winRatio > b.winRatio ? -1 : 1))
-      .filter((mode) => mode.winRatio !== 0);
+    // console.log(modes);
 
-    modesByWins = [...modes]
-      .sort((a, b) => (a.wins > b.wins ? -1 : 1))
-      .filter((mode) => mode.winRatio !== 0);
-
-    playerStats.keys.brawlers.map((brawler) => {
-      //console.log(brawler)
-
-      let compiledBrawlers = playerStats.compiled.brawlers[brawler];
-      brawlers.push({
-        //color: getBrawlerColor(brawler),
-        image: getBrawlerImage(brawler),
-        duration: compiledBrawlers.duration / compiledBrawlers.games,
-        spRatio: compiledBrawlers.starPlayer / compiledBrawlers.games,
-        winRatio: compiledBrawlers.winRatio,
-        wins: compiledBrawlers.wins,
-        losses: compiledBrawlers.losses,
-        title: getBrawlerName(brawler),
-      });
-    });
-
-    brawlersByPerformance = [...brawlers].sort((a, b) =>
+    modesByPerformance = [...modes].sort((a, b) =>
       a.winRatio > b.winRatio ? -1 : 1
     );
 
+    modesByWins = [...modes].sort((a, b) => (a.wins > b.wins ? -1 : 1));
+
+    // console.log(modesByPerformance);
+    brawlersPS.map((brawler) => {
+      //console.log(brawler)
+
+      brawlers.push({
+        //color: getBrawlerColor(brawler),
+        image: getBrawlerImage(brawler.id),
+        duration: brawler.duration / brawler.games,
+        spRatio: brawler.starPlayer / brawler.games,
+        winRatio: brawler.winRatio,
+        wins: brawler.wins,
+        losses: brawler.losses,
+        title: getBrawlerName(brawler.id),
+      });
+    });
+
+    brawlersByPerformance = [...brawlers];
+
     brawlersByWins = [...brawlers].sort((a, b) => (a.wins > b.wins ? -1 : 1));
 
-    playerStats.keys.maps.map((map) => {
-      let compiledMaps = playerStats.compiled.maps[map];
-      let modeName = undefined;
-      playerStats.keys.modes.map((mode) => {
-        if (playerStats.mode[mode].map[map]) {
-          // console.log(mode)
-          modeName = mode;
-        }
-      });
+    Object.values(mapsPS).map((map) => {
       maps.push({
-        image: getMapImage(map),
-        winRatio: compiledMaps.winRatio,
-        spRatio: compiledMaps.starPlayer / compiledMaps.games,
-        duration: compiledMaps.duration / compiledMaps.games,
-        wins: compiledMaps.wins,
-        losses: compiledMaps.losses,
-        title: getMapName(map),
-        titleCamel: map,
-        mode: getModeImage(modeName),
+        image: getMapImage(map.id),
+        winRatio: map.winRatio,
+        spRatio: map.starPlayer / map.games,
+        duration: map.duration / map.games,
+        wins: map.wins,
+        losses: map.losses,
+        title: getMapName(map.id),
+        titleCamel: map.id, //yeah I know weird, but it is to be the same as for mode where its id is its name
+        mode: getModeImage(map.mode),
       });
     });
 
@@ -173,183 +204,181 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
       loadedOnceCarouselData = true;
     }
 
-    playerStats.keys.teams.map((team) => {
-      let compiledTeams = playerStats.compiled.teams[team];
+    teamsPS.map((team) => {
       teams.push({
-        brawler1: getBrawlerImage(compiledTeams.id1),
-        brawler2: getBrawlerImage(compiledTeams.id2),
-        brawler3: compiledTeams.id3 ? getBrawlerImage(compiledTeams.id3) : null,
-        duration: compiledTeams.duration / compiledTeams.games,
-        spRatio: compiledTeams.starPlayer / compiledTeams.games,
-        winRatio: compiledTeams.winRatio,
-        wins: compiledTeams.wins,
-        losses: compiledTeams.losses,
-        title: `${getBrawlerName(compiledTeams.id1)}, ${getBrawlerName(
-          compiledTeams.id2
+        brawler1: getBrawlerImage(team.id.slice(0, 8)),
+        brawler2: getBrawlerImage(team.id.slice(9, 17)),
+        brawler3:
+          team.id.slice(18, 26).length != 0
+            ? getBrawlerImage(team.id.slice(18, 26))
+            : null,
+        duration: team.duration / team.games,
+        spRatio: team.starPlayer / team.games,
+        winRatio: team.winRatio,
+        wins: team.wins,
+        losses: team.losses,
+        title: `${getBrawlerName(team.id.slice(0, 8))}, ${getBrawlerName(
+          team.id.slice(9, 17)
         )}${
-          compiledTeams.id3 !== 0
-            ? " , " + getBrawlerName(compiledTeams.id3)
+          team.id.slice(18, 26).length != 0
+            ? " , " + getBrawlerName(team.id.slice(18, 26))
             : ""
         }`,
       });
     });
     // console.log(teams);
-    teamsByPerformance = [...teams]
-      .sort((a, b) => (a.winRatio > b.winRatio ? -1 : 1))
-      .slice(0, 20);
+    teamsByPerformance = [...teams].slice(0, 20);
 
     teamsByWins = [...teams]
       .sort((a, b) => (a.wins > b.wins ? -1 : 1))
       .slice(0, 20);
-  } else if (
-    state.battleLogReducer.playerStats.season[season].type[gameType].keys
-      .teams &&
-    name != null
-  ) {
+  } else if (name != null) {
     //IMPORTANT: name here for type mode is in camelCase and for map it is it's ID!
 
-    if (type == "mode")
-      playerStats =
-        state.battleLogReducer.playerStats.season[season].type[gameType].mode[
-          name
-        ];
-    else if (type == "map")
-      playerStats =
-        state.battleLogReducer.playerStats.season[season].type[gameType]
-          .compiled.maps[name];
-    // console.log(playerStats);
-
-    getAssets();
+    playerStats = state.battleLogReducer.playerStats[`${gameType}_maps`];
 
     if (type == "mode") {
-      let mapKeys = Object.keys(playerStats["map"]);
+      let modePS = undefined;
+      //this part is to compile all the selected mode stats together
+      Object.values(playerStats).map((map) => {
+        if (map.mode == name) {
+          if (modePS) {
+            modePS.maps[map.id] = {};
+            modePS.maps[map.id].id = map.id;
+            modePS.maps[map.id].mode = map.mode;
+            modePS.maps[map.id].games = map.games;
+            modePS.maps[map.id].wins = map.wins;
+            modePS.maps[map.id].losses = map.losses;
+            modePS.maps[map.id].winRatio = map.winRatio;
+            modePS.maps[map.id].starPlayer = map.starPlayer;
+            modePS.maps[map.id].duration = map.duration;
 
-      //these serve so that when more info clicked, brawlers and teams that are the same but on different maps end up together and not seperate
-      let brawlerAdded = [];
-      let teamAdded = [];
+            Object.values(map.brawler).map((brawler) => {
+              if (modePS.brawlers[brawler.id]) {
+                modePS.brawlers[brawler.id].games += brawler.games;
+                modePS.brawlers[brawler.id].wins += brawler.wins;
+                modePS.brawlers[brawler.id].losses += brawler.losses;
+                modePS.brawlers[brawler.id].starPlayer += brawler.starPlayer;
+                modePS.brawlers[brawler.id].duration += brawler.duration;
+              } else {
+                modePS.brawlers[brawler.id] = {};
+                modePS.brawlers[brawler.id].id = brawler.id;
+                modePS.brawlers[brawler.id].games = brawler.games;
+                modePS.brawlers[brawler.id].wins = brawler.wins;
+                modePS.brawlers[brawler.id].losses = brawler.losses;
+                modePS.brawlers[brawler.id].starPlayer = brawler.starPlayer;
+                modePS.brawlers[brawler.id].duration = brawler.duration;
+              }
+            });
 
-      mapKeys.map((mapID) => {
-        let map = playerStats["map"][mapID];
+            if (map.team) {
+              map.team.map((team) => {
+                if (modePS.teams[team.id]) {
+                  modePS.teams[team.id].games += team.games;
+                  modePS.teams[team.id].wins += team.wins;
+                  modesPS.teams[team.id].losses += team.losses;
+                  modePS.teams[team.id].starPlayer += team.starPlayer;
+                  modePS.teams[team.id].duration += team.duration;
+                } else {
+                  modePS.teams[team.id] = {};
+                  modePS.teams[team.id].id = team.id;
+                  modePS.teams[team.id].games = team.games;
+                  modePS.teams[team.id].wins = team.wins;
+                  modePS.teams[team.id].losses = team.losses;
+                  modePS.teams[team.id].starPlayer = team.starPlayer;
+                  modePS.teams[team.id].duration = team.duration;
+                }
+              });
+            }
+          } else {
+            modePS = { maps: {}, brawlers: {}, teams: {} };
+            modePS.maps[map.id] = {};
+            modePS.maps[map.id].id = map.id;
+            modePS.maps[map.id].mode = map.mode;
+            modePS.maps[map.id].games = map.games;
+            modePS.maps[map.id].wins = map.wins;
+            modePS.maps[map.id].losses = map.losses;
+            modePS.maps[map.id].winRatio = map.winRatio;
+            modePS.maps[map.id].starPlayer = map.starPlayer;
+            modePS.maps[map.id].duration = map.duration;
 
+            Object.values(map.brawler).map((brawler) => {
+              modePS.brawlers[brawler.id] = {};
+              modePS.brawlers[brawler.id].id = brawler.id;
+              modePS.brawlers[brawler.id].games = brawler.games;
+              modePS.brawlers[brawler.id].wins = brawler.wins;
+              modePS.brawlers[brawler.id].losses = brawler.losses;
+              modePS.brawlers[brawler.id].starPlayer = brawler.starPlayer;
+              modePS.brawlers[brawler.id].duration = brawler.duration;
+            });
+
+            if (map.team) {
+              map.team.map((team) => {
+                modePS.teams[team.id] = {};
+                modePS.teams[team.id].id = team.id;
+                modePS.teams[team.id].games = team.games;
+                modePS.teams[team.id].wins = team.wins;
+                modePS.teams[team.id].losses = team.losses;
+                modePS.teams[team.id].starPlayer = team.starPlayer;
+                modePS.teams[team.id].duration = team.duration;
+              });
+            }
+          }
+        }
+      });
+
+      Object.values(modePS.maps).map((map) => {
         maps.push({
-          image: getMapImage(mapID),
-          winRatio: map.winRatio,
+          image: getMapImage(map.id),
+          winRatio: map.wins / map.losses,
           spRatio: map.starPlayer / map.games,
           duration: map.duration / map.games,
           wins: map.wins,
           losses: map.losses,
-          title: getMapName(mapID),
-        });
-
-        let brawlerKeys = Object.keys(map.brawler);
-        brawlerKeys.map((brawlerID) => {
-          let brawler = map.brawler[brawlerID];
-          if (brawlerAdded.includes(brawlerID) == false) {
-            brawlerAdded.push(brawlerID);
-            brawlers.push({
-              //color: getBrawlerColor(brawler),
-              image: getBrawlerImage(brawlerID),
-              duration: brawler.duration / brawler.games,
-              spRatio: brawler.starPlayer / brawler.games,
-              winRatio: brawler.winRatio,
-              wins: brawler.wins,
-              losses: brawler.losses,
-              title: getBrawlerName(brawlerID),
-              games: brawler.games,
-              durationTotal: brawler.duration,
-              spTotal: brawler.starPlayer,
-            });
-          } else {
-            brawlers.map((brawlerSaved, index) => {
-              if (brawlerSaved.title == getBrawlerName(brawlerID)) {
-                brawlers[index] = {
-                  image: getBrawlerImage(brawlerID),
-                  duration:
-                    (brawlerSaved.durationTotal + brawler.duration) /
-                    (brawlerSaved.games + brawler.games),
-                  spRatio:
-                    (brawlerSaved.spTotal + brawler.starPlayer) /
-                    (brawlerSaved.games + brawler.games),
-                  winRatio:
-                    (brawlerSaved.wins + brawler.wins) /
-                    (brawlerSaved.losses + brawler.losses),
-                  wins: brawlerSaved.wins + brawler.wins,
-                  losses: brawlerSaved.losses + brawler.losses,
-                  title: getBrawlerName(brawlerID),
-                  games: brawler.games + brawlerSaved.games,
-                  durationTotal: brawlerSaved.durationTotal + brawler.duration,
-                  spTotal: brawlerSaved.spTotal + brawler.starPlayer,
-                };
-                // console.log(brawlers[index]);
-              }
-            });
-          }
-          // console.log(brawlerAdded);
-          if (brawler.team) {
-            let teamKeys = Object.keys(brawler.team);
-            teamKeys.map((teamIDs) => {
-              let team = brawler.team[teamIDs];
-              if (teamAdded.includes(teamIDs) == false) {
-                teamAdded.push(teamIDs);
-                teams.push({
-                  brawler1: getBrawlerImage(team.id1),
-                  brawler2: getBrawlerImage(team.id2),
-                  brawler3: team.id3 ? getBrawlerImage(team.id3) : null,
-                  duration: team.duration / team.games,
-                  spRatio: team.starPlayer / team.games,
-                  winRatio: team.winRatio,
-                  wins: team.wins,
-                  losses: team.losses,
-                  title: `${getBrawlerName(team.id1)}, ${getBrawlerName(
-                    team.id2
-                  )}${team.id3 !== 0 ? " , " + getBrawlerName(team.id3) : ""}`,
-                  games: team.games,
-                  durationTotal: team.duration,
-                  spTotal: team.starPlayer,
-                });
-              } else {
-                teams.map((teamSaved, index) => {
-                  if (
-                    teamSaved.brawler1 == getBrawlerImage(team.id1) &&
-                    teamSaved.brawler2 == getBrawlerImage(team.id2) &&
-                    teamSaved.brawler3 ==
-                      (team.id3 ? getBrawlerImage(team.id3) : null)
-                  ) {
-                    teams[index] = {
-                      brawler1: getBrawlerImage(teamSaved.id1),
-                      brawler2: getBrawlerImage(teamSaved.id2),
-                      brawler3: teamSaved.id3
-                        ? getBrawlerImage(teamSaved.id3)
-                        : null,
-                      duration:
-                        (teamSaved.durationTotal + team.duration) /
-                        (teamSaved.games + team.games),
-                      spRatio:
-                        (team.starPlayer + teamSaved.spTotal) /
-                        (teamSaved.games + team.games),
-                      winRatio:
-                        (teamSaved.wins + team.wins) /
-                        (teamSaved.losses + team.losses),
-                      wins: teamSaved.wins + team.wins,
-                      losses: teamSaved.losses + team.losses,
-                      title: `${getBrawlerName(
-                        teamSaved.id1
-                      )}, ${getBrawlerName(teamSaved.id2)}${
-                        teamSaved.id3 !== 0
-                          ? " , " + getBrawlerName(teamSaved.id3)
-                          : ""
-                      }`,
-                      games: teamSaved.games + team.games,
-                      durationTotal: teamSaved.duration + team.duration,
-                      spTotal: teamSaved.starPlayer + team.starPlayer,
-                    };
-                  }
-                });
-              }
-            });
-          }
+          title: getMapName(map.id),
+          titleCamel: map.id, //yeah I know weird, but it is to be the same as for mode where its id is its name
+          mode: getModeImage(map.mode),
         });
       });
+
+      Object.values(modePS.brawlers).map((brawler) => {
+        brawlers.push({
+          //color: getBrawlerColor(brawler),
+          image: getBrawlerImage(brawler.id),
+          duration: brawler.duration / brawler.games,
+          spRatio: brawler.starPlayer / brawler.games,
+          winRatio: brawler.wins / brawler.losses,
+          wins: brawler.wins,
+          losses: brawler.losses,
+          title: getBrawlerName(brawler.id),
+        });
+      });
+
+      if (modePS.teams) {
+        Object.values(modePS.teams).map((team) => {
+          teams.push({
+            brawler1: getBrawlerImage(team.id.slice(0, 8)),
+            brawler2: getBrawlerImage(team.id.slice(9, 17)),
+            brawler3:
+              team.id.slice(18, 26).length != 0
+                ? getBrawlerImage(team.id.slice(18, 26))
+                : null,
+            duration: team.duration / team.games,
+            spRatio: team.starPlayer / team.games,
+            winRatio: team.wins / team.losses,
+            wins: team.wins,
+            losses: team.losses,
+            title: `${getBrawlerName(team.id.slice(0, 8))}, ${getBrawlerName(
+              team.id.slice(9, 17)
+            )}${
+              team.id.slice(18, 26).length != 0
+                ? " , " + getBrawlerName(team.id.slice(18, 26))
+                : ""
+            }`,
+          });
+        });
+      }
+
       brawlersByPerformance = [...brawlers].sort((a, b) =>
         a.winRatio > b.winRatio ? -1 : 1
       );
@@ -363,50 +392,58 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
       mapsByWins = [...maps].sort((a, b) => (a.wins > b.wins ? -1 : 1));
       teamsByPerformance = [...teams]
         .sort((a, b) => (a.winRatio > b.winRatio ? -1 : 1))
-        .slice(0, 20);
+        .slice(0, 30);
 
       teamsByWins = [...teams]
         .sort((a, b) => (a.wins > b.wins ? -1 : 1))
-        .slice(0, 20);
+        .slice(0, 30);
 
-      if (mapsByWins) {
-        loadedOnceCarouselData = true;
-      }
+      //this part is to add the modes stats into their arrays to be shown
     } else if (type == "map") {
-      let brawlerKeys = Object.keys(playerStats.brawler);
-      brawlerKeys.map((brawlerID) => {
-        let brawler = playerStats.brawler[brawlerID];
+      let chosenMap = playerStats[name];
+      console.log(name, chosenMap);
 
+      Object.values(chosenMap.brawler).map((brawler) => {
         brawlers.push({
           //color: getBrawlerColor(brawler),
-          image: getBrawlerImage(brawlerID),
-          duration: brawler.duration / brawler.games,
-          spRatio: brawler.starPlayer / brawler.games,
+          image: getBrawlerImage(brawler.id),
+          duration: brawler.duration
+            ? brawler.duration / brawler.games
+            : undefined,
+          spRatio: brawler.starPlayer
+            ? brawler.starPlayer / brawler.games
+            : undefined,
           winRatio: brawler.winRatio,
           wins: brawler.wins,
           losses: brawler.losses,
-          title: getBrawlerName(brawlerID),
+          title: getBrawlerName(brawler.id),
         });
-        if (brawler.team) {
-          let teamKeys = Object.keys(brawler.team);
-          teamKeys.map((teamIDs) => {
-            let team = brawler.team[teamIDs];
-            teams.push({
-              brawler1: getBrawlerImage(team.id1),
-              brawler2: getBrawlerImage(team.id2),
-              brawler3: team.id3 ? getBrawlerImage(team.id3) : null,
-              duration: team.duration / team.games,
-              spRatio: team.starPlayer / team.games,
-              winRatio: team.winRatio,
-              wins: team.wins,
-              losses: team.losses,
-              title: `${getBrawlerName(team.id1)}, ${getBrawlerName(team.id2)}${
-                team.id3 !== 0 ? " , " + getBrawlerName(team.id3) : ""
-              }`,
-            });
-          });
-        }
       });
+      if (chosenMap.team) {
+        chosenMap.team.map((team) => {
+          teams.push({
+            brawler1: getBrawlerImage(team.id.slice(0, 8)),
+            brawler2: getBrawlerImage(team.id.slice(9, 17)),
+            brawler3:
+              team.id.slice(18, 26).length != 0
+                ? getBrawlerImage(team.id.slice(18, 26))
+                : null,
+            duration: team.duration / team.games,
+            spRatio: team.starPlayer / team.games,
+            winRatio: team.winRatio,
+            wins: team.wins,
+            losses: team.losses,
+            title: `${getBrawlerName(team.id.slice(0, 8))}, ${getBrawlerName(
+              team.id.slice(9, 17)
+            )}${
+              team.id.slice(18, 26).length != 0
+                ? " , " + getBrawlerName(team.id.slice(18, 26))
+                : ""
+            }`,
+          });
+        });
+      }
+      console.log(teams);
 
       brawlersByPerformance = [...brawlers].sort((a, b) =>
         a.winRatio > b.winRatio ? -1 : 1

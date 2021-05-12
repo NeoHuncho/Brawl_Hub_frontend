@@ -59,7 +59,6 @@ export default function PlayerLogin() {
         setUserId(playerID);
         async function fetchMySavedData() {
           if (userId) {
-            await setTestDeviceIDAsync("EMULATOR");
             setLoadingText("fetching Your Stats...");
             setProgress(0.5);
             setProgress(0.8);
@@ -89,11 +88,11 @@ export default function PlayerLogin() {
             console.log(userId);
             let checkDBStats = await getStatsFromDB(userId, season);
 
-            console.log(1, checkDBStats.length);
+            console.log(1445, checkDBStats);
             if (
               checkDBStats == "error" ||
               checkDBStats.length == 0 ||
-              checkDBStats.length == undefined
+              Object.keys(checkDBStats).length === 0
             ) {
               try {
                 console.log("calleddd");
@@ -137,12 +136,13 @@ export default function PlayerLogin() {
                 }
               }
             } else {
+              console.log("called already saved");
               setLoadingText("fetching your stats... Hang in there!");
               setProgress(0.8);
-              dispatch(userIdReceived(userId));
-              dispatch(receivedPlayerStatsFromDB(checkDBStats));
+              await dispatch(userIdReceived(userId));
+              await dispatch(receivedPlayerStatsFromDB(checkDBStats));
+              console.log("finished saving");
             }
-
             setProgress(1);
             setValidId(true);
           } catch (error) {

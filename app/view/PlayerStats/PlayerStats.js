@@ -22,7 +22,7 @@ import colors from "../../config/colors";
 import { userIdReset } from "../../store/reducers/playerIdReducer";
 import { receivedGameTypeAndSeason } from "../../store/reducers/uiReducerNoPersist";
 import { preferencesCarousel } from "../../store/reducers/uiReducerPersist";
-import WinLossModule from "../../components/modules/WinLossModule";
+// import WinLossModule from "../../components/modules/WinLossModule";
 import CarouselModule from "../../components/modules/Carousel/CarouselModule";
 import { processPlayerStats } from "../../components/modules/Carousel/CarouselData";
 import { getAssets, getIconImage } from "../../lib/getAssetsFunctions";
@@ -33,10 +33,12 @@ import FaqPage from "./FaqPage";
 import MessageBox from "../../components/modules/MessageBox";
 
 const PlayerStats = () => {
+  console.log("called playerstats");
   getAssets();
   const dispatch = useDispatch();
   const battleLogReducer = useSelector((state) => state.battleLogReducer);
-  console.log("look here", battleLogReducer);
+
+  // console.log("look here", battleLogReducer.playerStats.brawlers);
   const playerName = battleLogReducer.name;
   const season = 6;
   const icon = battleLogReducer.icon;
@@ -71,9 +73,9 @@ const PlayerStats = () => {
     playerNums.numberOfGadgets;
   playerNums.overallPercentage =
     playerNums.overallPlayerNumber / globalNumbers.totalUnlockables;
-  // console.log(playerAvgs, playerNums);
 
   const playerStats = battleLogReducer.playerStats;
+  // console.log(playerStats.brawlers)
 
   const preferencesCarouselStored = useSelector(
     (state) => state.uiReducerPersist
@@ -91,17 +93,17 @@ const PlayerStats = () => {
     playerStats !== null &&
     playerStats !== undefined
   ) {
-    seasons = useSelector((state) => [6]);
+    seasons = useSelector((state) => ["6"]);
     Object.keys(playerStats).map((key) => {
       key.includes("ranked")
         ? types.push("ranked")
-        : key.includes("solo")
+        : key.includes("soloRanked")
         ? types.push("soloRanked")
-        : key.includes("team")
+        : key.includes("teamRanked")
         ? types.push("teamRanked")
         : null;
     });
-
+    console.log(2, types);
     typesKey = types
       .map((x) =>
         x === "ranked"
@@ -120,25 +122,6 @@ const PlayerStats = () => {
     }
   }
 
-  // const typesKey = [
-  //   trophiesExist == true ? (
-  //     <>
-  //       <Text>Trophies</Text>
-  //     </>
-  //   ) : null,
-  //   soloPLExist == true ? (
-  //     <>
-  //       <Text>Solo PL</Text>
-  //     </>
-  //   ) : null,
-  //   teamPLExist == true ? (
-  //     <>
-  //       <Text>Team PL</Text>
-  //     </>
-  //   ) : null,
-  // ];
-  // console.log(typesKey);
-
   const [styleIndex, setStyleIndex] = useState(
     preferencesCarouselStored.styleIndex
   );
@@ -155,11 +138,10 @@ const PlayerStats = () => {
 
   const [typeIndex, setTypeIndex] = useState(0);
 
-  if (
-    playerStats !== "no data" &&
-    playerStats != { season: {} } &&
-    playerStats !== undefined
-  ) {
+  console.log(sortIndex, styleIndex, seasonIndex, typesKey[typeIndex]);
+  // Infinite Re rendering is happening here!!!!!!
+
+  useEffect(() => {
     dispatch(
       preferencesCarousel({
         sortIndex: sortIndex,
@@ -172,17 +154,18 @@ const PlayerStats = () => {
         gameType: typesKey[typeIndex],
       })
     );
-    // console.log(typesKey[typeIndex])
-    // processPlayerStats(seasonIndex, typesKey[typeIndex], null, null);
-    const isOpen = useSelector((state) => state.uiReducerNoPersist.isOpen);
-    if (moreInfoCarouselOpen === false) {
-      if (isOpen === true) {
-        setMoreInfoCarouselOpen(isOpen);
-      }
-    } else if (moreInfoCarouselOpen === true) {
-      if (isOpen === false) {
-        setMoreInfoCarouselOpen(isOpen);
-      }
+  }, [sortIndex, styleIndex, seasonIndex, typeIndex]);
+
+  // // console.log(typesKey[typeIndex])
+  processPlayerStats(seasonIndex, typesKey[typeIndex], null, null);
+  const isOpen = useSelector((state) => state.uiReducerNoPersist.isOpen);
+  if (moreInfoCarouselOpen === false) {
+    if (isOpen === true) {
+      setMoreInfoCarouselOpen(isOpen);
+    }
+  } else if (moreInfoCarouselOpen === true) {
+    if (isOpen === false) {
+      setMoreInfoCarouselOpen(isOpen);
     }
   }
 
@@ -207,10 +190,6 @@ const PlayerStats = () => {
       : setShowOverallStats(false);
   };
 
-  const setTest = async () => {
-    await setTestDeviceIDAsync("EMULATOR");
-  };
-  setTest();
   //
 
   //this will intialise the creation of the data for the carousels
@@ -339,7 +318,7 @@ const PlayerStats = () => {
                         values={seasons}
                         //The plus 5 is because we are starting 5 seasons late
                         // the minus 5 is to convert it back
-                        selectedIndex={seasonIndex - 5}
+                        selectedIndex={seasonIndex - 6}
                         onTabPress={(index) => setSeasonIndex(index + 5)}
                       />
                       <View style={{ marginTop: 10 }}>
@@ -722,10 +701,10 @@ const PlayerStats = () => {
                     {/* <WinLossModule type={typesKey[typeIndex]} /> */}
                   </View>
                   <View style={{ marginTop: 18, marginBottom: 80 }}>
-                    <Text style={styles.categoryName}>
+                     <Text style={styles.categoryName}>
                       Player Stats by Mode
                     </Text>
-                    {/* <CarouselModule
+                    <CarouselModule
                       dataType="mode"
                       style={styleIndex}
                       sort={sortIndex}
@@ -753,7 +732,7 @@ const PlayerStats = () => {
                         style={styleIndex}
                         sort={sortIndex}
                       />
-                    </View> */}
+                    </View>
                   </View>
                 </View>
               </View>

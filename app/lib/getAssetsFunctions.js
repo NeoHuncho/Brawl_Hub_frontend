@@ -266,6 +266,10 @@ const getAssets = (seasonIndex, gameTypeName) => {
         return require("../assets/ModesandMaps/showdown/icon/duoShowdown.png");
       case "knockout":
         return require("../assets/ModesandMaps/knockout/icon/knockout.png");
+      case "takedown":
+        return require("../assets/ModesandMaps/takedown/icon/takedown.png");
+      case "loneStar":
+        return require("../assets/ModesandMaps/loneStar/icon/loneStar.png");
     }
   };
 
