@@ -22,7 +22,7 @@ import colors from "../../config/colors";
 import { userIdReset } from "../../store/reducers/playerIdReducer";
 import { receivedGameTypeAndSeason } from "../../store/reducers/uiReducerNoPersist";
 import { preferencesCarousel } from "../../store/reducers/uiReducerPersist";
-// import WinLossModule from "../../components/modules/WinLossModule";
+import WinLossModule from "../../components/modules/WinLossModule";
 import CarouselModule from "../../components/modules/Carousel/CarouselModule";
 import { processPlayerStats } from "../../components/modules/Carousel/CarouselData";
 import { getAssets, getIconImage } from "../../lib/getAssetsFunctions";
@@ -698,10 +698,10 @@ const PlayerStats = () => {
                     />
                   </View>
                   <View style={{ marginTop: 10 }}>
-                    {/* <WinLossModule type={typesKey[typeIndex]} /> */}
+                    <WinLossModule type={typesKey[typeIndex]} />
                   </View>
                   <View style={{ marginTop: 18, marginBottom: 80 }}>
-                     <Text style={styles.categoryName}>
+                    <Text style={styles.categoryName}>
                       Player Stats by Mode
                     </Text>
                     <CarouselModule

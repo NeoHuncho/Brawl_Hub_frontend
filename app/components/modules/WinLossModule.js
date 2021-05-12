@@ -16,9 +16,9 @@ export default function WinLossModule({ type }) {
   const trophyLosses = useSelector(
     (state) => state.battleLogReducer.trophyLosses
   );
-  const season = useSelector((state) => state.battleLogReducer.season);
-  const playerStats = useSelector(
-    (state) => state.battleLogReducer.playerStats
+  
+  let playerStats = useSelector(
+    (state) => state.battleLogReducer.playerStats[`${type}_maps`]
   );
 
   if (type == "ranked") {
@@ -52,17 +52,16 @@ export default function WinLossModule({ type }) {
       </>
     );
   } else {
-    type === "Solo PL" ? (type = "soloRanked") : (type = "teamRanked");
-    const keys = playerStats.keys.modes;
     let wins = 0;
     let losses = 0;
     let winsByTrophies = 0;
     let lossesByTrophies = 0;
-    keys.map((x) => {
-      wins += playerStats.mode[x].wins;
-      losses += playerStats.mode[x].losses;
-      winsByTrophies += playerStats.mode[x].winsByTrophies;
-      lossesByTrophies += playerStats.mode[x].lossesByTrophies;
+
+    Object.values(playerStats).map((map) => {
+      wins += map.wins;
+      losses += map.losses;
+      winsByTrophies += map.winsByTrophies;
+      lossesByTrophies += map.lossesByTrophies;
     });
     let winsRatioLong =
       (winsByTrophies / (winsByTrophies + lossesByTrophies)) * 100;

@@ -32,6 +32,8 @@ import {
   moreInfoCarouselClosed,
 } from "../../../store/reducers/uiReducerNoPersist";
 
+let countImageAd = 0;
+let countVideoAd = 0;
 export default function CarouselModule({ dataType, style, sort }) {
   const dispatch = useDispatch();
   const carouselRef = useRef(null);
@@ -40,6 +42,36 @@ export default function CarouselModule({ dataType, style, sort }) {
     carouselRef.current.snapToNext();
   };
 
+  const prepareAds = async () => {
+    if (
+      (countImageAd == 0 && countVideoAd == 0) ||
+      countImageAd == countVideoAd
+    ) {
+      await AdMobInterstitial.setAdUnitID(
+        "ca-app-pub-3940256099942544/1033173712"
+      ); // Test ID, Replace with your-admob-unit-id
+      await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
+    } else if (countImageAd > countVideoAd) {
+      await AdMobInterstitial.setAdUnitID(
+        "ca-app-pub-3940256099942544/8691691433"
+      ); // Test ID, Replace with your-admob-unit-id
+      await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
+    }
+  };
+  prepareAds();
+
+  const showImageInterstitial = async () => {
+    if ((await AdMobInterstitial.getIsReadyAsync()) == true) {
+      await AdMobInterstitial.showAdAsync();
+      countImageAd += 1;
+    }
+  };
+  const showVideoInterstitial = async () => {
+    if ((await AdMobInterstitial.getIsReadyAsync()) == true) {
+      await AdMobInterstitial.showAdAsync();
+      countVideoAd += 1;
+    }
+  };
   const getBackgroundColor = (item) => {
     if (item.winRatio >= 5) return "#003924";
     else if (item.winRatio >= 3) return "#005841";
@@ -70,15 +102,6 @@ export default function CarouselModule({ dataType, style, sort }) {
         image: image,
       })
     );
-  };
-
-  const showInterstitial = async () => {
-    // await AdMobInterstitial.setAdUnitID(
-    //   "ca-app-pub-3940256099942544/1033173712"
-    // ); // Test ID, Replace with your-admob-unit-id
-    // await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
-    // if(AdMobInterstitial.getIsReadyAsync())
-    // await AdMobInterstitial.showAdAsync();
   };
 
   const renderItem = ({ item, index }) => {
@@ -132,7 +155,13 @@ export default function CarouselModule({ dataType, style, sort }) {
               dataType !== "mapMore" && (
                 <TouchableOpacity
                   onPress={async () => {
-                    await showInterstitial();
+                    if (
+                      (countImageAd == 0 && countVideoAd == 0) ||
+                      countImageAd == countVideoAd
+                    )
+                      await showImageInterstitial();
+                    else if (countImageAd > countVideoAd)
+                      await showVideoInterstitial();
                     onPressCarousel(
                       item.title,
                       item.titleCamel,

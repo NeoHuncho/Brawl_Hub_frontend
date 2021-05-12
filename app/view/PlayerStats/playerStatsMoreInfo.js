@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,6 +9,7 @@ import {
   ScrollView,
   TouchableOpacity,
   TouchableHighlight,
+  BackHandler,
 } from "react-native";
 import { AdMobBanner, setTestDeviceIDAsync } from "expo-ads-admob";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,6 +21,20 @@ import CarouselModule from "../../components/modules/Carousel/CarouselModule";
 import { processPlayerStats } from "../../components/modules/Carousel/CarouselData";
 
 export default function PlayerStatsMoreInfo() {
+  useEffect(() => {
+    const backAction = () => {
+      handleReturn();
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+    return () => {
+      backHandler.remove();
+    };
+  }, []);
   const dispatch = useDispatch();
   const carouselInfo = useSelector((state) => state.uiReducerNoPersist);
   const preferencesCarouselStored = useSelector(

@@ -12,53 +12,48 @@ export default function FaqPage() {
       style={{
         alignContent: "center",
         alignItems: "center",
-        marginBottom:20
+        marginBottom: 20,
       }}
     >
-     
-        <Text style={styles.question}>When are events stats updated?</Text>
-        <Text style={styles.answer}>
-          Daily. However, they will update more often at the beginning of the
-          season than at the end
-        </Text>
-        <Text style={styles.answer}>
-          This does not mean I wont be updating then daily during the whole
-          season, as I want to show changes in meta that happen during the
-          season
-        </Text>
-        <Text style={styles.question}>
-          How are you calculating the performance of brawlers/teams?
-        </Text>
-        <Image
-          source={explanationEventsPerformance}
-          style={{ width: 350, height: 175, marginTop:10 }}
-        />
-        <Text style={styles.answer}>
-          I then divide the total winning points of each brawler/team by their
-          losing points.
-        </Text>
-        <Text style={styles.question}>
-          Why do the brawlers at the top of the list have 100% performance?
-        </Text>
-        <Text style={styles.answer}>
-          As the ratio between winning and losing points is a number that can
-          seem confusing (check question above), I decided to take the
-          brawler/team with the highest ratio and then compare all other
-          brawler/team ratio's with the top one.
-        </Text>
-        <Text style={styles.question}>Whose stats are you using?</Text>
-        <Text style={styles.answer}>
-          Currently, I am using the top 200 trophy players, and a custom list I
-          created of the top 100 solo PL players and random players from
-          different segments of the trophy/PL ladder.
-        </Text>
-        <Text style={styles.answer}>
-          However I hope to change this by the time season 7 roles around. If I
-          have enough users, I will compile a list of random users across each
-          trophy/PL ladder segments to avoid stats duplication due to players
-          playing in teams!
-        </Text>
-      
+      <Text style={styles.question}>When are events stats updated?</Text>
+      <Text style={styles.answer}>Multiple times each day.</Text>
+      <Text style={styles.question}>
+        How are you calculating the performance of brawlers/teams?
+      </Text>
+      <Image
+        source={explanationEventsPerformance}
+        style={{ width: 350, height: 175, marginTop: 10 }}
+      />
+      <Text style={styles.answer}>
+        I then divide the total winning points of each brawler/team by their
+        losing points.
+      </Text>
+      <Text style={styles.question}>
+        Why do the brawlers at the top of the list have 100% performance?
+      </Text>
+      <Text style={styles.answer}>
+        As the ratio between winning and losing points is a number that can seem
+        confusing (check question above), I decided to take the brawler/team
+        with the highest ratio and then compare all other brawler/team ratio's
+        with the top one.
+      </Text>
+      <Text style={styles.question}>Whose stats are you using?</Text>
+      <Text style={styles.answer}>
+        Currently, I am using the top 200 trophy players, and a custom list I
+        created of the top 100 solo PL players and random players from different
+        segments of the trophy/PL ladder.
+      </Text>
+      <Text style={styles.answer}>
+        However I hope to change this by the time season 7 roles around. If I
+        have enough users, I will compile a list of random users across each
+        trophy/PL ladder segments.
+      </Text>
+      <Text style={styles.question}>How do you avoid stats duplication?</Text>
+      <Text style={styles.answer}>
+        Each time I save the stats of a new battle, I add its time( precise to
+        the second) to a list. If this battle time matches a time in the list,
+        then I skip to the next battle. 
+      </Text>
     </View>
   );
 }

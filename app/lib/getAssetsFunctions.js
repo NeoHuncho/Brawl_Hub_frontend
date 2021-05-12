@@ -1,6 +1,6 @@
 import { store } from "../store/configureStore";
-import colors from '../config/colors'
-let getModeColor= () => {};
+import colors from "../config/colors";
+let getModeColor = () => {};
 let getBrawlerImageOld = () => {};
 let getModeImage = () => {};
 let getBrawlerColors = () => {};
@@ -108,168 +108,168 @@ const getAssets = (seasonIndex, gameTypeName) => {
     return color;
   };
 
-  getBrawlerImageOld = (brawler) => {
-    switch (brawler) {
-      case "8-BIT":
-        return require("../assets/Brawlers_icons/8-BIT.png");
+  // getBrawlerImageOld = (brawler) => {
+  //   switch (brawler) {
+  //     case "8-BIT":
+  //       return require("../assets/Brawlers_icons/8-BIT.png");
 
-      case "AMBER":
-        return require("../assets/Brawlers_icons/AMBER.png");
+  //     case "AMBER":
+  //       return require("../assets/Brawlers_icons/AMBER.png");
 
-      case "BARLEY":
-        return require("../assets/Brawlers_icons/BARLEY.png");
+  //     case "BARLEY":
+  //       return require("../assets/Brawlers_icons/BARLEY.png");
 
-      case "BEA":
-        return require("../assets/Brawlers_icons/BEA.png");
+  //     case "BEA":
+  //       return require("../assets/Brawlers_icons/BEA.png");
 
-      case "BIBI":
-        return require("../assets/Brawlers_icons/BIBI.png");
+  //     case "BIBI":
+  //       return require("../assets/Brawlers_icons/BIBI.png");
 
-      case "BO":
-        return require("../assets/Brawlers_icons/BO.png");
+  //     case "BO":
+  //       return require("../assets/Brawlers_icons/BO.png");
 
-      case "BROCK":
-        return require("../assets/Brawlers_icons/BROCK.png");
+  //     case "BROCK":
+  //       return require("../assets/Brawlers_icons/BROCK.png");
 
-      case "BULL":
-        return require("../assets/Brawlers_icons/BULL.png");
+  //     case "BULL":
+  //       return require("../assets/Brawlers_icons/BULL.png");
 
-      case "BYRON":
-        return require("../assets/Brawlers_icons/BYRON.png");
+  //     case "BYRON":
+  //       return require("../assets/Brawlers_icons/BYRON.png");
 
-      case "CARL":
-        return require("../assets/Brawlers_icons/CARL.png");
+  //     case "CARL":
+  //       return require("../assets/Brawlers_icons/CARL.png");
 
-      case "COLETTE":
-        return require("../assets/Brawlers_icons/COLETTE.png");
+  //     case "COLETTE":
+  //       return require("../assets/Brawlers_icons/COLETTE.png");
 
-      case "COLONEL RUFFS":
-        //console.log("called ruff");
-        return require("../assets/Brawlers_icons/COLONEL_RUFFS.png");
+  //     case "COLONEL RUFFS":
+  //       //console.log("called ruff");
+  //       return require("../assets/Brawlers_icons/COLONEL_RUFFS.png");
 
-      case "COLT":
-        return require("../assets/Brawlers_icons/COLT.png");
+  //     case "COLT":
+  //       return require("../assets/Brawlers_icons/COLT.png");
 
-      case "CROW":
-        return require("../assets/Brawlers_icons/CROW.png");
+  //     case "CROW":
+  //       return require("../assets/Brawlers_icons/CROW.png");
 
-      case "DARRYL":
-        return require("../assets/Brawlers_icons/DARRYL.png");
+  //     case "DARRYL":
+  //       return require("../assets/Brawlers_icons/DARRYL.png");
 
-      case "DYNAMIKE":
-        return require("../assets/Brawlers_icons/DYNAMIKE.png");
+  //     case "DYNAMIKE":
+  //       return require("../assets/Brawlers_icons/DYNAMIKE.png");
 
-      case "EDGAR":
-        return require("../assets/Brawlers_icons/EDGAR.png");
+  //     case "EDGAR":
+  //       return require("../assets/Brawlers_icons/EDGAR.png");
 
-      case "EL PRIMO":
-        return require("../assets/Brawlers_icons/EL_PRIMO.png");
+  //     case "EL PRIMO":
+  //       return require("../assets/Brawlers_icons/EL_PRIMO.png");
 
-      case "EMZ":
-        return require("../assets/Brawlers_icons/EMZ.png");
+  //     case "EMZ":
+  //       return require("../assets/Brawlers_icons/EMZ.png");
 
-      case "FRANK":
-        return require("../assets/Brawlers_icons/FRANK.png");
+  //     case "FRANK":
+  //       return require("../assets/Brawlers_icons/FRANK.png");
 
-      case "GALE":
-        return require("../assets/Brawlers_icons/GALE.png");
+  //     case "GALE":
+  //       return require("../assets/Brawlers_icons/GALE.png");
 
-      case "GENE":
-        return require("../assets/Brawlers_icons/GENE.png");
+  //     case "GENE":
+  //       return require("../assets/Brawlers_icons/GENE.png");
 
-      case "JACKY":
-        return require("../assets/Brawlers_icons/JACKY.png");
+  //     case "JACKY":
+  //       return require("../assets/Brawlers_icons/JACKY.png");
 
-      case "JESSIE":
-        return require("../assets/Brawlers_icons/JESSIE.png");
+  //     case "JESSIE":
+  //       return require("../assets/Brawlers_icons/JESSIE.png");
 
-      case "LEON":
-        return require("../assets/Brawlers_icons/LEON.png");
+  //     case "LEON":
+  //       return require("../assets/Brawlers_icons/LEON.png");
 
-      case "LOU":
-        return require("../assets/Brawlers_icons/LOU.png");
+  //     case "LOU":
+  //       return require("../assets/Brawlers_icons/LOU.png");
 
-      case "MAX":
-        return require("../assets/Brawlers_icons/MAX.png");
+  //     case "MAX":
+  //       return require("../assets/Brawlers_icons/MAX.png");
 
-      case "MORTIS":
-        return require("../assets/Brawlers_icons/MORTIS.png");
+  //     case "MORTIS":
+  //       return require("../assets/Brawlers_icons/MORTIS.png");
 
-      case "MR. P":
-        return require("../assets/Brawlers_icons/MR_P.png");
+  //     case "MR. P":
+  //       return require("../assets/Brawlers_icons/MR_P.png");
 
-      case "NANI":
-        return require("../assets/Brawlers_icons/NANI.png");
+  //     case "NANI":
+  //       return require("../assets/Brawlers_icons/NANI.png");
 
-      case "NITA":
-        return require("../assets/Brawlers_icons/NITA.png");
+  //     case "NITA":
+  //       return require("../assets/Brawlers_icons/NITA.png");
 
-      case "PAM":
-        return require("../assets/Brawlers_icons/PAM.png");
+  //     case "PAM":
+  //       return require("../assets/Brawlers_icons/PAM.png");
 
-      case "PENNY":
-        return require("../assets/Brawlers_icons/PENNY.png");
+  //     case "PENNY":
+  //       return require("../assets/Brawlers_icons/PENNY.png");
 
-      case "PIPER":
-        return require("../assets/Brawlers_icons/PIPER.png");
+  //     case "PIPER":
+  //       return require("../assets/Brawlers_icons/PIPER.png");
 
-      case "POCO":
-        return require("../assets/Brawlers_icons/POCO.png");
+  //     case "POCO":
+  //       return require("../assets/Brawlers_icons/POCO.png");
 
-      case "RICO":
-        return require("../assets/Brawlers_icons/RICO.png");
+  //     case "RICO":
+  //       return require("../assets/Brawlers_icons/RICO.png");
 
-      case "ROSA":
-        return require("../assets/Brawlers_icons/ROSA.png");
+  //     case "ROSA":
+  //       return require("../assets/Brawlers_icons/ROSA.png");
 
-      case "SANDY":
-        return require("../assets/Brawlers_icons/SANDY.png");
+  //     case "SANDY":
+  //       return require("../assets/Brawlers_icons/SANDY.png");
 
-      case "SHELLY":
-        return require("../assets/Brawlers_icons/SHELLY.png");
+  //     case "SHELLY":
+  //       return require("../assets/Brawlers_icons/SHELLY.png");
 
-      case "SPIKE":
-        return require("../assets/Brawlers_icons/SPIKE.png");
+  //     case "SPIKE":
+  //       return require("../assets/Brawlers_icons/SPIKE.png");
 
-      case "SPROUT":
-        return require("../assets/Brawlers_icons/SPROUT.png");
+  //     case "SPROUT":
+  //       return require("../assets/Brawlers_icons/SPROUT.png");
 
-      case "SURGE":
-        return require("../assets/Brawlers_icons/SURGE.png");
+  //     case "SURGE":
+  //       return require("../assets/Brawlers_icons/SURGE.png");
 
-      case "TARA":
-        return require("../assets/Brawlers_icons/TARA.png");
+  //     case "TARA":
+  //       return require("../assets/Brawlers_icons/TARA.png");
 
-      case "TICK":
-        return require("../assets/Brawlers_icons/TICK.png");
-    }
-  };
+  //     case "TICK":
+  //       return require("../assets/Brawlers_icons/TICK.png");
+  //   }
+  // };
   //not currently in use
 
   getModeImage = (mode) => {
     switch (mode) {
       case "brawlBall":
-        return require("../assets/ModesandMaps/brawlBall/icon/brawlBall.png");
+        return require("../assets/modeIcons/brawlBall.png");
       case "bounty":
-        return require("../assets/ModesandMaps/bounty/icon/bounty.png");
+        return require("../assets/modeIcons/bounty.png");
       case "gemGrab":
-        return require("../assets/ModesandMaps/gemGrab/icon/gemGrab.png");
+        return require("../assets/modeIcons/gemGrab.png");
       case "heist":
-        return require("../assets/ModesandMaps/heist/icon/heist.png");
+        return require("../assets/modeIcons/heist.png");
       case "hotZone":
-        return require("../assets/ModesandMaps/hotZone/icon/hotZone.png");
+        return require("../assets/modeIcons/hotZone.png");
       case "siege":
-        return require("../assets/ModesandMaps/siege/icon/siege.png");
+        return require("../assets/modeIcons/siege.png");
       case "soloShowdown":
-        return require("../assets/ModesandMaps/showdown/icon/soloShowdown.png");
+        return require("../assets/modeIcons/soloShowdown.png");
       case "duoShowdown":
-        return require("../assets/ModesandMaps/showdown/icon/duoShowdown.png");
+        return require("../assets/modeIcons/duoShowdown.png");
       case "knockout":
-        return require("../assets/ModesandMaps/knockout/icon/knockout.png");
+        return require("../assets/modeIcons/knockout.png");
       case "takedown":
-        return require("../assets/ModesandMaps/takedown/icon/takedown.png");
+        return require("../assets/modeIcons/takedown.png");
       case "loneStar":
-        return require("../assets/ModesandMaps/loneStar/icon/loneStar.png");
+        return require("../assets/modeIcons/loneStar.png");
     }
   };
 
@@ -318,11 +318,11 @@ const getAssets = (seasonIndex, gameTypeName) => {
     let iconUrl = undefined;
     // console.log(iconID)
     for (let iconKey in state.brawlifyReducer.iconsList) {
-      if (iconKey == iconID) { 
-         iconUrl = state.brawlifyReducer.iconsList[iconKey].imageUrl;
+      if (iconKey == iconID) {
+        iconUrl = state.brawlifyReducer.iconsList[iconKey].imageUrl;
       }
     }
-    return iconUrl ;
+    return iconUrl;
   };
 };
 const unsubscribe = store.subscribe(getAssets);
@@ -336,5 +336,5 @@ export {
   getMapName,
   getModeImage,
   getIconImage,
-  getModeColor
+  getModeColor,
 };
