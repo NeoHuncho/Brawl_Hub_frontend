@@ -1,7 +1,7 @@
 //expo build:android -t apk
 import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Text, ImageBackground } from "react-native";
-
+import { getDeviceTypeAsync } from "expo-device";
 import { useDispatch, useSelector } from "react-redux";
 import { setTestDeviceIDAsync } from "expo-ads-admob";
 import * as Progress from "react-native-progress";
@@ -20,6 +20,8 @@ import {
   globalStatsReceived,
   globalCountsReceived,
 } from "../store/reducers/globalStatsReducer";
+
+import { deviceTypeReceived } from "../store/reducers/uiReducerNoPersist";
 import { brawlifyDataReceived } from "../store/reducers/brawlifyReducer";
 
 import colors from "../config/colors";
@@ -42,8 +44,15 @@ const backgrounds = [
   season5_1,
   season4_1,
 ];
+let deviceType = null;
+const getDevice = async () => {
+  let deviceTypeIndex = await getDeviceTypeAsync();
+  deviceTypeIndex == 2 ? (deviceType = "tablet") : (deviceType = "phone");
+};
+getDevice();
 const randomBackgroundIndex = Math.floor(Math.random() * backgrounds.length);
 export default function PlayerLogin() {
+  // console.log(deviceType);
   const dispatch = useDispatch();
   const userID = useSelector((state) => state.playerPersistReducer.playerID);
 
@@ -55,6 +64,7 @@ export default function PlayerLogin() {
       await setTestDeviceIDAsync("EMULATOR");
       setLoadingText("fetching Assets...");
       const { maps, brawlers, icons } = await getBrawlifyFromDB();
+      dispatch(deviceTypeReceived(deviceType));
       dispatch(
         brawlifyDataReceived({
           brawlers: brawlers,
@@ -94,7 +104,7 @@ export default function PlayerLogin() {
         })
       );
       if (userID != null) {
-        console.log(1,userID)
+        // console.log(1, userID);
         await writeLastLogin(userID);
       }
       await getEvents();
@@ -124,8 +134,8 @@ export default function PlayerLogin() {
             <Progress.Bar
               animated={true}
               progress={progress}
-              height={10}
-              width={300}
+              height={deviceType == "tablet" ? 20 : 10}
+              width={deviceType == "tablet" ? 600 : 300}
               style={{
                 marginTop: 100,
                 marginLeft: "auto",
@@ -138,7 +148,7 @@ export default function PlayerLogin() {
                 {
                   fontWeight: "bold",
                   color: colors.secondary,
-                  fontSize: 14,
+                  fontSize: deviceType == "tablet" ? 22 : 14,
                   marginTop: 20,
                   marginLeft: "auto",
                   marginRight: "auto",

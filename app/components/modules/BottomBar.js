@@ -4,8 +4,8 @@ import { BottomNavigation } from "react-native-paper";
 import colors from "../../config/colors";
 import PlayerLogin from "../../view/PlayerStats/PlayerLogin";
 import Menu from "../../view/Menu/Menu";
-import Events from '../../view/EventsPage/Events'
-  import { useDispatch} from "react-redux";
+import Events from "../../view/EventsPage/Events";
+import { useDispatch, useSelector } from "react-redux";
 import {
   moreInfoEventClosed,
   moreInfoCarouselClosed,
@@ -15,17 +15,15 @@ const StatsRoute = () => <PlayerLogin />;
 
 const MenuRoute = () => <Menu />;
 
-const EventRoute = () => <Events/>;
+const EventRoute = () => <Events />;
 
 const BottomBar = () => {
   const dispatch = useDispatch();
-
+  const device = useSelector((state) => state.uiReducerNoPersist.deviceType);
 
   const handleReturn = () => {
-  
-      dispatch(moreInfoCarouselClosed());
-      dispatch(moreInfoEventClosed());
-    
+    dispatch(moreInfoCarouselClosed());
+    dispatch(moreInfoEventClosed());
   };
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
@@ -63,7 +61,9 @@ const BottomBar = () => {
         onIndexChange={setIndex}
         renderScene={renderScene}
         shifting={true}
-        barStyle={{ backgroundColor: colors.background }}
+        barStyle={{
+          backgroundColor: colors.background,
+        }}
       />
     </>
   );

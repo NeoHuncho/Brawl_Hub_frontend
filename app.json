@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "brawl-hub",
-    "slug": "brawl-hub",
-    "version": "1.0.0",
+    "name": "Brawl Max",
+    "slug": "Brawl_Max",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./app/assets/icon.png",
     "splash": {
       "image": "./app/assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#4987c7"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -20,11 +20,12 @@
       "supportsTablet": true
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./app/assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
+      "config": {
+        "googleMobileAdsAppId": "ca-app-pub-2795080443480499~5524209059"
       },
-      "package": "com.neohuncho.brawlhub"
+      "permissions" : [],
+      "package": "com.brawlMax.brawlMax",
+      "versionCode": 3
     },
     "web": {
       "favicon": "./app/assets/favicon.png"

@@ -25,6 +25,7 @@ import legendary from "../../assets/icons/legendary.png";
 import master from "../../assets/icons/master.png";
 
 export default function Settings() {
+  const device = useSelector((state) => state.uiReducerNoPersist.deviceType);
   const dispatch = useDispatch();
   const averageTrophiesPlayer = useSelector(
     (state) => state.battleLogReducer.averageTrophies
@@ -163,7 +164,13 @@ export default function Settings() {
 
   return (
     <View style={{ marginBottom: 20 }}>
-      <Text style={styles.sliderTitle}>Default Category:</Text>
+      <Text
+        style={
+          device != "tablet" ? styles.sliderTitle : styles.sliderTitleTablet
+        }
+      >
+        Default Category:
+      </Text>
       <View style={{ marginLeft: 20, marginRight: 20 }}>
         <SegmentedControlTab
           values={["Trophies", "Power League"]}
@@ -172,16 +179,35 @@ export default function Settings() {
             dispatch(typeIndexChanged(index));
             setTypeIndex(index);
           }}
+          tabsContainerStyle={
+            device == "tablet"
+              ? { marginTop: 10, marginLeft: 50, marginRight: 50 }
+              : null
+          }
+          tabTextStyle={{
+            fontSize: device != "tablet" ? 14 : 25,
+            fontFamily: "Lilita-One",
+          }}
         />
         <View style={{ marginTop: 15 }}>
-          <Text style={styles.sliderTitle}>Default trophy Range:</Text>
+          <Text
+            style={
+              device != "tablet" ? styles.sliderTitle : styles.sliderTitleTablet
+            }
+          >
+            Default trophy Range:
+          </Text>
           <DropDownPicker
             items={listRangesItemsTrophies}
             defaultValue={rangeTrophies}
+            globalTextStyle={{
+              fontSize: device == "tablet" ? 20 : 15,
+              fontWeight: "900",
+            }}
             containerStyle={{
-              height: 40,
-              marginLeft: 50,
-              marginRight: 50,
+              height: device != "tablet" ? 40 : 60,
+              marginLeft: device != "tablet" ? 50 : 250,
+              marginRight: device != "tablet" ? 50 : 250,
             }}
             style={{ backgroundColor: "#fafafa" }}
             itemStyle={{
@@ -201,14 +227,24 @@ export default function Settings() {
           </View>
         </View>
         <View style={{ marginTop: 15 }}>
-          <Text style={styles.sliderTitle}>Default Power League Range:</Text>
+          <Text
+            style={
+              device != "tablet" ? styles.sliderTitle : styles.sliderTitleTablet
+            }
+          >
+            Default Power League Range:
+          </Text>
           <DropDownPicker
             items={listRangesItemsPL}
             defaultValue={rangePL}
+            globalTextStyle={{
+              fontSize: device == "tablet" ? 20 : 15,
+              fontWeight: "900",
+            }}
             containerStyle={{
-              height: 40,
-              marginLeft: 50,
-              marginRight: 50,
+              height: device != "tablet" ? 40 : 60,
+              marginLeft: device != "tablet" ? 50 : 250,
+              marginRight: device != "tablet" ? 50 : 250,
             }}
             style={{ backgroundColor: "#fafafa" }}
             itemStyle={{
@@ -227,17 +263,19 @@ export default function Settings() {
 }
 
 const styles = StyleSheet.create({
-  categoryName: {
-    color: colors.primary,
-    fontFamily: "Lilita-One",
-    fontSize: 20,
-    marginLeft: 6,
-  },
   sliderTitle: {
     color: colors.secondary,
     fontFamily: "Lilita-One",
     fontSize: 15,
     marginBottom: 10,
+    marginLeft: 15,
+  },
+  sliderTitleTablet: {
+    color: colors.secondary,
+    fontFamily: "Lilita-One",
+    fontSize: 25,
+    marginTop: 20,
+    marginBottom: 20,
     marginLeft: 15,
   },
 });

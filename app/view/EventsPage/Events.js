@@ -42,6 +42,8 @@ import { globalStatsReceived } from "../../store/reducers/globalStatsReducer";
 
 export default function Events() {
   const dispatch = useDispatch();
+  const device = useSelector((state) => state.uiReducerNoPersist.deviceType);
+
   const typeIndexPersist = useSelector(
     (state) => state.uiReducerPersist.typeIndex
   );
@@ -175,13 +177,17 @@ export default function Events() {
                 onPress={() => handleSettingsPress()}
                 style={{ flexDirection: "row", alignItems: "center" }}
               >
-                <Ionicons name="settings" size={24} color={colors.secondary} />
+                <Ionicons
+                  name="settings"
+                  size={device != "tablet" ? 24 : 40}
+                  color={colors.secondary}
+                />
                 <Text
                   style={[
                     styles.categoryName,
                     {
                       textAlign: "center",
-                      fontSize: 25,
+                      fontSize: device != "tablet" ? 25 : 40,
                     },
                   ]}
                 >
@@ -202,7 +208,7 @@ export default function Events() {
                     styles.categoryName,
                     {
                       textAlign: "center",
-                      fontSize: 25,
+                      fontSize: device != "tablet" ? 25 : 40,
                     },
                   ]}
                 >
@@ -211,7 +217,7 @@ export default function Events() {
                 <Ionicons
                   style={{ marginLeft: 5, marginTop: 5 }}
                   name="book"
-                  size={24}
+                  size={device != "tablet" ? 24 : 40}
                   color={colors.secondary}
                 />
               </TouchableOpacity>
@@ -221,6 +227,15 @@ export default function Events() {
 
             <SegmentedControlTab
               values={["Trophies", "Power League"]}
+              tabsContainerStyle={
+                device == "tablet"
+                  ? { marginTop: 10, marginLeft: 50, marginRight: 50 }
+                  : null
+              }
+              tabTextStyle={{
+                fontSize: device != "tablet" ? 14 : 25,
+                fontFamily: "Lilita-One",
+              }}
               selectedIndex={typeIndex}
               onTabPress={async (index) => {
                 setTypeIndexChanging(true);
@@ -249,11 +264,15 @@ export default function Events() {
           {typeIndexChanging == false && (
             <DropDownPicker
               items={listRangesItems}
+              globalTextStyle={{
+                fontSize: device == "tablet" ? 20 : 15,
+                fontWeight: "900",
+              }}
               defaultValue={range}
               containerStyle={{
-                height: 40,
-                marginLeft: 50,
-                marginRight: 50,
+                height: device != "tablet" ? 40 : 60,
+                marginLeft: device != "tablet" ? 50 : 250,
+                marginRight: device != "tablet" ? 50 : 250,
               }}
               style={{ backgroundColor: "#fafafa" }}
               itemStyle={{

@@ -72,9 +72,16 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
     Object.values(mapsPS).map((map) => {
       if (modesPS[map.mode]) {
         modesPS[map.mode].wins += map.wins;
+        modesPS[map.mode].winsByTrophies += map.winsByTrophies;
         modesPS[map.mode].losses += map.losses;
+        modesPS[map.mode].lossesByTrophies += map.lossesByTrophies;
         modesPS[map.mode].winRatio =
-          modesPS[map.mode].wins / modesPS[map.mode].losses;
+          modesPS[map.mode].losses == 0
+            ? modesPS[map.mode].wins
+            : modesPS[map.mode].wins == 0
+            ? -Math.abs(modesPS[map.mode].losses)
+            : modesPS[map.mode].winsByTrophies /
+              modesPS[map.mode].lossesByTrophies;
 
         if (
           map.mode !== "duoShowdown" &&
@@ -95,9 +102,16 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
         modesPS[map.mode] = {};
 
         modesPS[map.mode].wins = map.wins;
+        modesPS[map.mode].winsByTrophies = map.winsByTrophies;
         modesPS[map.mode].losses = map.losses;
+        modesPS[map.mode].lossesByTrophies = map.lossesByTrophies;
         modesPS[map.mode].winRatio =
-          modesPS[map.mode].wins / modesPS[map.mode].losses;
+          modesPS[map.mode].losses == 0
+            ? modesPS[map.mode].wins
+            : modesPS[map.mode].wins == 0
+            ? -Math.abs(modesPS[map.mode].losses)
+            : modesPS[map.mode].winsByTrophies /
+              modesPS[map.mode].lossesByTrophies;
 
         modesPS[map.mode].image = getModeImage(map.mode);
         modesPS[map.mode].title = map.mode
@@ -257,7 +271,11 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
               if (modePS.brawlers[brawler.id]) {
                 modePS.brawlers[brawler.id].games += brawler.games;
                 modePS.brawlers[brawler.id].wins += brawler.wins;
+                modePS.brawlers[brawler.id].winsByTrophies +=
+                  brawler.winsByTrophies;
                 modePS.brawlers[brawler.id].losses += brawler.losses;
+                modePS.brawlers[brawler.id].lossesByTrophies +=
+                  brawler.lossesByTrophies;
                 modePS.brawlers[brawler.id].starPlayer += brawler.starPlayer;
                 modePS.brawlers[brawler.id].duration += brawler.duration;
               } else {
@@ -265,7 +283,11 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
                 modePS.brawlers[brawler.id].id = brawler.id;
                 modePS.brawlers[brawler.id].games = brawler.games;
                 modePS.brawlers[brawler.id].wins = brawler.wins;
+                modePS.brawlers[brawler.id].winsByTrophies =
+                  brawler.winsByTrophies;
                 modePS.brawlers[brawler.id].losses = brawler.losses;
+                modePS.brawlers[brawler.id].lossesByTrophies =
+                  brawler.lossesByTrophies;
                 modePS.brawlers[brawler.id].starPlayer = brawler.starPlayer;
                 modePS.brawlers[brawler.id].duration = brawler.duration;
               }
@@ -276,7 +298,10 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
                 if (modePS.teams[team.id]) {
                   modePS.teams[team.id].games += team.games;
                   modePS.teams[team.id].wins += team.wins;
+                  modePS.teams[team.id].winsByTrophies += team.winsByTrophies;
                   modesPS.teams[team.id].losses += team.losses;
+                  modesPS.teams[team.id].lossesByTrophies +=
+                    team.lossesByTrophies;
                   modePS.teams[team.id].starPlayer += team.starPlayer;
                   modePS.teams[team.id].duration += team.duration;
                 } else {
@@ -284,7 +309,9 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
                   modePS.teams[team.id].id = team.id;
                   modePS.teams[team.id].games = team.games;
                   modePS.teams[team.id].wins = team.wins;
+                  modePS.teams[team.id].winsByTrophies = team.winsByTrophies;
                   modePS.teams[team.id].losses = team.losses;
+                  modePS.teams[team.id].losses = team.lossesByTrophies;
                   modePS.teams[team.id].starPlayer = team.starPlayer;
                   modePS.teams[team.id].duration = team.duration;
                 }
@@ -307,7 +334,11 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
               modePS.brawlers[brawler.id].id = brawler.id;
               modePS.brawlers[brawler.id].games = brawler.games;
               modePS.brawlers[brawler.id].wins = brawler.wins;
+              modePS.brawlers[brawler.id].winsByTrophies =
+                brawler.winsByTrophies;
               modePS.brawlers[brawler.id].losses = brawler.losses;
+              modePS.brawlers[brawler.id].lossesByTrophies =
+                brawler.lossesByTrophies;
               modePS.brawlers[brawler.id].starPlayer = brawler.starPlayer;
               modePS.brawlers[brawler.id].duration = brawler.duration;
             });
@@ -318,7 +349,9 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
                 modePS.teams[team.id].id = team.id;
                 modePS.teams[team.id].games = team.games;
                 modePS.teams[team.id].wins = team.wins;
+                modePS.teams[team.id].winsByTrophies = team.winsByTrophies;
                 modePS.teams[team.id].losses = team.losses;
+                modePS.teams[team.id].lossesByTrophies = team.lossesByTrophies;
                 modePS.teams[team.id].starPlayer = team.starPlayer;
                 modePS.teams[team.id].duration = team.duration;
               });
@@ -330,7 +363,7 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
       Object.values(modePS.maps).map((map) => {
         maps.push({
           image: getMapImage(map.id),
-          winRatio: map.wins / map.losses,
+          winRatio: map.winRatio,
           spRatio: map.starPlayer / map.games,
           duration: map.duration / map.games,
           wins: map.wins,
@@ -347,7 +380,12 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
           image: getBrawlerImage(brawler.id),
           duration: brawler.duration / brawler.games,
           spRatio: brawler.starPlayer / brawler.games,
-          winRatio: brawler.wins / brawler.losses,
+          winRatio:
+            brawler.losses == 0
+              ? brawler.wins
+              : brawler.wins == 0
+              ? -Math.abs(brawler.losses)
+              : brawler.winsByTrophies / brawler.lossesByTrophies,
           wins: brawler.wins,
           losses: brawler.losses,
           title: getBrawlerName(brawler.id),
@@ -365,7 +403,12 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
                 : null,
             duration: team.duration / team.games,
             spRatio: team.starPlayer / team.games,
-            winRatio: team.wins / team.losses,
+            winRatio:
+              team.losses == 0
+                ? team.wins
+                : team.wins == 0
+                ? -Math.abs(team.losses)
+                : team.winsByTrophies / team.lossesByTrophies,
             wins: team.wins,
             losses: team.losses,
             title: `${getBrawlerName(team.id.slice(0, 8))}, ${getBrawlerName(

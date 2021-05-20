@@ -10,6 +10,7 @@ import {
   Modal,
   TextInput,
   Button,
+  Dimensions,
 } from "react-native";
 import { AdMobBanner } from "expo-ads-admob";
 import { useSelector } from "react-redux";
@@ -25,6 +26,7 @@ import memeStarsGraphic from "../../assets/graphicsMenu/memeStars.png";
 import brawlQuizGraphic from "../../assets/graphicsMenu/brawlQuiz.png";
 
 export default function Menu() {
+  const device = useSelector((state) => state.uiReducerNoPersist.deviceType);
   const [showExplanation, setShowExplanation] = useState(false);
   const [explanationText, setExplanationText] = useState(false);
   const [error, setError] = useState(error);
@@ -46,7 +48,7 @@ export default function Menu() {
         >
           <View
             style={[
-              styles.rectangle,
+              device != "tablet" ? styles.rectangle : styles.rectangleTablet,
               { backgroundColor: color },
               titlePart1 == "Meme" ? { marginBottom: 50 } : null,
             ]}
@@ -55,10 +57,21 @@ export default function Menu() {
               style={{ flexDirection: "row", marginLeft: 10, marginTop: 15 }}
             >
               <View>
-                <Text style={styles.title}>{titlePart1}</Text>
-                <Text style={styles.title}>{titlePart2}</Text>
+                <Text
+                  style={device != "tablet" ? styles.title : styles.titleTablet}
+                >
+                  {titlePart1}
+                </Text>
+                <Text
+                  style={device != "tablet" ? styles.title : styles.titleTablet}
+                >
+                  {titlePart2}
+                </Text>
               </View>
-              <Image style={styles.image} source={image} />
+              <Image
+                style={device != "tablet" ? styles.image : styles.imageTablet}
+                source={image}
+              />
             </View>
           </View>
         </TouchableOpacity>
@@ -115,12 +128,42 @@ export default function Menu() {
             color={colors.green}
           />
         )}
-        <View style={styles.container}>
-          <Text style={[styles.explanation, { opacity: 0.9, marginTop: 20 }]}>
+        <View
+          style={[
+            styles.container,
+            device == "tablet"
+              ? { height: Dimensions.get("window").height }
+              : null,
+          ]}
+        >
+          <Text
+            style={[
+              device != "tablet"
+                ? device != "tablet"
+                  ? styles.explanation
+                  : styles.explanationTablet
+                : device != "tablet"
+                ? styles.explanationTablet
+                : styles.explanationTablet,
+              { opacity: 0.9, marginTop: 20 },
+            ]}
+          >
             --Available--
           </Text>
           {modules[0]}
-          <Text style={[styles.explanation, { opacity: 0.9, marginTop: 20 }]}>
+          <Text
+            style={[
+              device != "tablet"
+                ? device != "tablet"
+                  ? styles.explanation
+                  : styles.explanationTablet
+                : device != "tablet"
+                ? styles.explanationTablet
+                : styles.explanationTablet,
+              ,
+              { opacity: 0.9, marginTop: 20 },
+            ]}
+          >
             --Not Available Yet--
           </Text>
           {modules[1]}
@@ -139,7 +182,15 @@ export default function Menu() {
           {explanationText != "error" && (
             <View style={styles.centeredView}>
               <View style={styles.modalView}>
-                <Text style={styles.explanation}>{explanationText}</Text>
+                <Text
+                  style={
+                    device != "tablet"
+                      ? styles.explanation
+                      : styles.explanationTablet
+                  }
+                >
+                  {explanationText}
+                </Text>
                 <TouchableOpacity
                   style={[styles.button, styles.buttonClose]}
                   onPress={() => {
@@ -147,7 +198,14 @@ export default function Menu() {
                     setShowExplanation(false);
                   }}
                 >
-                  <Text style={[styles.explanation, { marginTop: 10 }]}>
+                  <Text
+                    style={[
+                      device != "tablet"
+                        ? styles.explanation
+                        : styles.explanationTablet,
+                      { marginTop: 10 },
+                    ]}
+                  >
                     Close
                   </Text>
                 </TouchableOpacity>
@@ -157,26 +215,45 @@ export default function Menu() {
           {explanationText == "error" && (
             <View style={styles.centeredView}>
               <View style={styles.modalView}>
-                <Text style={styles.explanation}>
+                <Text
+                  style={
+                    device != "tablet"
+                      ? styles.explanation
+                      : styles.explanationTablet
+                  }
+                >
                   {`Your ID:  ${playerID}`}{" "}
                 </Text>
                 <TextInput
-                  style={styles.playerIdInput}
+                  style={
+                    device != "tablet"
+                      ? styles.playerIdInput
+                      : styles.playerIdInputTablet
+                  }
                   type="flat"
                   placeholder="please describe your bug."
                   placeholderTextColor={colors.secondary}
                   onChangeText={(errorText) => setError(errorText)}
                 />
-                <Text style={[styles.explanation, { marginBottom: 5 }]}>
+                <Text
+                  style={[
+                    device != "tablet"
+                      ? styles.explanation
+                      : styles.explanationTablet,
+                    { marginBottom: 5 },
+                  ]}
+                >
                   {sent}
                 </Text>
-                <Button
-                  title="Confirm"
-                  onPress={() => {
-                    writeError(playerID, error);
-                    setSent("error sent!");
-                  }}
-                />
+                <View style={device == "tablet" ? styles.buttonTablet : null}>
+                  <Button
+                    title="Confirm"
+                    onPress={() => {
+                      writeError(playerID, error);
+                      setSent("error sent!");
+                    }}
+                  />
+                </View>
                 <TouchableOpacity
                   style={[styles.button, styles.buttonClose]}
                   onPress={() => {
@@ -185,7 +262,14 @@ export default function Menu() {
                     setSent("error not sent.");
                   }}
                 >
-                  <Text style={[styles.explanation, { marginTop: 15 }]}>
+                  <Text
+                    style={[
+                      device != "tablet"
+                        ? styles.explanation
+                        : styles.explanationTablet,
+                      { marginTop: 15 },
+                    ]}
+                  >
                     Close
                   </Text>
                 </TouchableOpacity>
@@ -208,6 +292,15 @@ const styles = StyleSheet.create({
   rectangle: {
     height: 100,
     width: 280,
+    marginTop: 30,
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
+    borderBottomLeftRadius: 5,
+    borderBottomRightRadius: 5,
+  },
+  rectangleTablet: {
+    height: 150,
+    width: 480,
     marginTop: 30,
     borderTopLeftRadius: 5,
     borderTopRightRadius: 5,
@@ -243,8 +336,21 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginLeft: 5,
   },
+  titleTablet: {
+    fontSize: 47,
+    color: colors.primary,
+    fontFamily: "Lilita-One",
+    textAlign: "center",
+    marginLeft: 5,
+  },
   explanation: {
     fontSize: 15,
+    color: colors.primary,
+    fontFamily: "Lilita-One",
+    textAlign: "center",
+  },
+  explanationTablet: {
+    fontSize: 30,
     color: colors.primary,
     fontFamily: "Lilita-One",
     textAlign: "center",
@@ -255,10 +361,11 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 0,
   },
-  icon: {
+  imageTablet: {
+    width: 225,
+    height: 112.5,
     position: "absolute",
     right: 0,
-    top: 5,
   },
   playerIdInput: {
     marginTop: 10,
@@ -271,5 +378,20 @@ const styles = StyleSheet.create({
     width: 250,
     borderColor: "white",
     borderWidth: 1,
+  },
+  playerIdInputTablet: {
+    marginTop: 10,
+    marginBottom: 10,
+    paddingLeft: 3,
+    color: colors.secondary,
+    fontFamily: "Lilita-One",
+    fontSize: 15,
+    height: 50,
+    width: 400,
+    borderColor: "white",
+    borderWidth: 1,
+  },
+  buttonTablet: {
+    marginTop:10
   },
 });

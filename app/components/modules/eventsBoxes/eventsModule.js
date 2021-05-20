@@ -31,7 +31,9 @@ import { globalStatsReceived } from "../../../store/reducers/globalStatsReducer"
 
 let countImageAd = 0;
 let countVideoAd = 0;
+let device = null;
 const EventsModule = ({ season, typeIndex, range }) => {
+  device = useSelector((state) => state.uiReducerNoPersist.deviceType);
   let globalStats = useSelector(
     (state) => state.globalStatsReducer.globalStats
   );
@@ -131,24 +133,39 @@ const EventsModule = ({ season, typeIndex, range }) => {
       }
 
       eventModule.push(
-        <View key={event.eventID} style={styles.rectangle}>
+        <View
+          key={event.eventID}
+          style={[
+            styles.rectangle,
+            device == "tablet" ? { width: 500, height: 150 } : null,
+          ]}
+        >
           <View
             style={{
-              height: 30,
-              width: 280,
+              height: device != "tablet" ? 30 : 50,
+              width: device != "tablet" ? 280 : 500,
               backgroundColor: event.modeColor,
               borderTopLeftRadius: 5,
               borderTopRightRadius: 5,
             }}
           >
-            <View style={{ margin: 5, marginTop: 7, flexDirection: "row" }}>
+            <View
+              style={{
+                margin: 5,
+                marginTop: device != "tablet" ? 7 : 10,
+                flexDirection: "row",
+              }}
+            >
               <Image
                 source={{ uri: event.modeImage }}
-                style={styles.modeImage}
+                style={[
+                  styles.modeImage,
+                  device == "tablet" ? { width: 30, height: 30 } : null,
+                ]}
               />
               <Text
                 style={{
-                  fontSize: 14,
+                  fontSize: device != "tablet" ? 14 : 25,
                   fontFamily: "Lilita-One",
                   color: colors.secondary,
                   marginLeft: 4,
@@ -161,11 +178,11 @@ const EventsModule = ({ season, typeIndex, range }) => {
 
               <Text
                 style={{
-                  fontSize: 11,
+                  fontSize: device != "tablet" ? 11 : 20,
                   fontFamily: "Lilita-One",
                   color: colors.secondary,
                   position: "absolute",
-                  right: 30,
+                  right: device != "tablet" ? 30 : 40,
                   top: 3,
                 }}
               >
@@ -213,8 +230,8 @@ const EventsModule = ({ season, typeIndex, range }) => {
                   <Image
                     source={require("../../../assets/icons/infoButton.png")}
                     style={{
-                      width: 25,
-                      height: 25,
+                      width: device != "tablet" ? 20 : 30,
+                      height: device != "tablet" ? 20 : 30,
                     }}
                   />
                 </TouchableOpacity>
@@ -223,8 +240,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
           </View>
           <View
             style={{
-              height: 170,
-              width: 280,
+              width: device != "tablet" ? 280 : 500,
               flex: 1,
             }}
           >
@@ -245,7 +261,12 @@ const EventsModule = ({ season, typeIndex, range }) => {
                     {sortedBrawlers[0] && (
                       <Text
                         style={[
-                          { position: "absolute", top: -14 },
+                          {
+                            position: "absolute",
+                            top: device != "tablet" ? -14 : -22,
+
+                            fontSize: device != "tablet" ? 10 : 15,
+                          },
                           styles.text,
                         ]}
                       >
@@ -255,7 +276,9 @@ const EventsModule = ({ season, typeIndex, range }) => {
                     {sortedBrawlers[0] && (
                       <Image
                         style={[
-                          styles.brawlerImage,
+                          device != "tablet"
+                            ? styles.brawlerImage
+                            : styles.brawlerImageTablet,
                           styles.border,
                           { borderColor: "gold", marginRight: 5 },
                         ]}
@@ -265,7 +288,9 @@ const EventsModule = ({ season, typeIndex, range }) => {
                     {sortedBrawlers[1] && (
                       <Image
                         style={[
-                          styles.brawlerImage,
+                          device != "tablet"
+                            ? styles.brawlerImage
+                            : styles.brawlerImageTablet,
                           styles.border,
                           { borderColor: "silver", marginRight: 5 },
                         ]}
@@ -275,7 +300,9 @@ const EventsModule = ({ season, typeIndex, range }) => {
                     {sortedBrawlers[2] && (
                       <Image
                         style={[
-                          styles.brawlerImage,
+                          device != "tablet"
+                            ? styles.brawlerImage
+                            : styles.brawlerImageTablet,
                           styles.border,
                           { borderColor: "#cd7f32", marginRight: 5 },
                         ]}
@@ -295,7 +322,12 @@ const EventsModule = ({ season, typeIndex, range }) => {
                     {sortedTeams[0] && (
                       <Text
                         style={[
-                          { position: "absolute", top: -14, right: 0 },
+                          {
+                            position: "absolute",
+                            top: device != "tablet" ? -14 : -22,
+                            fontSize: device != "tablet" ? 10 : 15,
+                            right: 0,
+                          },
                           styles.text,
                         ]}
                       >
@@ -303,19 +335,31 @@ const EventsModule = ({ season, typeIndex, range }) => {
                       </Text>
                     )}
                     <Image
-                      style={styles.brawlerImage}
+                      style={
+                        device != "tablet"
+                          ? styles.brawlerImage
+                          : styles.brawlerImageTablet
+                      }
                       source={getBrawlerImage(teamBrawler1)}
                     />
 
                     <Image
-                      style={styles.brawlerImage}
+                      style={
+                        device != "tablet"
+                          ? styles.brawlerImage
+                          : styles.brawlerImageTablet
+                      }
                       source={getBrawlerImage(teamBrawler2)}
                     />
 
                     {teamBrawler3 ? (
                       teamBrawler3.length == 8 ? (
                         <Image
-                          style={styles.brawlerImage}
+                          style={
+                            device != "tablet"
+                              ? styles.brawlerImage
+                              : styles.brawlerImageTablet
+                          }
                           source={getBrawlerImage(teamBrawler3)}
                         />
                       ) : null
@@ -369,7 +413,12 @@ const EventsModule = ({ season, typeIndex, range }) => {
           {modeName != "count" && (
             <View>
               <View>
-                <Text style={[styles.text, { fontSize: 20, marginTop: 10 }]}>
+                <Text
+                  style={[
+                    styles.text,
+                    { fontSize: device != "tablet" ? 20 : 30, marginTop: 10 },
+                  ]}
+                >
                   {capitalizeFirstLetter(
                     modeName
                       .replace(/([A-Z]+)/g, " $1")
@@ -383,7 +432,9 @@ const EventsModule = ({ season, typeIndex, range }) => {
                   return index <= 1 ? (
                     <View
                       style={[
-                        styles.square,
+                        device != "tablet"
+                          ? styles.square
+                          : styles.squareTablet,
                         {
                           backgroundColor: getModeColor(modeName),
                           marginRight: 10,
@@ -393,7 +444,11 @@ const EventsModule = ({ season, typeIndex, range }) => {
                       <Text
                         style={[
                           styles.text,
-                          { marginTop: 4, marginLeft: 4, fontSize: 11 },
+                          {
+                            marginTop: 4,
+                            marginLeft: 4,
+                            fontSize: device != "tablet" ? 11 : 25,
+                          },
                         ]}
                       >
                         {getMapName(mapID) == "Some Assembly Required"
@@ -409,7 +464,10 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                   <Text
                                     style={[
                                       styles.text,
-                                      { fontSize: 8, marginTop: 3 },
+                                      {
+                                        fontSize: device != "tablet" ? 8 : 15,
+                                        marginTop: 3,
+                                      },
                                     ]}
                                   >
                                     Top 3 Brawlers
@@ -419,13 +477,15 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                     {sortedBrawlers[mapID][0] && (
                                       <Image
                                         style={[
-                                          styles.brawlerImage,
                                           styles.border,
                                           {
                                             borderColor: "gold",
-                                            width: 28,
-                                            height: 28,
-                                            borderWidth: 1,
+                                            width: device != "tablet" ? 28 : 50,
+                                            height:
+                                              device != "tablet" ? 28 : 50,
+                                            borderWidth:
+                                              device != "tablet" ? 1 : 3,
+                                           
                                           },
                                         ]}
                                         source={getBrawlerImage(
@@ -436,13 +496,16 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                     {sortedBrawlers[mapID][1] && (
                                       <Image
                                         style={[
-                                          styles.brawlerImage,
                                           styles.border,
                                           {
                                             borderColor: "silver",
-                                            width: 28,
-                                            height: 28,
-                                            borderWidth: 1,
+                                            width: device != "tablet" ? 28 : 50,
+                                            height:
+                                              device != "tablet" ? 28 : 50,
+                                            borderWidth:
+                                              device != "tablet" ? 1 : 3,
+                                            marginLeft:
+                                              device != "tablet" ? 0 : 5,
                                           },
                                         ]}
                                         source={getBrawlerImage(
@@ -453,13 +516,16 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                     {sortedBrawlers[mapID][2] && (
                                       <Image
                                         style={[
-                                          styles.brawlerImage,
                                           styles.border,
                                           {
                                             borderColor: "#cd7f32",
-                                            width: 28,
-                                            height: 28,
-                                            borderWidth: 1,
+                                            width: device != "tablet" ? 28 : 50,
+                                            height:
+                                              device != "tablet" ? 28 : 50,
+                                            borderWidth:
+                                              device != "tablet" ? 1 : 3,
+                                            marginLeft:
+                                              device != "tablet" ? 0 : 5,
                                           },
                                         ]}
                                         source={getBrawlerImage(
@@ -477,7 +543,10 @@ const EventsModule = ({ season, typeIndex, range }) => {
                               <Text
                                 style={[
                                   styles.text,
-                                  { fontSize: 8, marginTop: 5 },
+                                  {
+                                    fontSize: device != "tablet" ? 8 : 15,
+                                    marginTop: 5,
+                                  },
                                 ]}
                               >
                                 Top Team
@@ -490,16 +559,22 @@ const EventsModule = ({ season, typeIndex, range }) => {
                               >
                                 <Image
                                   style={[
-                                    styles.brawlerImage,
-                                    { width: 28, height: 28 },
+                                    {
+                                      width: device != "tablet" ? 28 : 50,
+                                      height: device != "tablet" ? 28 : 50,
+                                      
+                                    },
                                   ]}
                                   source={getBrawlerImage(teamBrawler1[mapID])}
                                 />
 
                                 <Image
                                   style={[
-                                    styles.brawlerImage,
-                                    { width: 28, height: 28 },
+                                    {
+                                      width: device != "tablet" ? 28 : 50,
+                                      height: device != "tablet" ? 28 : 50,
+                                      
+                                    },
                                   ]}
                                   source={getBrawlerImage(teamBrawler2[mapID])}
                                 />
@@ -507,8 +582,10 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                 {teamBrawler3[mapID] ? (
                                   <Image
                                     style={[
-                                      styles.brawlerImage,
-                                      { width: 28, height: 28 },
+                                      {
+                                        width: device != "tablet" ? 28 : 50,
+                                        height: device != "tablet" ? 28 : 50,
+                                      },
                                     ]}
                                     source={getBrawlerImage(
                                       teamBrawler3[mapID]
@@ -523,8 +600,8 @@ const EventsModule = ({ season, typeIndex, range }) => {
                         <Image
                           source={getMapImage(mapID)}
                           style={{
-                            width: 55,
-                            height: 85,
+                            width: device != "tablet" ? 50 : 75,
+                            height: device != "tablet" ? 85 : 127.5,
                             position: "absolute",
                             right: 10,
                             top: 6,
@@ -541,7 +618,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
                               await showImageInterstitial();
                             else if (countImageAd > countVideoAd)
                               await showVideoInterstitial();
-                              // console.log('look here', modeName,mapID)
+                            // console.log('look here', modeName,mapID)
                             let globalStatsFromDB = await getGlobalStatsFromDB(
                               globalStats,
                               season,
@@ -574,8 +651,8 @@ const EventsModule = ({ season, typeIndex, range }) => {
                           <Image
                             source={require("../../../assets/icons/infoButton.png")}
                             style={{
-                              width: 20,
-                              height: 20,
+                              width: device != "tablet" ? 20 : 30,
+                              height: device != "tablet" ? 20 : 30,
                             }}
                           />
                         </TouchableOpacity>
@@ -590,7 +667,9 @@ const EventsModule = ({ season, typeIndex, range }) => {
                   return index >= 2 ? (
                     <View
                       style={[
-                        styles.square,
+                        device != "tablet"
+                          ? styles.square
+                          : styles.squareTablet,
                         {
                           backgroundColor: getModeColor(modeName),
                           marginRight: 10,
@@ -600,7 +679,11 @@ const EventsModule = ({ season, typeIndex, range }) => {
                       <Text
                         style={[
                           styles.text,
-                          { marginTop: 4, marginLeft: 4, fontSize: 11 },
+                          {
+                            marginTop: 4,
+                            marginLeft: 4,
+                            fontSize: device != "tablet" ? 11 : 25,
+                          },
                         ]}
                       >
                         {getMapName(mapID) == "Some Assembly Required"
@@ -616,7 +699,10 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                   <Text
                                     style={[
                                       styles.text,
-                                      { fontSize: 8, marginTop: 3 },
+                                      {
+                                        fontSize: device != "tablet" ? 8 : 15,
+                                        marginTop: 3,
+                                      },
                                     ]}
                                   >
                                     Top 3 Brawlers
@@ -626,13 +712,18 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                     {sortedBrawlers[mapID][0] && (
                                       <Image
                                         style={[
-                                          styles.brawlerImage,
+                                          device != "tablet"
+                                            ? styles.brawlerImage
+                                            : styles.brawlerImageTablet,
                                           styles.border,
                                           {
                                             borderColor: "gold",
-                                            width: 28,
-                                            height: 28,
-                                            borderWidth: 1,
+                                            width: device != "tablet" ? 28 : 50,
+                                            height:
+                                              device != "tablet" ? 28 : 50,
+                                            borderWidth:
+                                              device != "tablet" ? 1 : 3,
+                                      
                                           },
                                         ]}
                                         source={getBrawlerImage(
@@ -643,13 +734,19 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                     {sortedBrawlers[mapID][1] && (
                                       <Image
                                         style={[
-                                          styles.brawlerImage,
+                                          device != "tablet"
+                                            ? styles.brawlerImage
+                                            : styles.brawlerImageTablet,
                                           styles.border,
                                           {
                                             borderColor: "silver",
-                                            width: 28,
-                                            height: 28,
-                                            borderWidth: 1,
+                                            width: device != "tablet" ? 28 : 50,
+                                            height:
+                                              device != "tablet" ? 28 : 50,
+                                            borderWidth:
+                                              device != "tablet" ? 1 : 3,
+                                            marginLeft:
+                                              device != "tablet" ? 0 : 5,
                                           },
                                         ]}
                                         source={getBrawlerImage(
@@ -660,13 +757,19 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                     {sortedBrawlers[mapID][2] && (
                                       <Image
                                         style={[
-                                          styles.brawlerImage,
+                                          device != "tablet"
+                                            ? styles.brawlerImage
+                                            : styles.brawlerImageTablet,
                                           styles.border,
                                           {
                                             borderColor: "#cd7f32",
-                                            width: 28,
-                                            height: 28,
-                                            borderWidth: 1,
+                                            width: device != "tablet" ? 28 : 50,
+                                            height:
+                                              device != "tablet" ? 28 : 50,
+                                            borderWidth:
+                                              device != "tablet" ? 1 : 3,
+                                            marginLeft:
+                                              device != "tablet" ? 0 : 5,
                                           },
                                         ]}
                                         source={getBrawlerImage(
@@ -684,7 +787,10 @@ const EventsModule = ({ season, typeIndex, range }) => {
                               <Text
                                 style={[
                                   styles.text,
-                                  { fontSize: 8, marginTop: 5 },
+                                  {
+                                    fontSize: device != "tablet" ? 8 : 15,
+                                    marginTop: 5,
+                                  },
                                 ]}
                               >
                                 Top Team
@@ -697,16 +803,28 @@ const EventsModule = ({ season, typeIndex, range }) => {
                               >
                                 <Image
                                   style={[
-                                    styles.brawlerImage,
-                                    { width: 28, height: 28 },
+                                    device != "tablet"
+                                      ? styles.brawlerImage
+                                      : styles.brawlerImageTablet,
+                                    {
+                                      width: device != "tablet" ? 28 : 50,
+                                      height: device != "tablet" ? 28 : 50,
+                                      
+                                    },
                                   ]}
                                   source={getBrawlerImage(teamBrawler1[mapID])}
                                 />
 
                                 <Image
                                   style={[
-                                    styles.brawlerImage,
-                                    { width: 28, height: 28 },
+                                    device != "tablet"
+                                      ? styles.brawlerImage
+                                      : styles.brawlerImageTablet,
+                                    {
+                                      width: device != "tablet" ? 28 : 50,
+                                      height: device != "tablet" ? 28 : 50,
+                                      
+                                    },
                                   ]}
                                   source={getBrawlerImage(teamBrawler2[mapID])}
                                 />
@@ -714,8 +832,13 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                 {teamBrawler3[mapID] ? (
                                   <Image
                                     style={[
-                                      styles.brawlerImage,
-                                      { width: 28, height: 28 },
+                                      device != "tablet"
+                                        ? styles.brawlerImage
+                                        : styles.brawlerImageTablet,
+                                      {
+                                        width: device != "tablet" ? 28 : 50,
+                                        height: device != "tablet" ? 28 : 50,
+                                      },
                                     ]}
                                     source={getBrawlerImage(
                                       teamBrawler3[mapID]
@@ -730,8 +853,8 @@ const EventsModule = ({ season, typeIndex, range }) => {
                         <Image
                           source={getMapImage(mapID)}
                           style={{
-                            width: 55,
-                            height: 85,
+                            width: device != "tablet" ? 50 : 75,
+                            height: device != "tablet" ? 85 : 127.5,
                             position: "absolute",
                             right: 10,
                             top: 6,
@@ -780,8 +903,8 @@ const EventsModule = ({ season, typeIndex, range }) => {
                           <Image
                             source={require("../../../assets/icons/infoButton.png")}
                             style={{
-                              width: 20,
-                              height: 20,
+                              width: device != "tablet" ? 20 : 30,
+                              height: device != "tablet" ? 20 : 30,
                             }}
                           />
                         </TouchableOpacity>
@@ -808,14 +931,23 @@ const styles = StyleSheet.create({
     width: 35,
     height: 35,
   },
+  brawlerImageTablet: {
+    width: 50,
+    height: 50,
+  },
   rectangle: {
     width: 280,
     height: 120,
-    marginTop: 15,
+    marginTop: 20,
   },
   square: {
     width: 175,
     height: 110,
+    marginTop: 15,
+  },
+  squareTablet: {
+    width: 350,
+    height: 180,
     marginTop: 15,
   },
   eventImage: {
@@ -829,7 +961,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontFamily: "Lilita-One",
-    fontSize: 10,
+
     color: colors.secondary,
   },
 });

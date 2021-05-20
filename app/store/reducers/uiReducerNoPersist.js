@@ -4,9 +4,9 @@ const slice = createSlice({
   name: "uiData",
   initialState: {
     isOpen: false,
-    isOpenEvents:false,
-    typeIndex:null,
-    rangeIndex:null,
+    isOpenEvents: false,
+    typeIndex: null,
+    rangeIndex: null,
     type: null,
     displayName: null,
     name: null,
@@ -14,10 +14,14 @@ const slice = createSlice({
     image: null,
     gameType: null,
     seasonIndex: null,
-    sortedBrawlers:null,
-    sortedTeams:null
+    sortedBrawlers: null,
+    sortedTeams: null,
+    deviceType: null,
   },
   reducers: {
+    deviceTypeReceived: (uiData, action) => {
+      uiData.deviceType = action.payload;
+    },
     moreInfoCarouselOpen: (uiData, action) => {
       uiData.isOpen = action.payload.isOpen;
       uiData.type = action.payload.type;
@@ -44,8 +48,8 @@ const slice = createSlice({
       uiData.name = action.payload.name;
       uiData.mode = action.payload.mode;
       uiData.image = action.payload.image;
-      uiData.sortedBrawlers= action.payload.sortedBrawlers;
-      uiData.sortedTeams= action.payload.sortedTeams
+      uiData.sortedBrawlers = action.payload.sortedBrawlers;
+      uiData.sortedTeams = action.payload.sortedTeams;
     },
     moreInfoEventClosed: (uiData, action) => {
       uiData.isOpenEvents = false;
@@ -53,25 +57,26 @@ const slice = createSlice({
       uiData.name = null;
       uiData.mode = null;
       uiData.image = null;
-      uiData.sortedBrawlers=null;
-      uiData.sortedTeams=null
+      uiData.sortedBrawlers = null;
+      uiData.sortedTeams = null;
     },
-    typeIndexChanged:(uiData,action)=>{
-      uiData.typeIndex=action.payload
+    typeIndexChanged: (uiData, action) => {
+      uiData.typeIndex = action.payload;
     },
-    rangeIndexChanged:(uiData,action)=>{
-      uiData.rangeIndex=action.payload
-    }
+    rangeIndexChanged: (uiData, action) => {
+      uiData.rangeIndex = action.payload;
+    },
   },
 });
 
 export const {
+  deviceTypeReceived,
   moreInfoCarouselOpen,
   moreInfoCarouselClosed,
   receivedGameTypeAndSeason,
   moreInfoEventOpen,
   moreInfoEventClosed,
   typeIndexChanged,
-  rangeIndexChanged
+  rangeIndexChanged,
 } = slice.actions;
 export default slice.reducer;

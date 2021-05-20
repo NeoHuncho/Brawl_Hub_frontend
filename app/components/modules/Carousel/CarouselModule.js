@@ -275,15 +275,9 @@ export default function CarouselModule({ dataType, style, sort }) {
                   : { marginTop: 65 },
               ]}
             >
-              {item.wins != 0 && item.losses != 0 ? (
-                <Text style={styles.winRatio}>
-                  {"Performance:  " + item.winRatio.toFixed(1)}
-                </Text>
-              ) : (
-                <Text style={styles.winRatio}>
-                  {item.wins != 0 ? "Wins only" : "Losses only"}
-                </Text>
-              )}
+              <Text style={styles.winRatio}>
+                {"Performance:  " + item.winRatio.toFixed(1)}
+              </Text>
             </View>
             <Text style={styles.winLoss}>{"Losses: " + item.losses}</Text>
           </View>
