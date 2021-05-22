@@ -36,6 +36,7 @@ const PlayerStats = () => {
   console.log("called playerstats");
   getAssets();
   const dispatch = useDispatch();
+  const device = useSelector((state) => state.uiReducerNoPersist.deviceType);
   const battleLogReducer = useSelector((state) => state.battleLogReducer);
 
   // console.log("look here", battleLogReducer.playerStats.brawlers);
@@ -242,12 +243,21 @@ const PlayerStats = () => {
                       }}
                     />
                   ) : null}
-                  <Text style={styles.name}>{playerName}</Text>
+                  <Text
+                    style={[
+                      styles.name,
+                      device == "tablet"
+                        ? { fontSize: 45, marginTop:2}
+                        : null,
+                    ]}
+                  >
+                    {playerName}
+                  </Text>
                   <TouchableOpacity onPress={() => handleReset()}>
                     <Ionicons
                       style={styles.icon}
                       name="exit"
-                      size={24}
+                      size={device != "tablet" ? 24 : 40}
                       color={colors.secondary}
                     ></Ionicons>
                   </TouchableOpacity>
@@ -267,7 +277,7 @@ const PlayerStats = () => {
                   >
                     <Ionicons
                       name="settings"
-                      size={24}
+                      size={device != "tablet" ? 24 : 40}
                       color={colors.secondary}
                     />
                     <Text
@@ -275,7 +285,7 @@ const PlayerStats = () => {
                         styles.categoryName,
                         {
                           textAlign: "center",
-                          fontSize: 25,
+                          fontSize: device != "tablet" ? 25 : 35,
                         },
                       ]}
                     >
@@ -296,7 +306,7 @@ const PlayerStats = () => {
                         styles.categoryName,
                         {
                           textAlign: "center",
-                          fontSize: 25,
+                          fontSize: device != "tablet" ? 25 : 35,
                         },
                       ]}
                     >
@@ -305,14 +315,22 @@ const PlayerStats = () => {
                     <Ionicons
                       style={{ marginLeft: 5, marginTop: 5 }}
                       name="book"
-                      size={24}
+                      size={device != "tablet" ? 24 : 40}
                       color={colors.secondary}
                     />
                   </TouchableOpacity>
                 </View>
                 {showSettings == true && (
                   <View style={{ marginTop: 20 }}>
-                    <Text style={styles.sliderTitle}>Choose Season:</Text>
+                    <Text
+                      style={[
+                        styles.sliderTitle,
+                        { marginLeft: 30 },
+                        device == "tablet" ? { fontSize: 28 } : null,
+                      ]}
+                    >
+                      Choose Season:
+                    </Text>
                     <View style={{ marginLeft: 20, marginRight: 20 }}>
                       <SegmentedControlTab
                         values={seasons}
@@ -320,22 +338,77 @@ const PlayerStats = () => {
                         // the minus 5 is to convert it back
                         selectedIndex={seasonIndex - 6}
                         onTabPress={(index) => setSeasonIndex(index + 5)}
+                        tabsContainerStyle={
+                          device == "tablet"
+                            ? {
+                                marginLeft: 50,
+                                marginRight: 50,
+                                marginTop: 10,
+                                marginBottom: 10,
+                              }
+                            : null
+                        }
+                        tabTextStyle={{
+                          fontSize: device != "tablet" ? 14 : 25,
+                          fontFamily: "Lilita-One",
+                        }}
                       />
                       <View style={{ marginTop: 10 }}>
-                        <Text style={styles.sliderTitle}>Sort By:</Text>
+                        <Text
+                          style={[
+                            styles.sliderTitle,
+                            device == "tablet" ? { fontSize: 28 } : null,
+                          ]}
+                        >
+                          Sort By:
+                        </Text>
                         <SegmentedControlTab
                           tabContainerStyle={{ width: "50%" }}
                           values={["Performance", "Wins"]}
                           selectedIndex={sortIndex}
                           onTabPress={(index) => setSortIndex(index)}
+                          tabsContainerStyle={
+                            device == "tablet"
+                              ? {
+                                  marginLeft: 50,
+                                  marginRight: 50,
+                                  marginTop: 10,
+                                  marginBottom: 10,
+                                }
+                              : null
+                          }
+                          tabTextStyle={{
+                            fontSize: device != "tablet" ? 14 : 25,
+                            fontFamily: "Lilita-One",
+                          }}
                         />
                       </View>
                       <View style={{ marginTop: 10, marginBottom: 20 }}>
-                        <Text style={styles.sliderTitle}>Style:</Text>
+                        <Text
+                          style={[
+                            styles.sliderTitle,
+                            device == "tablet" ? { fontSize: 28 } : null,
+                          ]}
+                        >
+                          Style:
+                        </Text>
                         <SegmentedControlTab
                           values={["Carousel", "Tinder", "Stack"]}
                           selectedIndex={styleIndex}
                           onTabPress={(index) => setStyleIndex(index)}
+                          tabsContainerStyle={
+                            device == "tablet"
+                              ? {
+                                  marginLeft: 50,
+                                  marginRight: 50,
+                                  marginTop: 10,
+                                }
+                              : null
+                          }
+                          tabTextStyle={{
+                            fontSize: device != "tablet" ? 14 : 25,
+                            fontFamily: "Lilita-One",
+                          }}
                         />
                       </View>
                     </View>
@@ -356,12 +429,27 @@ const PlayerStats = () => {
                   >
                     <View style={{ flexDirection: "row" }}>
                       {showOverallStats == false && (
-                        <Ionicons color="white" size={25} name="caret-up" />
+                        <Ionicons
+                          color="white"
+                          size={device != "tablet" ? 25 : 40}
+                          name="caret-up"
+                        />
                       )}
                       {showOverallStats == true && (
-                        <Ionicons color="white" size={25} name="caret-down" />
+                        <Ionicons
+                          color="white"
+                          size={device != "tablet" ? 25 : 40}
+                          name="caret-down"
+                        />
                       )}
-                      <Text style={styles.categoryName}>
+                      <Text
+                        style={[
+                          styles.categoryName,
+                          device == "tablet"
+                            ? { fontSize: 35 }
+                            : null
+                        ]}
+                      >
                         Show Overall Player Stats
                       </Text>
                     </View>

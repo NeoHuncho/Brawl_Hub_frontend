@@ -32,7 +32,11 @@ export default function FaqPage() {
       </Text>
       <Image
         source={explanationEventsPerformance}
-        style={{ width: device != "tablet" ?350: 800, height:device != "tablet" ? 175:375, marginTop: device != "tablet" ?10:30 }}
+        style={{
+          width: device != "tablet" ? 350 : 800,
+          height: device != "tablet" ? 175 : 375,
+          marginTop: device != "tablet" ? 10 : 30,
+        }}
       />
       <Text style={device != "tablet" ? styles.answer : styles.answerTablet}>
         I then divide the total winning points of each brawler/team by their
@@ -90,9 +94,10 @@ const styles = StyleSheet.create({
   },
   questionTablet: {
     marginTop: 45,
-    marginLeft: 15,
-    marginRight: 15,
+    marginLeft: 55,
+    marginRight: 55,
     fontSize: 28,
+    lineHeight: 40,
     color: colors.primary,
     fontFamily: "Lilita-One",
     textAlign: "center",
@@ -108,9 +113,10 @@ const styles = StyleSheet.create({
   },
   answerTablet: {
     marginTop: 10,
-    marginLeft: 15,
-    marginRight: 15,
+    marginLeft: 55,
+    marginRight: 55,
     fontSize: 22,
+    lineHeight: 30,
     color: colors.secondary,
     fontFamily: "Lilita-One",
     textAlign: "center",

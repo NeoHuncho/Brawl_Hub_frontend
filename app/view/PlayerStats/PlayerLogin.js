@@ -31,6 +31,7 @@ import PlayerStats from "./PlayerStats";
 
 export default function PlayerLogin() {
   const dispatch = useDispatch();
+  const device = useSelector((state) => state.uiReducerNoPersist.deviceType);
   const playerID = useSelector((state) => state.playerPersistReducer.playerID);
   const saved = useSelector((state) => state.playerPersistReducer.saved);
   const season = useSelector((state) => state.globalStatsReducer.seasonGlobal);
@@ -181,7 +182,10 @@ export default function PlayerLogin() {
               <Text
                 style={[
                   styles.provideIdText,
-                  { fontSize: 30, color: colors.secondary },
+                  {
+                    fontSize: device != "tablet" ? 30 : 60,
+                    color: colors.secondary,
+                  },
                 ]}
               >
                 View your own stats!
@@ -189,55 +193,93 @@ export default function PlayerLogin() {
               <Text
                 style={[
                   styles.provideIdText,
-                  { fontSize: 20, color: colors.secondary },
+                  {
+                    fontSize: device != "tablet" ? 20 : 30,
+                    color: colors.secondary,
+                  },
                 ]}
               >
                 (and get them updated & saved daily)
               </Text>
             </View>
             <View style={styles.inputContainer}>
-              <Text style={styles.provideIdText}>{message}</Text>
+              <Text
+                style={[
+                  styles.provideIdText,
+                  device == "tablet" ? { fontSize: 20 } : null,
+                ]}
+              >
+                {message}
+              </Text>
 
               <TextInput
                 type="flat"
                 underlineColor={colors.background}
                 selectionColor={colors.background}
                 autoCapitalize="characters"
-                style={styles.playerIdInput}
+                style={[
+                  styles.playerIdInput,
+                  device == "tablet"
+                    ? { fontSize: 22, height: 60, width: 340 }
+                    : null,
+                ]}
                 onChangeText={(userId) => {
                   setUserId(userId.toUpperCase());
                   setMessage("Please provide your Brawl Stars player ID");
                 }}
               />
 
-              <View style={{ marginTop: 5 }}>
+              <View style={{ marginTop: device != "tablet" ? 5 : 15 }}>
                 <Button
                   title="Confirm"
                   onPress={() => setConfirmClicked(true)}
                 />
               </View>
-              <Text style={[styles.findIdText, { marginTop: 20 }]}>
+              <Text
+                style={[
+                  styles.findIdText,
+                  { marginTop: device != "tablet" ? 20 : 40 },
+                  device == "tablet" ? { fontSize: 20 } : null,
+                ]}
+              >
                 There will NEVER be the LETTER O in your tag!
               </Text>
-              <Text style={[styles.findIdText, { marginTop: 0 }]}>
+              <Text
+                style={[
+                  styles.findIdText,
+                  { marginTop: device != "tablet" ? 0 : 5 },
+                  device == "tablet" ? { fontSize: 20 } : null,
+                ]}
+              >
                 It will ALWAYS be the NUMBER 0
               </Text>
             </View>
 
             <View style={styles.imagesContainer}>
               <TouchableOpacity onPress={() => handleHowToClicked()}>
-                <Text style={[styles.findIdText, { fontSize: 18 }]}>
+                <Text
+                  style={[
+                    styles.findIdText,
+                    { fontSize: device != "tablet" ? 18 : 30 },
+                  ]}
+                >
                   Click how to find Player ID
                 </Text>
               </TouchableOpacity>
               {howToClicked && (
                 <>
                   <Image
-                    style={styles.image}
+                    style={
+                      (styles.image,
+                      device == "tablet" ? { width: 450, height: 255, marginTop:15 } : null)
+                    }
                     source={require("../../assets/playerLoginImages/brawlStarsmainPage.png")}
                   />
                   <Image
-                    style={styles.image}
+                    style={
+                      (styles.image,
+                      device == "tablet" ? { width: 450, height: 255,marginTop:5 } : null)
+                    }
                     source={require("../../assets/playerLoginImages/brawlStarsProfilePage.png")}
                   />
                 </>
@@ -255,8 +297,8 @@ export default function PlayerLogin() {
             <Progress.Bar
               animated={true}
               progress={progress}
-              height={10}
-              width={300}
+              height={device == "tablet" ? 20 : 10}
+              width={device == "tablet" ? 600 : 300}
               style={{
                 marginTop: 100,
                 marginLeft: "auto",
@@ -269,7 +311,7 @@ export default function PlayerLogin() {
                 {
                   fontFamily: "Lilita-One",
                   color: colors.secondary,
-                  fontSize: 14,
+                  fontSize: device == "tablet" ? 22 : 14,
                   marginTop: 20,
                   marginLeft: 30,
                   marginRight: 30,

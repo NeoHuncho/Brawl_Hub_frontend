@@ -13,7 +13,7 @@ const eventsData = () => {
     let slotNumberUpcoming = state.globalStatsReducer.slotNumberUpcoming;
 
     for (const eventKey in eventsActive) {
-      if (eventsActive[eventKey].slot.id <= slotNumberActive||eventsActive[eventKey].map.gameMode.name=='Takedown'||eventsActive[eventKey].map.gameMode.name=='Lone Star' ) {
+      if (eventsActive[eventKey].reward === 5) {
         if (
           Math.sign(
             moment.duration(
@@ -35,17 +35,17 @@ const eventsData = () => {
               moment(eventsActive[eventKey].endTime).diff(moment.now())
             ),
           });
-        } 
-        else {
+        } else {
           // console.log('called!')
           for (const eventKeyUpcoming in eventsUpcoming) {
             if (
-              eventsActive[eventKey].slot.id == eventsUpcoming[eventKeyUpcoming].slot.id
+              eventsActive[eventKey].slot.id ==
+              eventsUpcoming[eventKeyUpcoming].slot.id
             )
-           
               eventActiveData.push({
                 modeName: eventsUpcoming[eventKeyUpcoming].map.gameMode.name,
-                modeImage: eventsUpcoming[eventKeyUpcoming].map.gameMode.imageUrl,
+                modeImage:
+                  eventsUpcoming[eventKeyUpcoming].map.gameMode.imageUrl,
                 modeColor: eventsUpcoming[eventKeyUpcoming].map.gameMode.color,
                 mapID: eventsUpcoming[eventKeyUpcoming].map.id,
                 mapName: eventsUpcoming[eventKeyUpcoming].map.name,
@@ -55,7 +55,9 @@ const eventsData = () => {
                 endTime: eventsUpcoming[eventKeyUpcoming].endTime,
                 eventID: eventsUpcoming[eventKeyUpcoming].slot.id,
                 eventLeftTime: moment.duration(
-                  moment(eventsUpcoming[eventKeyUpcoming].endTime).diff(moment.now())
+                  moment(eventsUpcoming[eventKeyUpcoming].endTime).diff(
+                    moment.now()
+                  )
                 ),
               });
           }
