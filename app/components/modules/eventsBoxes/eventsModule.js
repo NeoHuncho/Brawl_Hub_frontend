@@ -73,12 +73,12 @@ const EventsModule = ({ season, typeIndex, range }) => {
       countImageAd == countVideoAd
     ) {
       await AdMobInterstitial.setAdUnitID(
-        "ca-app-pub-3940256099942544/1033173712"
+        "ca-app-pub-2795080443480499/1284925570"
       ); // Test ID, Replace with your-admob-unit-id
       await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
     } else if (countImageAd > countVideoAd) {
       await AdMobInterstitial.setAdUnitID(
-        "ca-app-pub-3940256099942544/8691691433"
+        "ca-app-pub-2795080443480499/4950011872"
       ); // Test ID, Replace with your-admob-unit-id
       await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
     }
@@ -86,14 +86,16 @@ const EventsModule = ({ season, typeIndex, range }) => {
   prepareAds();
 
   const showImageInterstitial = async () => {
+    console.log('show Image')
     if ((await AdMobInterstitial.getIsReadyAsync()) == true) {
-      await AdMobInterstitial.showAdAsync();
+     AdMobInterstitial.showAdAsync();
       countImageAd += 1;
     }
   };
   const showVideoInterstitial = async () => {
+    console.log('show Video')
     if ((await AdMobInterstitial.getIsReadyAsync()) == true) {
-      await AdMobInterstitial.showAdAsync();
+    AdMobInterstitial.showAdAsync();
       countVideoAd += 1;
     }
   };
@@ -485,7 +487,6 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                               device != "tablet" ? 28 : 50,
                                             borderWidth:
                                               device != "tablet" ? 1 : 3,
-                                           
                                           },
                                         ]}
                                         source={getBrawlerImage(
@@ -562,7 +563,6 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                     {
                                       width: device != "tablet" ? 28 : 50,
                                       height: device != "tablet" ? 28 : 50,
-                                      
                                     },
                                   ]}
                                   source={getBrawlerImage(teamBrawler1[mapID])}
@@ -573,7 +573,6 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                     {
                                       width: device != "tablet" ? 28 : 50,
                                       height: device != "tablet" ? 28 : 50,
-                                      
                                     },
                                   ]}
                                   source={getBrawlerImage(teamBrawler2[mapID])}
@@ -723,7 +722,6 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                               device != "tablet" ? 28 : 50,
                                             borderWidth:
                                               device != "tablet" ? 1 : 3,
-                                      
                                           },
                                         ]}
                                         source={getBrawlerImage(
@@ -809,7 +807,6 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                     {
                                       width: device != "tablet" ? 28 : 50,
                                       height: device != "tablet" ? 28 : 50,
-                                      
                                     },
                                   ]}
                                   source={getBrawlerImage(teamBrawler1[mapID])}
@@ -823,7 +820,6 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                     {
                                       width: device != "tablet" ? 28 : 50,
                                       height: device != "tablet" ? 28 : 50,
-                                      
                                     },
                                   ]}
                                   source={getBrawlerImage(teamBrawler2[mapID])}

@@ -9,6 +9,7 @@ const slice = createSlice({
     betaMessage: true,
     plMessage: true,
     menuMessage: true,
+    adMessage: true,
     typeIndex: 0,
     trophiesRange: 2,
     plRange: 2,
@@ -24,6 +25,7 @@ const slice = createSlice({
       if (id == "update") uiDataPersist.updateMessage = false;
       if (id == "pl") uiDataPersist.plMessage = false;
       if (id == "menu") uiDataPersist.menuMessage = false;
+      if (id == "ad") uiDataPersist.adMessage = false;
     },
     typeIndexChanged: (uiDataPersist, action) => {
       uiDataPersist.typeIndex = action.payload;

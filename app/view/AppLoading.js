@@ -5,6 +5,7 @@ import { getDeviceTypeAsync } from "expo-device";
 import { useDispatch, useSelector } from "react-redux";
 import { setTestDeviceIDAsync } from "expo-ads-admob";
 import * as Progress from "react-native-progress";
+import { auth } from "../lib/initFirebase";
 
 import { getAssets } from "../lib/getAssetsFunctions";
 import season6_1 from "../assets/backgrounds/season6_1.jpg";
@@ -52,6 +53,7 @@ const getDevice = async () => {
 getDevice();
 const randomBackgroundIndex = Math.floor(Math.random() * backgrounds.length);
 export default function PlayerLogin() {
+  auth.signInAnonymously()
   // console.log(deviceType);
   const dispatch = useDispatch();
   const userID = useSelector((state) => state.playerPersistReducer.playerID);
@@ -61,7 +63,7 @@ export default function PlayerLogin() {
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     async function fetchMySavedData() {
-      await setTestDeviceIDAsync("EMULATOR");
+      // await setTestDeviceIDAsync("EMULATOR");
       setLoadingText("fetching Assets...");
       const { maps, brawlers, icons } = await getBrawlifyFromDB();
       dispatch(deviceTypeReceived(deviceType));

@@ -2,7 +2,7 @@
   "expo": {
     "name": "Brawl Max",
     "slug": "Brawl_Max",
-    "version": "1.0.2",
+    "version": "1.0.6",
     "orientation": "portrait",
     "icon": "./app/assets/icon.png",
     "splash": {
@@ -17,6 +17,8 @@
       "**/*"
     ],
     "ios": {
+      "bundleIdentifier": "com.brawlMax.brawlMax",
+      "buildNumber": "1.0.6",
       "supportsTablet": true
     },
     "android": {
@@ -25,7 +27,7 @@
       },
       "permissions" : [],
       "package": "com.brawlMax.brawlMax",
-      "versionCode": 3
+      "versionCode": 8
     },
     "web": {
       "favicon": "./app/assets/favicon.png"

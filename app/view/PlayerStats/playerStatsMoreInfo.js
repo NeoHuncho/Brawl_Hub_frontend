@@ -21,6 +21,7 @@ import CarouselModule from "../../components/modules/Carousel/CarouselModule";
 import { processPlayerStats } from "../../components/modules/Carousel/CarouselData";
 
 export default function PlayerStatsMoreInfo() {
+  const device = useSelector((state) => state.uiReducerNoPersist.deviceType);
   useEffect(() => {
     const backAction = () => {
       handleReturn();
@@ -69,19 +70,31 @@ export default function PlayerStatsMoreInfo() {
           >
             <Ionicons
               name="arrow-back-circle"
-              size={50}
+              size={device != "tablet" ? 50 : 70}
               style={{ zIndex: 2 }}
               color={colors.secondary}
             />
           </TouchableOpacity>
           <View style={{ marginTop: 10, flexDirection: "row" }}>
             <TouchableOpacity>
-              <Text style={[styles.name]}>{carouselInfo.displayName}</Text>
+              <Text
+                style={[
+                  styles.name,
+                  device == "tablet" ? { fontSize: 40 } : null,
+                ]}
+              >
+                {carouselInfo.displayName}
+              </Text>
             </TouchableOpacity>
             {carouselInfo.mode != undefined && (
               <Image
                 source={carouselInfo.mode}
-                style={{ width: 20, height: 20, marginTop: 14, marginLeft: 5 }}
+                style={{
+                  width: device != "tablet" ? 20 : 40,
+                  height: device != "tablet" ? 20 : 40,
+                  marginTop: 14,
+                  marginLeft: 5,
+                }}
               />
             )}
           </View>
@@ -100,7 +113,15 @@ export default function PlayerStatsMoreInfo() {
           <ScrollView>
             {carouselInfo.type == "mode" && (
               <>
-                <Text style={[styles.categoryName, { marginTop: 30 }]}>
+                <Text
+                  style={[
+                    styles.categoryName,
+                    { marginTop: 30 },
+                    device == "tablet"
+                      ? { fontSize: 30, marginLeft: 10 }
+                      : null,
+                  ]}
+                >
                   Player Stats by Map
                 </Text>
                 <CarouselModule
@@ -114,6 +135,7 @@ export default function PlayerStatsMoreInfo() {
               style={[
                 styles.categoryName,
                 carouselInfo.type == "map" ? { marginTop: 20 } : null,
+                device == "tablet" ? { fontSize: 30, marginLeft: 10 } : null,
               ]}
             >
               Player Stats by Brawler
@@ -124,7 +146,14 @@ export default function PlayerStatsMoreInfo() {
               sort={preferencesCarouselStored.sortIndex}
             />
 
-            <Text style={styles.categoryName}>Player Stats by Teams</Text>
+            <Text
+              style={[
+                styles.categoryName,
+                device == "tablet" ? { fontSize: 30, marginLeft: 10 } : null,
+              ]}
+            >
+              Player Stats by Teams
+            </Text>
             <CarouselModule
               dataType="team"
               style={preferencesCarouselStored.styleIndex}

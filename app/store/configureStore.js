@@ -4,7 +4,7 @@ import {
   getDefaultMiddleware,
 } from "@reduxjs/toolkit"; // this tool allows for store to talk to redux dev tools & dispatch async actions
 
-import { persistReducer, persistStore } from "redux-persist";
+import { persistReducer, persistStore, createMigrate } from "redux-persist";
 import AsyncStorage from "@react-native-community/async-storage";
 import { composeWithDevTools } from "redux-devtools-extension";
 import reducers from "./reducers";

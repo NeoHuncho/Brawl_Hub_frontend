@@ -199,7 +199,7 @@ const PlayerStats = () => {
     <>
       <AdMobBanner
         bannerSize="smartBanner"
-        adUnitID="ca-app-pub-3940256099942544/6300978111"
+        adUnitID="ca-app-pub-2795080443480499/9766722308"
         servePersonalizedAds={true} // true or false
         onDidFailToReceiveAdWithError={(e) => console.log(e)}
         style={{ marginTop: StatusBar.currentHeight }}
@@ -216,7 +216,7 @@ const PlayerStats = () => {
                 {updateMessage == true && (
                   <MessageBox
                     message={
-                      "Your stats will automatically update daily, if you open Brawl Hub at least once every 3 DAYS!"
+                      "Your stats will automatically update daily, if you open Brawl Max at least once every 3 DAYS!"
                     }
                     idMessage={"update"}
                     color={colors.red}
@@ -247,7 +247,7 @@ const PlayerStats = () => {
                     style={[
                       styles.name,
                       device == "tablet"
-                        ? { fontSize: 45, marginTop:2}
+                        ? { fontSize: 45, marginTop: 2 }
                         : null,
                     ]}
                   >
@@ -445,9 +445,7 @@ const PlayerStats = () => {
                       <Text
                         style={[
                           styles.categoryName,
-                          device == "tablet"
-                            ? { fontSize: 35 }
-                            : null
+                          device == "tablet" ? { fontSize: 35 } : null,
                         ]}
                       >
                         Show Overall Player Stats
@@ -461,7 +459,7 @@ const PlayerStats = () => {
                       style={[
                         styles.categoryName,
                         {
-                          fontSize: 14,
+                          fontSize: device != "tablet" ? 14 : 25,
                           marginLeft: "auto",
                           marginRight: "auto",
                         },
@@ -473,9 +471,9 @@ const PlayerStats = () => {
                       style={[
                         styles.categoryName,
                         {
-                          marginTop: 4,
+                          marginTop: device != "tablet" ? 4 : 10,
                           marginBottom: 5,
-                          fontSize: 13,
+                          fontSize: device != "tablet" ? 13 : 20,
                           marginLeft: "auto",
                           marginRight: "auto",
                         },
@@ -487,8 +485,8 @@ const PlayerStats = () => {
                       <Progress.Bar
                         animated={true}
                         progress={playerNums.overallPercentage}
-                        height={10}
-                        width={200}
+                        height={device != "tablet" ? 10 : 20}
+                        width={device != "tablet" ? 200 : 300}
                         style={{
                           marginLeft: "auto",
                           marginRight: "auto",
@@ -500,27 +498,43 @@ const PlayerStats = () => {
                         flexDirection: "row",
                         marginLeft: "auto",
                         marginRight: "auto",
-                        marginTop: 10,
+                        marginTop: device != "tablet" ? 10 : 30,
                       }}
                     >
-                      <View style={{}}>
+                      <View>
                         <Text
                           style={[
                             styles.categoryName,
                             {
                               marginTop: 4,
                               marginBottom: 5,
-                              fontSize: 10,
+                              fontSize: device != "tablet" ? 10 : 20,
                             },
                           ]}
                         >
                           Brawlers
                         </Text>
                         <Image
-                          style={styles.imageProgress}
+                          style={[
+                            styles.imageProgress,
+                            device == "tablet"
+                              ? {
+                                  width: 60,
+                                  height: 60,
+                                  marginTop: 5,
+                                  marginBottom: 5,
+                                }
+                              : null,
+                          ]}
                           source={require("../../assets/icons/brawler.png")}
                         />
-                        <Text style={[styles.categoryName, styles.number]}>
+                        <Text
+                          style={[
+                            styles.categoryName,
+                            styles.number,
+                            device == "tablet" ? { fontSize: 18 } : null,
+                          ]}
+                        >
                           {Math.round(
                             (playerNums.numberOfBrawlers /
                               globalNumbers.numberOfBrawlers) *
@@ -533,14 +547,22 @@ const PlayerStats = () => {
                             playerNums.numberOfBrawlers /
                             globalNumbers.numberOfBrawlers
                           }
-                          height={4}
+                          height={device != "tablet" ? 4 : 6}
                           width={40}
                           style={{
                             marginLeft: "auto",
                             marginRight: "auto",
                           }}
                         />
-                        <Text style={[styles.categoryName, styles.number]}>
+                        <Text
+                          style={[
+                            styles.categoryName,
+                            styles.number,
+                            device == "tablet"
+                              ? { fontSize: 18, marginTop: 10 }
+                              : null,
+                          ]}
+                        >
                           {playerNums.numberOfBrawlers +
                             "/" +
                             globalNumbers.numberOfBrawlers}
@@ -553,17 +575,33 @@ const PlayerStats = () => {
                             {
                               marginTop: 4,
                               marginBottom: 5,
-                              fontSize: 10,
+                              fontSize: device != "tablet" ? 10 : 20,
                             },
                           ]}
                         >
                           Star Powers
                         </Text>
                         <Image
-                          style={styles.imageProgress}
+                          style={[
+                            styles.imageProgress,
+                            device == "tablet"
+                              ? {
+                                  width: 60,
+                                  height: 60,
+                                  marginTop: 5,
+                                  marginBottom: 5,
+                                }
+                              : null,
+                          ]}
                           source={require("../../assets/icons/starPower.png")}
                         />
-                        <Text style={[styles.categoryName, styles.number]}>
+                        <Text
+                          style={[
+                            styles.categoryName,
+                            styles.number,
+                            device == "tablet" ? { fontSize: 18 } : null,
+                          ]}
+                        >
                           {Math.round(
                             (playerNums.numberOfStarPowers /
                               globalNumbers.numberOfStarPowers) *
@@ -576,14 +614,22 @@ const PlayerStats = () => {
                             playerNums.numberOfStarPowers /
                             globalNumbers.numberOfStarPowers
                           }
-                          height={4}
+                          height={device != "tablet" ? 4 : 6}
                           width={40}
                           style={{
                             marginLeft: "auto",
                             marginRight: "auto",
                           }}
                         />
-                        <Text style={[styles.categoryName, styles.number]}>
+                        <Text
+                          style={[
+                            styles.categoryName,
+                            styles.number,
+                            device == "tablet"
+                              ? { fontSize: 18, marginTop: 10 }
+                              : null,
+                          ]}
+                        >
                           {playerNums.numberOfStarPowers +
                             "/" +
                             globalNumbers.numberOfStarPowers}
@@ -596,17 +642,33 @@ const PlayerStats = () => {
                             {
                               marginTop: 4,
                               marginBottom: 5,
-                              fontSize: 10,
+                              fontSize: device != "tablet" ? 10 : 20,
                             },
                           ]}
                         >
                           Gadgets
                         </Text>
                         <Image
-                          style={styles.imageProgress}
+                          style={[
+                            styles.imageProgress,
+                            device == "tablet"
+                              ? {
+                                  width: 60,
+                                  height: 60,
+                                  marginTop: 5,
+                                  marginBottom: 5,
+                                }
+                              : null,
+                          ]}
                           source={require("../../assets/icons/gadget.png")}
                         />
-                        <Text style={[styles.categoryName, styles.number]}>
+                        <Text
+                          style={[
+                            styles.categoryName,
+                            styles.number,
+                            device == "tablet" ? { fontSize: 18 } : null,
+                          ]}
+                        >
                           {Math.round(
                             (playerNums.numberOfGadgets /
                               globalNumbers.numberOfGadgets) *
@@ -619,14 +681,22 @@ const PlayerStats = () => {
                             playerNums.numberOfGadgets /
                             globalNumbers.numberOfGadgets
                           }
-                          height={4}
+                          height={device != "tablet" ? 4 : 6}
                           width={40}
                           style={{
                             marginLeft: "auto",
                             marginRight: "auto",
                           }}
                         />
-                        <Text style={[styles.categoryName, styles.number]}>
+                        <Text
+                          style={[
+                            styles.categoryName,
+                            styles.number,
+                            device == "tablet"
+                              ? { fontSize: 18, marginTop: 10 }
+                              : null,
+                          ]}
+                        >
                           {playerNums.numberOfGadgets +
                             "/" +
                             globalNumbers.numberOfGadgets}
@@ -638,9 +708,10 @@ const PlayerStats = () => {
                         style={[
                           styles.categoryName,
                           {
-                            fontSize: 14,
+                            fontSize: device != "tablet" ? 14 : 25,
                             marginLeft: "auto",
                             marginRight: "auto",
+                            marginTop: device != "tablet" ? 0 : 15,
                           },
                         ]}
                       >
@@ -650,10 +721,10 @@ const PlayerStats = () => {
                         style={[
                           styles.categoryName,
                           {
-                            fontSize: 13,
+                            fontSize: device != "tablet" ? 13 : 20,
                             marginLeft: "auto",
                             marginRight: "auto",
-                            marginTop: 5,
+                            marginTop: device != "tablet" ? 5 : 8,
                           },
                         ]}
                       >
@@ -674,7 +745,7 @@ const PlayerStats = () => {
                               {
                                 marginTop: 4,
                                 marginBottom: 5,
-                                fontSize: 10,
+                                fontSize: device != "tablet" ? 10 : 20,
                               },
                             ]}
                           >
@@ -684,21 +755,27 @@ const PlayerStats = () => {
                             style={[
                               styles.imageProgress,
                               {
-                                width: 40,
-                                height: 20,
+                                width: device != "tablet" ? 40 : 80,
+                                height: device != "tablet" ? 20 : 40,
                                 marginBottom: 10,
-                                marginTop: 5,
+                                marginTop: device != "tablet" ? 5 : 15,
                               },
                             ]}
                             source={require("../../assets/icons/teams.png")}
                           />
-                          <Text style={[styles.categoryName, styles.number]}>
+                          <Text
+                            style={[
+                              styles.categoryName,
+                              styles.number,
+                              device == "tablet" ? { fontSize: 17 } : null,
+                            ]}
+                          >
                             {playerAvgs.avg3vs3Victories + "%"}
                           </Text>
                           <Progress.Bar
                             animated={true}
                             progress={playerAvgs.avg3vs3Victories / 100}
-                            height={4}
+                            height={device != "tablet" ? 4 : 6}
                             width={40}
                             style={{
                               marginLeft: "auto",
@@ -713,7 +790,7 @@ const PlayerStats = () => {
                               {
                                 marginTop: 4,
                                 marginBottom: 5,
-                                fontSize: 10,
+                                fontSize: device != "tablet" ? 10 : 20,
                                 marginLeft: "auto",
                                 marginRight: "auto",
                               },
@@ -722,16 +799,30 @@ const PlayerStats = () => {
                             Duo
                           </Text>
                           <Image
-                            style={styles.imageProgress}
+                            style={[
+                              styles.imageProgress,
+                              device == "tablet"
+                                ? {
+                                    width: 65,
+                                    height: 65,
+                                  }
+                                : null,
+                            ]}
                             source={require("../../assets/icons/duoShowdown.png")}
                           />
-                          <Text style={[styles.categoryName, styles.number]}>
+                          <Text
+                            style={[
+                              styles.categoryName,
+                              styles.number,
+                              device == "tablet" ? { fontSize: 17 } : null,
+                            ]}
+                          >
                             {playerAvgs.avgDuoVictories + "%"}
                           </Text>
                           <Progress.Bar
                             animated={true}
                             progress={playerAvgs.avgDuoVictories / 100}
-                            height={4}
+                            height={device != "tablet" ? 4 : 6}
                             width={40}
                             style={{
                               marginLeft: "auto",
@@ -746,7 +837,7 @@ const PlayerStats = () => {
                               {
                                 marginTop: 4,
                                 marginBottom: 5,
-                                fontSize: 10,
+                                fontSize: device != "tablet" ? 10 : 20,
                                 marginLeft: "auto",
                                 marginRight: "auto",
                               },
@@ -755,16 +846,30 @@ const PlayerStats = () => {
                             Solo
                           </Text>
                           <Image
-                            style={styles.imageProgress}
+                            style={[
+                              styles.imageProgress,
+                              device == "tablet"
+                                ? {
+                                    width: 65,
+                                    height: 65,
+                                  }
+                                : null,
+                            ]}
                             source={require("../../assets/icons/showdown.png")}
                           />
-                          <Text style={[styles.categoryName, styles.number]}>
+                          <Text
+                            style={[
+                              styles.categoryName,
+                              styles.number,
+                              device == "tablet" ? { fontSize: 17 } : null,
+                            ]}
+                          >
                             {playerAvgs.avgSoloVictories + "%"}
                           </Text>
                           <Progress.Bar
                             animated={true}
                             progress={playerAvgs.avgSoloVictories / 100}
-                            height={4}
+                            height={device != "tablet" ? 4 : 6}
                             width={40}
                             style={{
                               marginLeft: "auto",
@@ -783,13 +888,34 @@ const PlayerStats = () => {
                       enabled={typesKey.length > 1 ? true : false}
                       selectedIndex={typeIndex}
                       onTabPress={(index) => setTypeIndex(index)}
+                      tabsContainerStyle={
+                        device == "tablet"
+                          ? {
+                              marginLeft: 50,
+                              marginRight: 50,
+                              marginTop: 10,
+                              marginBottom: 10,
+                            }
+                          : null
+                      }
+                      tabTextStyle={{
+                        fontSize: device != "tablet" ? 14 : 25,
+                        fontFamily: "Lilita-One",
+                      }}
                     />
                   </View>
                   <View style={{ marginTop: 10 }}>
                     <WinLossModule type={typesKey[typeIndex]} />
                   </View>
                   <View style={{ marginTop: 18, marginBottom: 80 }}>
-                    <Text style={styles.categoryName}>
+                    <Text
+                      style={[
+                        styles.categoryName,
+                        device == "tablet"
+                          ? { fontSize: 30, marginLeft: 10 }
+                          : null,
+                      ]}
+                    >
                       Player Stats by Mode
                     </Text>
                     <CarouselModule
@@ -797,13 +923,29 @@ const PlayerStats = () => {
                       style={styleIndex}
                       sort={sortIndex}
                     />
-                    <Text style={styles.categoryName}>Player Stats by Map</Text>
+                    <Text
+                      style={[
+                        styles.categoryName,
+                        device == "tablet"
+                          ? { fontSize: 30, marginLeft: 10 }
+                          : null,
+                      ]}
+                    >
+                      Player Stats by Map
+                    </Text>
                     <CarouselModule
                       dataType="map"
                       style={styleIndex}
                       sort={sortIndex}
                     />
-                    <Text style={styles.categoryName}>
+                    <Text
+                      style={[
+                        styles.categoryName,
+                        device == "tablet"
+                          ? { fontSize: 30, marginLeft: 10 }
+                          : null,
+                      ]}
+                    >
                       Player Stats by Brawler
                     </Text>
                     <CarouselModule
@@ -812,7 +954,14 @@ const PlayerStats = () => {
                       sort={sortIndex}
                     />
                     <View style={{ marginBottom: 50 }}>
-                      <Text style={styles.categoryName}>
+                      <Text
+                        style={[
+                          styles.categoryName,
+                          device == "tablet"
+                            ? { fontSize: 30, marginLeft: 10 }
+                            : null,
+                        ]}
+                      >
                         Player Stats by Teams
                       </Text>
                       <CarouselModule

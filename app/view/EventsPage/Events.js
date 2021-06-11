@@ -74,6 +74,7 @@ export default function Events() {
   };
 
   const plMessage = useSelector((state) => state.uiReducerPersist.plMessage);
+  const adMessage = useSelector((state) => state.uiReducerPersist.adMessage);
 
   // console.log(soloPLTrophies, teamPLTrophies);
   if (moreInfoEventOpen === false) {
@@ -147,7 +148,7 @@ export default function Events() {
     <>
       <AdMobBanner
         bannerSize="smartBanner"
-        adUnitID="ca-app-pub-3940256099942544/6300978111"
+        adUnitID="ca-app-pub-2795080443480499/9766722308"
         servePersonalizedAds={true} // true or false
         onDidFailToReceiveAdWithError={(e) => console.log(e)}
         style={{ marginTop: StatusBar.currentHeight }}
@@ -158,6 +159,13 @@ export default function Events() {
             "Open this app BEFORE starting a power league game!   Otherwise switching back and forth could lead to a disconnect."
           }
           idMessage={"pl"}
+          color={colors.red}
+        />
+      )}
+      {adMessage == true && (
+        <MessageBox
+          message={"The possibility to remove ads will be coming very soon !!"}
+          idMessage={"ad"}
           color={colors.red}
         />
       )}

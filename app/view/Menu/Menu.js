@@ -35,7 +35,7 @@ export default function Menu() {
     (state) => state.uiReducerPersist.menuMessage
   );
   const playerID = useSelector((state) => state.playerPersistReducer.playerID);
-  console.log(error);
+  // console.log(error);
   let modules = [];
   const moduleCreator = (titlePart1, titlePart2, color, image, explanation) => {
     modules.push(
@@ -113,7 +113,7 @@ export default function Menu() {
     <>
       <AdMobBanner
         bannerSize="smartBanner"
-        adUnitID="ca-app-pub-3940256099942544/6300978111"
+        adUnitID="ca-app-pub-2795080443480499/9766722308"
         servePersonalizedAds={true} // true or false
         onDidFailToReceiveAdWithError={(e) => console.log(e)}
         style={{ marginTop: StatusBar.currentHeight }}

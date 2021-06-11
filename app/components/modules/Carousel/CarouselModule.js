@@ -48,12 +48,12 @@ export default function CarouselModule({ dataType, style, sort }) {
       countImageAd == countVideoAd
     ) {
       await AdMobInterstitial.setAdUnitID(
-        "ca-app-pub-3940256099942544/1033173712"
+        "ca-app-pub-2795080443480499/1284925570"
       ); // Test ID, Replace with your-admob-unit-id
       await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
     } else if (countImageAd > countVideoAd) {
       await AdMobInterstitial.setAdUnitID(
-        "ca-app-pub-3940256099942544/8691691433"
+        "ca-app-pub-2795080443480499/4950011872"
       ); // Test ID, Replace with your-admob-unit-id
       await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
     }
@@ -303,7 +303,7 @@ export default function CarouselModule({ dataType, style, sort }) {
           layout={style === 0 ? "default" : style === 1 ? "tinder" : "stack"}
           layoutCardOffset={30}
           ref={carouselRef}
-          sliderWidth={390}
+          sliderWidth={Dimensions.get("window").width - 20}
           itemWidth={300}
           data={
             sort === 0

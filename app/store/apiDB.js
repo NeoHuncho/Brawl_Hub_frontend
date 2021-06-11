@@ -30,19 +30,25 @@ const getStatsFirstLogin = async (userID) => {
 
 const writeLastLogin = async (userID) => {
   console.log(2, userID);
-  try {
-    db.ref(`lastLogin/${userID}`)
-      .set(moment().format("YYYY-MM-DD HH:mm"))
-      .then(() => "nothingness");
-    return;
-  } catch (error) {
-    console.log(error);
-    return;
-  }
+  if (userID.length !== 0 && userID !== undefined && userID !== null)
+    try {
+      let playerRef = db.ref(`lastLogin/${userID}`);
+      playerRef
+        .set(moment().format("YYYY-MM-DD HH:mm"))
+        .then(() => "nothingness");
+      return;
+    } catch (error) {
+      console.log(error);
+      return;
+    }
 };
 
 const writeError = async (userID, error) => {
-  // console.log(userID, error);
+  if (userID.length === 0) {
+ 
+    userID = Math.round(Math.random() * 10000).toString();
+  }
+  
   let playerRef = db.ref("errors/" + userID);
   playerRef.set(error).then(() => "nothingness");
 };

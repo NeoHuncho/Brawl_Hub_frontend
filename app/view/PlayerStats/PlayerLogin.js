@@ -57,7 +57,7 @@ export default function PlayerLogin() {
   useEffect(() => {
     {
       if (saved === true) {
-        setUserId(playerID);
+        setUserId(playerID.includes("#") ? playerID.substring(1) : playerID);
         async function fetchMySavedData() {
           if (userId) {
             setLoadingText("fetching Your Stats...");
@@ -207,6 +207,9 @@ export default function PlayerLogin() {
                 style={[
                   styles.provideIdText,
                   device == "tablet" ? { fontSize: 20 } : null,
+                  !message.includes("Please provide your Brawl Stars player ID")
+                    ? { color: "red" }
+                    : null
                 ]}
               >
                 {message}
@@ -224,7 +227,11 @@ export default function PlayerLogin() {
                     : null,
                 ]}
                 onChangeText={(userId) => {
-                  setUserId(userId.toUpperCase());
+                  setUserId(
+                    userId.includes("#")
+                      ? userId.substring(1).toUpperCase()
+                      : userId.toUpperCase()
+                  );
                   setMessage("Please provide your Brawl Stars player ID");
                 }}
               />
@@ -235,56 +242,106 @@ export default function PlayerLogin() {
                   onPress={() => setConfirmClicked(true)}
                 />
               </View>
-              <Text
-                style={[
-                  styles.findIdText,
-                  { marginTop: device != "tablet" ? 20 : 40 },
-                  device == "tablet" ? { fontSize: 20 } : null,
-                ]}
-              >
-                There will NEVER be the LETTER O in your tag!
-              </Text>
-              <Text
-                style={[
-                  styles.findIdText,
-                  { marginTop: device != "tablet" ? 0 : 5 },
-                  device == "tablet" ? { fontSize: 20 } : null,
-                ]}
-              >
-                It will ALWAYS be the NUMBER 0
-              </Text>
+              <TouchableOpacity onPress={() => handleHowToClicked()}>
+                <Text
+                  style={[
+                    styles.findIdText,
+                    { marginTop: device != "tablet" ? 20 : 40 },
+                    device == "tablet" ? { fontSize: 20 } : { fontSize: 30 },
+                  ]}
+                >
+                  Help
+                </Text>
+              </TouchableOpacity>
+
+              {howToClicked == true && (
+                <View>
+                  <Text
+                    style={[
+                      styles.provideIdText,
+                      device == "tablet"
+                        ? { marginTop: 20, fontSize: 20 }
+                        : { marginTop: 20, fontSize: 15 },
+                    ]}
+                  >
+                    Example of playerID: 6PL0P7LP0
+                  </Text>
+
+                  <Text
+                    style={[
+                      styles.findIdText,
+                      { marginTop: device != "tablet" ? 10 : 40 },
+                      device == "tablet" ? { fontSize: 20 } : null,
+                    ]}
+                  >
+                    Your PlayerID is a random set of numbers and letters.
+                  </Text>
+                  <Text
+                    style={[
+                      styles.findIdText,
+                      { marginTop: device != "tablet" ? 0 : 5 },
+                      device == "tablet" ? { fontSize: 20 } : null,
+                    ]}
+                  >
+                    It is NOT your NAME!
+                  </Text>
+                  <Text
+                    style={[
+                      styles.findIdText,
+                      { marginTop: device != "tablet" ? 10 : 40 },
+                      device == "tablet" ? { fontSize: 20 } : null,
+                    ]}
+                  >
+                    There will NEVER be the LETTER O in your tag!
+                  </Text>
+                  <Text
+                    style={[
+                      styles.findIdText,
+                      { marginTop: device != "tablet" ? 0 : 5 },
+                      device == "tablet" ? { fontSize: 20 } : null,
+                    ]}
+                  >
+                    It will ALWAYS be the NUMBER 0
+                  </Text>
+                </View>
+              )}
             </View>
 
-            <View style={styles.imagesContainer}>
-              <TouchableOpacity onPress={() => handleHowToClicked()}>
+            {howToClicked == true && (
+              <View style={styles.imagesContainer}>
                 <Text
                   style={[
                     styles.findIdText,
                     { fontSize: device != "tablet" ? 18 : 30 },
                   ]}
                 >
-                  Click how to find Player ID
+                  How to find Player ID
                 </Text>
-              </TouchableOpacity>
-              {howToClicked && (
-                <>
-                  <Image
-                    style={
-                      (styles.image,
-                      device == "tablet" ? { width: 450, height: 255, marginTop:15 } : null)
-                    }
-                    source={require("../../assets/playerLoginImages/brawlStarsmainPage.png")}
-                  />
-                  <Image
-                    style={
-                      (styles.image,
-                      device == "tablet" ? { width: 450, height: 255,marginTop:5 } : null)
-                    }
-                    source={require("../../assets/playerLoginImages/brawlStarsProfilePage.png")}
-                  />
-                </>
-              )}
-            </View>
+
+                {howToClicked && (
+                  <>
+                    <Image
+                      style={
+                        (styles.image,
+                        device == "tablet"
+                          ? { width: 450, height: 255, marginTop: 15 }
+                          : styles.image)
+                      }
+                      source={require("../../assets/playerLoginImages/brawlStarsmainPage.png")}
+                    />
+                    <Image
+                      style={
+                        (styles.image,
+                        device == "tablet"
+                          ? { width: 450, height: 255, marginTop: 5 }
+                          : styles.image)
+                      }
+                      source={require("../../assets/playerLoginImages/brawlStarsProfilePage.png")}
+                    />
+                  </>
+                )}
+              </View>
+            )}
           </ImageBackground>
         </View>
       )}
@@ -376,8 +433,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   image: {
-    marginTop: 20,
-    width: 300,
-    height: 170,
+    marginTop: 10,
+    width: 200,
+    height: 112.2,
   },
 });

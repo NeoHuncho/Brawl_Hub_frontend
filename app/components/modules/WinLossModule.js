@@ -12,11 +12,12 @@ export default function WinLossModule({ type }) {
     : type === "Team PL"
     ? (type = "teamRanked")
     : null;
+  const device = useSelector((state) => state.uiReducerNoPersist.deviceType);
   const trophyWins = useSelector((state) => state.battleLogReducer.trophyWins);
   const trophyLosses = useSelector(
     (state) => state.battleLogReducer.trophyLosses
   );
-  
+
   let playerStats = useSelector(
     (state) => state.battleLogReducer.playerStats[`${type}_maps`]
   );
@@ -33,19 +34,45 @@ export default function WinLossModule({ type }) {
           <View
             style={{ flexDirection: "row", justifyContent: "space-between" }}
           >
-            <Text style={styles.trophyWins}> +{trophyWins} Trophies</Text>
-            <Text style={styles.trophyLosses}> -{trophyLosses} Trophies</Text>
+            <Text
+              style={[
+                styles.trophyWins,
+                device == "tablet" ? { fontSize: 20 } : null,
+              ]}
+            >
+              {" "}
+              +{trophyWins} Trophies
+            </Text>
+            <Text
+              style={[
+                styles.trophyLosses,
+                device == "tablet" ? { fontSize: 20 } : null,
+              ]}
+            >
+              {" "}
+              -{trophyLosses} Trophies
+            </Text>
           </View>
           <View style={styles.mainContainer}>
             <View
               style={[styles.winsRectangle, { width: `${winsRatioLong}%` }]}
             >
-              <Text style={styles.winningRatio}>{`${winsRatio}%`}</Text>
+              <Text
+                style={[
+                  styles.winningRatio,
+                  device == "tablet" ? { fontSize: 20 } : null,
+                ]}
+              >{`${winsRatio}%`}</Text>
             </View>
             <View
               style={[styles.losesRectangle, { width: `${losesRatioLong}%` }]}
             >
-              <Text style={styles.losesRatio}>{`${losesRatio}%`}</Text>
+              <Text
+                style={[
+                  styles.losesRatio,
+                  device == "tablet" ? { fontSize: 20 } : null,
+                ]}
+              >{`${losesRatio}%`}</Text>
             </View>
           </View>
         </>
@@ -76,19 +103,45 @@ export default function WinLossModule({ type }) {
           <View
             style={{ flexDirection: "row", justifyContent: "space-between" }}
           >
-            <Text style={styles.trophyWins}> +{wins} Wins </Text>
-            <Text style={styles.trophyLosses}> -{losses} Losses</Text>
+            <Text
+              style={[
+                styles.trophyWins,
+                device == "tablet" ? { fontSize: 20 } : null,
+              ]}
+            >
+              {" "}
+              +{wins} Wins{" "}
+            </Text>
+            <Text
+              style={[
+                styles.trophyLosses,
+                device == "tablet" ? { fontSize: 20 } : null,
+              ]}
+            >
+              {" "}
+              -{losses} Losses
+            </Text>
           </View>
           <View style={styles.mainContainer}>
             <View
               style={[styles.winsRectangle, { width: `${winsRatioLong}%` }]}
             >
-              <Text style={styles.winningRatio}>{`${winsRatio}%`}</Text>
+              <Text
+                style={[
+                  styles.winningRatio,
+                  device == "tablet" ? { fontSize: 20 } : null,
+                ]}
+              >{`${winsRatio}%`}</Text>
             </View>
             <View
               style={[styles.losesRectangle, { width: `${losesRatioLong}%` }]}
             >
-              <Text style={styles.losesRatio}>{`${losesRatio}%`}</Text>
+              <Text
+                style={[
+                  styles.losesRatio,
+                  device == "tablet" ? { fontSize: 20 } : null,
+                ]}
+              >{`${losesRatio}%`}</Text>
             </View>
           </View>
         </>
