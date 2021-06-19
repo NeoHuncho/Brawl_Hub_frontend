@@ -15,6 +15,7 @@ import {
 import { AdMobBanner } from "expo-ads-admob";
 import { useSelector } from "react-redux";
 
+import { bannerAdID } from "../../config/ads";
 import { writeError } from "../../store/apiDB";
 import MessageBox from "../../components/modules/MessageBox";
 import colors from "../../config/colors";
@@ -113,7 +114,7 @@ export default function Menu() {
     <>
       <AdMobBanner
         bannerSize="smartBanner"
-        adUnitID="ca-app-pub-2795080443480499/9766722308"
+        adUnitID={bannerAdID}
         servePersonalizedAds={true} // true or false
         onDidFailToReceiveAdWithError={(e) => console.log(e)}
         style={{ marginTop: StatusBar.currentHeight }}

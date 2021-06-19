@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { AdMobBanner, setTestDeviceIDAsync } from "expo-ads-admob";
+import { AdMobBanner } from "expo-ads-admob";
 
 import {
   ScrollView,
@@ -18,6 +18,7 @@ import { Ionicons } from "@expo/vector-icons";
 import SegmentedControlTab from "react-native-segmented-control-tab";
 import * as Progress from "react-native-progress";
 
+import { bannerAdID } from "../../config/ads";
 import colors from "../../config/colors";
 import { userIdReset } from "../../store/reducers/playerIdReducer";
 import { receivedGameTypeAndSeason } from "../../store/reducers/uiReducerNoPersist";
@@ -41,7 +42,7 @@ const PlayerStats = () => {
 
   // console.log("look here", battleLogReducer.playerStats.brawlers);
   const playerName = battleLogReducer.name;
-  const season = 6;
+  const season = useSelector((state) => state.globalStatsReducer.seasonGlobal);
   const icon = battleLogReducer.icon;
 
   const playerID = useSelector((state) => state.playerPersistReducer.playerID);
@@ -199,7 +200,7 @@ const PlayerStats = () => {
     <>
       <AdMobBanner
         bannerSize="smartBanner"
-        adUnitID="ca-app-pub-2795080443480499/9766722308"
+        adUnitID={bannerAdID}
         servePersonalizedAds={true} // true or false
         onDidFailToReceiveAdWithError={(e) => console.log(e)}
         style={{ marginTop: StatusBar.currentHeight }}
@@ -322,7 +323,7 @@ const PlayerStats = () => {
                 </View>
                 {showSettings == true && (
                   <View style={{ marginTop: 20 }}>
-                    <Text
+                    {/* <Text
                       style={[
                         styles.sliderTitle,
                         { marginLeft: 30 },
@@ -330,9 +331,9 @@ const PlayerStats = () => {
                       ]}
                     >
                       Choose Season:
-                    </Text>
+                    </Text> */}
                     <View style={{ marginLeft: 20, marginRight: 20 }}>
-                      <SegmentedControlTab
+                      {/* <SegmentedControlTab
                         values={seasons}
                         //The plus 5 is because we are starting 5 seasons late
                         // the minus 5 is to convert it back
@@ -352,7 +353,7 @@ const PlayerStats = () => {
                           fontSize: device != "tablet" ? 14 : 25,
                           fontFamily: "Lilita-One",
                         }}
-                      />
+                      /> */}
                       <View style={{ marginTop: 10 }}>
                         <Text
                           style={[

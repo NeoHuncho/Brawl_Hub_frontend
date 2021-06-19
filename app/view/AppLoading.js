@@ -8,6 +8,9 @@ import * as Progress from "react-native-progress";
 import { auth } from "../lib/initFirebase";
 
 import { getAssets } from "../lib/getAssetsFunctions";
+import season7_1 from "../assets/backgrounds/season7_1.jpg";
+import season7_2 from "../assets/backgrounds/season7_2.jpg";
+import season7_3 from "../assets/backgrounds/season7_3.jpg";
 import season6_1 from "../assets/backgrounds/season6_1.jpg";
 import season6_2 from "../assets/backgrounds/season6_2.jpg";
 import season6_3 from "../assets/backgrounds/season6_3.jpg";
@@ -37,6 +40,9 @@ import {
 import BottomBar from "../components/modules/BottomBar";
 
 const backgrounds = [
+  season7_1,
+  season7_2,
+  season7_3,
   season6_1,
   season6_2,
   season6_3,
@@ -53,7 +59,7 @@ const getDevice = async () => {
 getDevice();
 const randomBackgroundIndex = Math.floor(Math.random() * backgrounds.length);
 export default function PlayerLogin() {
-  auth.signInAnonymously()
+  auth.signInAnonymously();
   // console.log(deviceType);
   const dispatch = useDispatch();
   const userID = useSelector((state) => state.playerPersistReducer.playerID);
@@ -85,8 +91,10 @@ export default function PlayerLogin() {
         minBrawlerPL,
         minTeamPL,
         seasonGlobal,
+        seasonStats,
         slotNumActive,
         slotNumUpcoming,
+        powerLeagueActive,
       } = await getGlobalNumbersFromDB();
       setProgress(0.8);
       setLoadingText("fetching global stats. Hang in there!");
@@ -101,8 +109,10 @@ export default function PlayerLogin() {
           minBrawlerPL: minBrawlerPL,
           minTeamPL: minTeamPL,
           seasonGlobal: seasonGlobal,
+          seasonStats: seasonStats,
           slotNumActive: slotNumActive,
           slotNumUpcoming: slotNumUpcoming,
+          powerLeagueActive: powerLeagueActive,
         })
       );
       if (userID != null) {
@@ -112,7 +122,7 @@ export default function PlayerLogin() {
       await getEvents();
       const globalStats = await getGlobalStatsFromDB(
         null,
-        seasonGlobal,
+        seasonStats,
         "global"
       );
       // console.log('called')

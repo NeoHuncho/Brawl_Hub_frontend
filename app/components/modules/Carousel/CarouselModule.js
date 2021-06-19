@@ -13,6 +13,7 @@ import Carousel from "react-native-snap-carousel";
 import { Ionicons } from "@expo/vector-icons";
 import { AdMobInterstitial } from "expo-ads-admob";
 
+import { imageAdID, videoAdID } from "../../../config/ads";
 import colors from "../../../config/colors";
 import {
   modesByPerformance,
@@ -47,14 +48,10 @@ export default function CarouselModule({ dataType, style, sort }) {
       (countImageAd == 0 && countVideoAd == 0) ||
       countImageAd == countVideoAd
     ) {
-      await AdMobInterstitial.setAdUnitID(
-        "ca-app-pub-2795080443480499/1284925570"
-      ); // Test ID, Replace with your-admob-unit-id
+      await AdMobInterstitial.setAdUnitID(imageAdID); // Test ID, Replace with your-admob-unit-id
       await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
     } else if (countImageAd > countVideoAd) {
-      await AdMobInterstitial.setAdUnitID(
-        "ca-app-pub-2795080443480499/4950011872"
-      ); // Test ID, Replace with your-admob-unit-id
+      await AdMobInterstitial.setAdUnitID(videoAdID); // Test ID, Replace with your-admob-unit-id
       await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
     }
   };

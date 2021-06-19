@@ -45,10 +45,9 @@ const writeLastLogin = async (userID) => {
 
 const writeError = async (userID, error) => {
   if (userID.length === 0) {
- 
     userID = Math.round(Math.random() * 10000).toString();
   }
-  
+
   let playerRef = db.ref("errors/" + userID);
   playerRef.set(error).then(() => "nothingness");
 };
@@ -99,8 +98,10 @@ const getGlobalNumbersFromDB = async () => {
   const minBrawlerPL = globalCount["minBrawlerPL"];
   const minTeamPL = globalCount["minTeamPL"];
   const seasonGlobal = globalCount["seasonGlobal"];
+  const seasonStats = globalCount["seasonStats"];
   const slotNumActive = globalCount["slotNumActive"];
   const slotNumUpcoming = globalCount["slotNumUpcoming"];
+  const powerLeagueActive= globalCount['powerLeagueApp']
 
   return {
     ranges,
@@ -112,8 +113,10 @@ const getGlobalNumbersFromDB = async () => {
     minBrawlerPL,
     minTeamPL,
     seasonGlobal,
+    seasonStats,
     slotNumActive,
     slotNumUpcoming,
+    powerLeagueActive
   };
 };
 const getGlobalStatsFromDB = async (

@@ -18,6 +18,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { store } from "../../store/configureStore";
 import { useSelector, useDispatch } from "react-redux";
 
+import { bannerAdID } from "../../config/ads";
 import Settings from "./Settings";
 import colors from "../../config/colors";
 import EventsModule from "../../components/modules/eventsBoxes/eventsModule";
@@ -54,7 +55,11 @@ export default function Events() {
   const [moreInfoEventOpen, setMoreInfoEventOpen] = useState(false);
   const [typeIndexChanging, setTypeIndexChanging] = useState(false);
 
-  const season = useSelector((state) => state.globalStatsReducer.seasonGlobal);
+  const season = useSelector((state) => state.globalStatsReducer.seasonStats);
+  const powerLeagueActive = useSelector(
+    (state) => state.globalStatsReducer.powerLeagueActive
+  );
+
   const globalStatsInStore = useSelector(
     (state) => state.globalStatsReducer.globalStats
   );
@@ -148,7 +153,7 @@ export default function Events() {
     <>
       <AdMobBanner
         bannerSize="smartBanner"
-        adUnitID="ca-app-pub-2795080443480499/9766722308"
+        adUnitID={bannerAdID}
         servePersonalizedAds={true} // true or false
         onDidFailToReceiveAdWithError={(e) => console.log(e)}
         style={{ marginTop: StatusBar.currentHeight }}
@@ -258,6 +263,7 @@ export default function Events() {
                 setTypeIndexChange(true);
                 setTypeIndexChanging(false);
               }}
+              enabled={powerLeagueActive == false ? false : true}
             />
             {/* <View> */}
             {/* <SegmentedControlTab

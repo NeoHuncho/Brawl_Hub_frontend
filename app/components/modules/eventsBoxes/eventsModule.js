@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { AdMobInterstitial } from "expo-ads-admob";
 
+import { imageAdID, videoAdID } from "../../../config/ads";
 import { eventsData, eventActiveData } from "./eventsData";
 import colors from "../../../config/colors";
 import {
@@ -72,30 +73,26 @@ const EventsModule = ({ season, typeIndex, range }) => {
       (countImageAd == 0 && countVideoAd == 0) ||
       countImageAd == countVideoAd
     ) {
-      await AdMobInterstitial.setAdUnitID(
-        "ca-app-pub-2795080443480499/1284925570"
-      ); // Test ID, Replace with your-admob-unit-id
+      await AdMobInterstitial.setAdUnitID(imageAdID); // Test ID, Replace with your-admob-unit-id
       await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
     } else if (countImageAd > countVideoAd) {
-      await AdMobInterstitial.setAdUnitID(
-        "ca-app-pub-2795080443480499/4950011872"
-      ); // Test ID, Replace with your-admob-unit-id
+      await AdMobInterstitial.setAdUnitID(videoAdID); // Test ID, Replace with your-admob-unit-id
       await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
     }
   };
   prepareAds();
 
   const showImageInterstitial = async () => {
-    console.log('show Image')
+    console.log("show Image");
     if ((await AdMobInterstitial.getIsReadyAsync()) == true) {
-     AdMobInterstitial.showAdAsync();
+      AdMobInterstitial.showAdAsync();
       countImageAd += 1;
     }
   };
   const showVideoInterstitial = async () => {
-    console.log('show Video')
+    console.log("show Video");
     if ((await AdMobInterstitial.getIsReadyAsync()) == true) {
-    AdMobInterstitial.showAdAsync();
+      AdMobInterstitial.showAdAsync();
       countVideoAd += 1;
     }
   };

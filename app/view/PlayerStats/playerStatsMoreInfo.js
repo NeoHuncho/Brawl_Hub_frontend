@@ -11,7 +11,8 @@ import {
   TouchableHighlight,
   BackHandler,
 } from "react-native";
-import { AdMobBanner, setTestDeviceIDAsync } from "expo-ads-admob";
+
+
 import { Ionicons } from "@expo/vector-icons";
 import { useSelector, useDispatch } from "react-redux";
 
@@ -55,11 +56,7 @@ export default function PlayerStatsMoreInfo() {
     dispatch(moreInfoCarouselClosed());
   };
 
-  const setTest = async () => {
-    await setTestDeviceIDAsync("EMULATOR");
-  };
-  setTest();
-
+ 
   return (
     <>
       {carouselInfo.image && (

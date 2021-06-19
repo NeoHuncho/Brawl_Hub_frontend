@@ -18,6 +18,8 @@ const slice = createSlice({
     globalStats: undefined,
     slotNumberActive: undefined,
     slotNumberUpcoming: undefined,
+    seasonStats: undefined,
+    powerLeagueActive: undefined,
   },
   reducers: {
     globalCountsReceived: (globalStats, action) => {
@@ -33,8 +35,10 @@ const slice = createSlice({
       globalStats.minBrawlerPL = data.minBrawlerPL;
       globalStats.minTeamPL = data.minTeamPL;
       globalStats.seasonGlobal = data.seasonGlobal;
+      globalStats.seasonStats = data.seasonStats;
       globalStats.slotNumberActive = data.slotNumActive;
       globalStats.slotNumberUpcoming = data.slotNumUpcoming;
+      globalStats.powerLeagueActive = data.powerLeagueActive;
     },
 
     globalStatsReceived: (globalStats, action) => {
