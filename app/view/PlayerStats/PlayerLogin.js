@@ -15,7 +15,8 @@ import { setTestDeviceIDAsync } from "expo-ads-admob";
 import * as Progress from "react-native-progress";
 
 import { receivedPlayerStatsFromDB } from "../../store/reducers/battleLogReducer";
-import { userIdReceived } from "../../store/reducers/playerIdReducer";
+import { userIdAndNameReceived } from "../../store/reducers/playerIdReducer";
+import { seasonChangeReceived } from "../../store/reducers/globalStatsReducer";
 
 import colors from "../../config/colors";
 
@@ -25,7 +26,7 @@ import {
   getStatsFirstLogin,
   getStatsFromDB,
   writeLastLogin,
-} from "../../store/apiDB";
+} from "../../lib/apiDB";
 
 import PlayerStats from "./PlayerStats";
 
@@ -33,9 +34,10 @@ export default function PlayerLogin() {
   const dispatch = useDispatch();
   const device = useSelector((state) => state.uiReducerNoPersist.deviceType);
   const playerID = useSelector((state) => state.playerPersistReducer.playerID);
+  const name = useSelector((state) => state.playerPersistReducer.playerName);
   const saved = useSelector((state) => state.playerPersistReducer.saved);
   const season = useSelector((state) => state.globalStatsReducer.seasonGlobal);
-
+  console.log(playerID, "lookgere");
   const [userId, setUserId] = useState(); //8LP0P8LVC
   const [validId, setValidId] = useState(false);
   const [howToClicked, setHowToClicked] = useState(false);
@@ -63,8 +65,29 @@ export default function PlayerLogin() {
             setLoadingText("fetching Your Stats...");
             setProgress(0.5);
             setProgress(0.8);
-            const stats = await getStatsFromDB(userId, season);
+            let stats = null;
+            stats = await getStatsFromDB(userId, season);
+            if (Object.keys(stats).length === 0) {
+              stats = await getStatsFromDB(userId, season - 1);
+              dispatch(seasonChangeReceived(season - 1));
+            }
+            if (Object.keys(stats).length === 0) {
+              stats = await getStatsFromDB(userId, season - 2);
+              dispatch(seasonChangeReceived(season - 2));
+            }
+
+            if (name === undefined) {
+              console.log("called no name");
+              console.log("called no name2 ", stats.globalStats.name);
+              dispatch(
+                userIdAndNameReceived({
+                  userId: userId,
+                  name: stats.globalStats.name,
+                })
+              );
+            }
             await dispatch(receivedPlayerStatsFromDB(stats));
+            console.log("125", name);
             setProgress(1);
             setValidId(true);
           }
@@ -86,7 +109,7 @@ export default function PlayerLogin() {
               "fetching your stats...  This process be much faster after your first login!"
             );
             setProgress(0.5);
-            console.log(userId);
+
             let checkDBStats = await getStatsFromDB(userId, season);
 
             console.log(1445, checkDBStats);
@@ -96,26 +119,34 @@ export default function PlayerLogin() {
               Object.keys(checkDBStats).length === 0
             ) {
               try {
-                console.log("calleddd");
-                await getStatsFirstLogin(userId);
+                let statsFromDB = null;
+                await getStatsFirstLogin(userId)
+                  .then((playerStats) => (statsFromDB = playerStats))
+                  .catch((error) => {
+                    if (error.response) {
+                      setConfirmClicked(false);
+                      if (error.response.status === 404)
+                        setMessage("Invalid player ID. Please try Again!");
+                      else if (error.response.status === 503)
+                        setMessage(
+                          "Supercell is currently doing maintenance. Please try later."
+                        );
+                      else
+                        setMessage("Unexpected error! please try again later.");
+                    }
+                  });
+                setProgress(0.7);
+                console.log("called 2");
                 writeLastLogin(userId);
-                console.log("should not be called");
-                let statsFromDB = await getStatsFromDB(userId, season);
-                //  console.log(statsFromDB.battleLog)
-                if (statsFromDB == "error") {
-                  await new Promise((r) => setTimeout(r, 1000));
-                  setLoadingText(
-                    "fetching your stats...  This process be much faster after your first login!"
-                  );
-                  statsFromDB = await getStatsFromDB(userId, season);
-                  if (statsFromDB == "error") {
-                    await new Promise((r) => setTimeout(r, 2000));
-                    statsFromDB = await getStatsFromDB(userId, season);
-                  }
-                }
-
-                dispatch(userIdReceived(userId));
                 setProgress(0.8);
+                console.log(4445, statsFromDB);
+                dispatch(
+                  userIdAndNameReceived({
+                    userId: userId,
+                    name: statsFromDB.globalStats.name,
+                  })
+                );
+                setProgress(0.9);
                 dispatch(receivedPlayerStatsFromDB(statsFromDB));
               } catch (error) {
                 console.log("look here", error.response.status);
@@ -125,7 +156,7 @@ export default function PlayerLogin() {
                     setMessage("Invalid player ID. Please try Again!");
                     return;
                   } else {
-                    console.log(error.response.status);
+                    setConfirmClicked(false);
                     setMessage(
                       "Invalid player ID or Supercell is doing maintenance!"
                     );
@@ -139,8 +170,13 @@ export default function PlayerLogin() {
             } else {
               console.log("called already saved");
               setLoadingText("fetching your stats... Hang in there!");
-              setProgress(0.8);
-              await dispatch(userIdReceived(userId));
+              setProgress(0.9);
+              await dispatch(
+                userIdAndNameReceived({
+                  userId: userId,
+                  name: checkDBStats.globalStats.name,
+                })
+              );
               await dispatch(receivedPlayerStatsFromDB(checkDBStats));
               console.log("finished saving");
             }
@@ -209,7 +245,7 @@ export default function PlayerLogin() {
                   device == "tablet" ? { fontSize: 20 } : null,
                   !message.includes("Please provide your Brawl Stars player ID")
                     ? { color: "red" }
-                    : null
+                    : null,
                 ]}
               >
                 {message}
@@ -229,7 +265,7 @@ export default function PlayerLogin() {
                 onChangeText={(userId) => {
                   setUserId(
                     userId.includes("#")
-                      ? userId.substring(1).toUpperCase()
+                      ? userId.replace(/#/g, "").toUpperCase()
                       : userId.toUpperCase()
                   );
                   setMessage("Please provide your Brawl Stars player ID");

@@ -1,27 +1,28 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, } from "@reduxjs/toolkit";
 
 const slice = createSlice({
   name: "playerPersist",
   initialState: {
     playerID: null,
-    saved:false
+    saved: false,
   },
   reducers: {
-    userIdReceived: (playerPersist, action) => {
+    userIdAndNameReceived: (playerPersist, action) => {
       const data = action.payload;
-      playerPersist.playerID = data;      
-      playerPersist.saved=true
+      playerPersist.playerID = data.userId;
+      playerPersist.playerName = data.name;
+      playerPersist.saved = true;
     },
-    userIdReset:(playerPersist,action)=>{
-      if(playerPersist.playerID!==''){
-        playerPersist.playerID='';
-        playerPersist.saved=false;
+    userIdReset: (playerPersist, action) => {
+      if (playerPersist.playerID !== "") {
+        playerPersist.playerID = "";
+        playerPersist.playerName = "";
+        playerPersist.saved = false;
       }
-     
-      
-    }
+    },
   },
+  
 });
 
-export const { userIdReceived,userIdReset } = slice.actions;
+export const { userIdAndNameReceived, userIdReset } = slice.actions;
 export default slice.reducer;

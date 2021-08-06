@@ -6,7 +6,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { setTestDeviceIDAsync } from "expo-ads-admob";
 import * as Progress from "react-native-progress";
 import { auth } from "../lib/initFirebase";
+import { AdMobInterstitial } from "expo-ads-admob";
 
+import { videoAdID } from "../config/ads";
 import { getAssets } from "../lib/getAssetsFunctions";
 import season7_1 from "../assets/backgrounds/season7_1.jpg";
 import season7_2 from "../assets/backgrounds/season7_2.jpg";
@@ -26,16 +28,19 @@ import {
 } from "../store/reducers/globalStatsReducer";
 
 import { deviceTypeReceived } from "../store/reducers/uiReducerNoPersist";
-import { brawlifyDataReceived } from "../store/reducers/brawlifyReducer";
+import {
+  brawlifyDataReceived,
+  eventsReceived,
+} from "../store/reducers/brawlifyReducer";
 
 import colors from "../config/colors";
 
+import getBrawlify from "../lib/getBrawlify";
 import {
-  getBrawlifyFromDB,
   getGlobalStatsFromDB,
-  getGlobalNumbersFromDB,
+  getSwitchesFromDB,
   writeLastLogin,
-} from "../store/apiDB";
+} from "../lib/apiDB";
 
 import BottomBar from "../components/modules/BottomBar";
 
@@ -63,6 +68,7 @@ export default function PlayerLogin() {
   // console.log(deviceType);
   const dispatch = useDispatch();
   const userID = useSelector((state) => state.playerPersistReducer.playerID);
+  const name = useSelector((state) => state.playerPersistReducer.playerName);
 
   const [progress, setProgress] = useState(0);
   const [loadingText, setLoadingText] = useState("");
@@ -70,59 +76,36 @@ export default function PlayerLogin() {
   useEffect(() => {
     async function fetchMySavedData() {
       // await setTestDeviceIDAsync("EMULATOR");
+      try {
+      } catch (error) {}
       setLoadingText("fetching Assets...");
-      const { maps, brawlers, icons } = await getBrawlifyFromDB();
+
+      const { maps, brawlers } = await getBrawlify();
       dispatch(deviceTypeReceived(deviceType));
       dispatch(
         brawlifyDataReceived({
           brawlers: brawlers,
           maps: maps,
-          icons: icons,
         })
       );
       setProgress(0.5);
-      const {
-        ranges,
-        nBrawlers,
-        nGadgets,
-        nStarPowers,
-        minBrawlerEvent,
-        minTeamEvent,
-        minBrawlerPL,
-        minTeamPL,
-        seasonGlobal,
-        seasonStats,
-        slotNumActive,
-        slotNumUpcoming,
-        powerLeagueActive,
-      } = await getGlobalNumbersFromDB();
+      const switches = await getSwitchesFromDB();
       setProgress(0.8);
       setLoadingText("fetching global stats. Hang in there!");
       dispatch(
         globalCountsReceived({
-          ranges: ranges,
-          nBrawlers: nBrawlers,
-          nGadgets: nGadgets,
-          nStarPowers: nStarPowers,
-          minBrawlerEvent: minBrawlerEvent,
-          minTeamEvent: minTeamEvent,
-          minBrawlerPL: minBrawlerPL,
-          minTeamPL: minTeamPL,
-          seasonGlobal: seasonGlobal,
-          seasonStats: seasonStats,
-          slotNumActive: slotNumActive,
-          slotNumUpcoming: slotNumUpcoming,
-          powerLeagueActive: powerLeagueActive,
+          switches,
         })
       );
       if (userID != null) {
         // console.log(1, userID);
         await writeLastLogin(userID);
       }
-      await getEvents();
+     await getEvents();
+
       const globalStats = await getGlobalStatsFromDB(
         null,
-        seasonStats,
+        switches.seasonStats,
         "global"
       );
       // console.log('called')
@@ -143,32 +126,74 @@ export default function PlayerLogin() {
             source={backgrounds[randomBackgroundIndex]}
             style={styles.imageBackground}
           >
-            <Progress.Bar
-              animated={true}
-              progress={progress}
-              height={deviceType == "tablet" ? 20 : 10}
-              width={deviceType == "tablet" ? 600 : 300}
-              style={{
-                marginTop: 100,
-                marginLeft: "auto",
-                marginRight: "auto",
-              }}
-            />
-            <Text
-              style={
-                ([styles.findIdText],
-                {
-                  fontWeight: "bold",
-                  color: colors.secondary,
-                  fontSize: deviceType == "tablet" ? 22 : 14,
-                  marginTop: 20,
+            <View>
+              <Progress.Bar
+                animated={true}
+                progress={progress}
+                height={deviceType == "tablet" ? 20 : 10}
+                width={deviceType == "tablet" ? 600 : 300}
+                style={{
+                  marginTop: 100,
                   marginLeft: "auto",
                   marginRight: "auto",
-                })
-              }
-            >
-              {loadingText}
-            </Text>
+                }}
+              />
+              <Text
+                style={
+                  ([styles.findIdText],
+                  {
+                    fontWeight: "bold",
+                    color: colors.secondary,
+                    fontSize: deviceType == "tablet" ? 22 : 14,
+                    marginTop: 20,
+                    marginLeft: "auto",
+                    marginRight: "auto",
+                  })
+                }
+              >
+                {loadingText}
+              </Text>
+            </View>
+
+            {userID != null &&
+              name !== undefined &&
+              userID.length !== 0 &&
+              name.length !== 0 && (
+                <View style={{ flex: 0.2, justifyContent: "flex-end" }}>
+                  <Text
+                    style={
+                      ([styles.findIdText],
+                      {
+                        fontWeight: "bold",
+                        color: colors.secondary,
+                        fontSize: deviceType == "tablet" ? 22 : 14,
+                        marginTop: 160,
+                        marginLeft: "auto",
+                        marginRight: "auto",
+                        textAlign: "center",
+                      })
+                    }
+                  >
+                    logged in as:
+                  </Text>
+                  <Text
+                    style={
+                      ([styles.findIdText],
+                      {
+                        fontWeight: "bold",
+                        color: colors.secondary,
+                        fontSize: deviceType == "tablet" ? 28 : 18,
+                        marginTop: 10,
+                        marginLeft: "auto",
+                        marginRight: "auto",
+                        textAlign: "center",
+                      })
+                    }
+                  >
+                    {name}
+                  </Text>
+                </View>
+              )}
           </ImageBackground>
         </View>
       )}

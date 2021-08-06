@@ -16,7 +16,7 @@ import { AdMobBanner } from "expo-ads-admob";
 import { useSelector } from "react-redux";
 
 import { bannerAdID } from "../../config/ads";
-import { writeError } from "../../store/apiDB";
+import { writeError } from "../../lib/apiDB";
 import MessageBox from "../../components/modules/MessageBox";
 import colors from "../../config/colors";
 

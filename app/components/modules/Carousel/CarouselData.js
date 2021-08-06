@@ -148,7 +148,10 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
           image: getModeImage(mode.titleCamel),
           duration: mode.duration,
           spRatio: mode.spRatio,
-          winRatio: mode.winRatio,
+          winRatio:
+            Number.isNaN(mode.winRatio) == false
+              ? mode.winRatio
+              : mode.wins / mode.losses,
           wins: mode.wins,
           losses: mode.losses,
           title: mode.title,
@@ -157,7 +160,10 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
       } else {
         modes.push({
           image: getModeImage(mode.titleCamel),
-          winRatio: mode.winRatio,
+          winRatio:
+            Number.isNaN(mode.winRatio) == false
+              ? mode.winRatio
+              : mode.wins / mode.losses,
           wins: mode.wins,
           losses: mode.losses,
           title: mode.title,
@@ -183,21 +189,26 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
         image: getBrawlerImage(brawler.id),
         duration: brawler.duration / brawler.games,
         spRatio: brawler.starPlayer / brawler.games,
-        winRatio: brawler.winRatio,
+        winRatio:
+          Number.isNaN(brawler.winRatio) == false
+            ? brawler.winRatio
+            : brawler.wins / brawler.losses,
         wins: brawler.wins,
         losses: brawler.losses,
         title: getBrawlerName(brawler.id),
       });
     });
 
-    brawlersByPerformance = [...brawlers];
+    brawlersByPerformance = [...brawlers].sort((a, b) =>
+      a.winRatio > b.winRatio ? -1 : 1
+    );
 
     brawlersByWins = [...brawlers].sort((a, b) => (a.wins > b.wins ? -1 : 1));
 
     Object.values(mapsPS).map((map) => {
       maps.push({
         image: getMapImage(map.id),
-        winRatio: map.winRatio,
+        winRatio: map.winRatio != NaN ? map.winRatio : map.wins / map.losses,
         spRatio: map.starPlayer / map.games,
         duration: map.duration / map.games,
         wins: map.wins,
@@ -228,7 +239,8 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
             : null,
         duration: team.duration / team.games,
         spRatio: team.starPlayer / team.games,
-        winRatio: team.winRatio,
+        winRatio:
+          team.winRatio != NaN ? team.winRatio : team.wins / team.losses,
         wins: team.wins,
         losses: team.losses,
         title: `${getBrawlerName(team.id.slice(0, 8))}, ${getBrawlerName(
@@ -263,7 +275,8 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
             modePS.maps[map.id].games = map.games;
             modePS.maps[map.id].wins = map.wins;
             modePS.maps[map.id].losses = map.losses;
-            modePS.maps[map.id].winRatio = map.winRatio;
+            modePS.maps[map.id].winRatio =
+              map.winRatio != NaN ? map.winRatio : map.wins / map.losses;
             modePS.maps[map.id].starPlayer = map.starPlayer;
             modePS.maps[map.id].duration = map.duration;
 
@@ -325,7 +338,8 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
             modePS.maps[map.id].games = map.games;
             modePS.maps[map.id].wins = map.wins;
             modePS.maps[map.id].losses = map.losses;
-            modePS.maps[map.id].winRatio = map.winRatio;
+            modePS.maps[map.id].winRatio =
+              map.winRatio != NaN ? map.winRatio : map.wins / map.losses;
             modePS.maps[map.id].starPlayer = map.starPlayer;
             modePS.maps[map.id].duration = map.duration;
 
@@ -363,7 +377,7 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
       Object.values(modePS.maps).map((map) => {
         maps.push({
           image: getMapImage(map.id),
-          winRatio: map.winRatio,
+          winRatio: map.winRatio != NaN ? map.winRatio : map.wins / map.losses,
           spRatio: map.starPlayer / map.games,
           duration: map.duration / map.games,
           wins: map.wins,
@@ -385,7 +399,9 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
               ? brawler.wins
               : brawler.wins == 0
               ? -Math.abs(brawler.losses)
-              : brawler.winsByTrophies / brawler.lossesByTrophies,
+              : brawler.winsByTrophies != NaN && brawler.lossesByTrophies != NaN
+              ? brawler.winsByTrophies / brawler.lossesByTrophies
+              : brawler.wins / brawler.losses,
           wins: brawler.wins,
           losses: brawler.losses,
           title: getBrawlerName(brawler.id),

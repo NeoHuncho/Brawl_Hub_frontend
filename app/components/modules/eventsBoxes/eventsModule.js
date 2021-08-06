@@ -8,15 +8,11 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { AdMobInterstitial } from "expo-ads-admob";
-
-import { imageAdID, videoAdID } from "../../../config/ads";
-import { eventsData, eventActiveData } from "./eventsData";
+import { ActivityIndicator } from "react-native-paper";
+import { showInterstitial, requestAd } from "../../../config/ads";
+import { sortEventsData } from "./eventsData";
 import colors from "../../../config/colors";
-import {
-  bestBrawlers,
-  bestTeams,
-  camelize,
-} from "../../../lib/getGlobalStatsFunctions";
+import { bestBrawlers, bestTeams } from "../../../lib/getGlobalStatsFunctions";
 import {
   getBrawlerImage,
   getMapName,
@@ -27,13 +23,14 @@ import {
 } from "../../../lib/getAssetsFunctions";
 import { useSelector, useDispatch } from "react-redux";
 import { moreInfoEventOpen } from "../../../store/reducers/uiReducerNoPersist";
-import { getGlobalStatsFromDB } from "../../../store/apiDB";
+import { getGlobalStatsFromDB } from "../../../lib/apiDB";
 import { globalStatsReceived } from "../../../store/reducers/globalStatsReducer";
+import { isLoaded } from "expo-font";
 
-let countImageAd = 0;
-let countVideoAd = 0;
 let device = null;
 const EventsModule = ({ season, typeIndex, range }) => {
+  const [loading, setLoading] = useState(false);
+
   device = useSelector((state) => state.uiReducerNoPersist.deviceType);
   let globalStats = useSelector(
     (state) => state.globalStatsReducer.globalStats
@@ -59,8 +56,9 @@ const EventsModule = ({ season, typeIndex, range }) => {
         sortedTeams: sortedTeams,
       })
     );
+    setLoading(false);
   };
-  eventsData();
+  let { normalEvents } = sortEventsData();
 
   let eventModule = [];
 
@@ -68,52 +66,24 @@ const EventsModule = ({ season, typeIndex, range }) => {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
 
-  const prepareAds = async () => {
-    if (
-      (countImageAd == 0 && countVideoAd == 0) ||
-      countImageAd == countVideoAd
-    ) {
-      await AdMobInterstitial.setAdUnitID(imageAdID); // Test ID, Replace with your-admob-unit-id
-      await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
-    } else if (countImageAd > countVideoAd) {
-      await AdMobInterstitial.setAdUnitID(videoAdID); // Test ID, Replace with your-admob-unit-id
-      await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
-    }
-  };
-  prepareAds();
-
-  const showImageInterstitial = async () => {
-    console.log("show Image");
-    if ((await AdMobInterstitial.getIsReadyAsync()) == true) {
-      AdMobInterstitial.showAdAsync();
-      countImageAd += 1;
-    }
-  };
-  const showVideoInterstitial = async () => {
-    console.log("show Video");
-    if ((await AdMobInterstitial.getIsReadyAsync()) == true) {
-      AdMobInterstitial.showAdAsync();
-      countVideoAd += 1;
-    }
-  };
-
   if (typeIndex == 0) {
     let trophiesStats = useSelector(
       (state) => state.globalStatsReducer.globalStats["trophies"][range]
     );
     // console.log("look here g", range);
 
-    eventActiveData.map((event) => {
+    normalEvents.map((event) => {
+      console.log(event.modeName)
       let sortedBrawlers = null;
       let sortedTeams = null;
-      if (trophiesStats[camelize(event.modeName)]) {
-        if (trophiesStats[camelize(event.modeName)][event.mapID]) {
+      if (trophiesStats[event.modeName]) {
+        if (trophiesStats[event.modeName][event.mapID]) {
           sortedBrawlers =
-            trophiesStats[camelize(event.modeName)][event.mapID][
+            trophiesStats[event.modeName][event.mapID][
               "performanceBrawlersReduced"
             ];
           sortedTeams =
-            trophiesStats[camelize(event.modeName)][event.mapID][
+            trophiesStats[event.modeName][event.mapID][
               "performanceTeamsReduced"
             ];
         }
@@ -133,7 +103,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
 
       eventModule.push(
         <View
-          key={event.eventID}
+          key={event.mapID}
           style={[
             styles.rectangle,
             device == "tablet" ? { width: 500, height: 150 } : null,
@@ -190,18 +160,11 @@ const EventsModule = ({ season, typeIndex, range }) => {
               {(sortedBrawlers != undefined || sortedTeams != undefined) && (
                 <TouchableOpacity
                   onPress={async () => {
-                    if (
-                      (countImageAd == 0 && countVideoAd == 0) ||
-                      countImageAd == countVideoAd
-                    ) {
-                      await showImageInterstitial();
-                    } else if (countImageAd > countVideoAd) {
-                      await showVideoInterstitial();
-                    }
+                    await showInterstitial();
                     let globalStatsFromDB = await getGlobalStatsFromDB(
                       globalStats,
                       season,
-                      [camelize(event.modeName), event.mapID],
+                      [event.modeName, event.mapID],
                       typeIndex,
                       range
                     );
@@ -212,13 +175,14 @@ const EventsModule = ({ season, typeIndex, range }) => {
                       event.mapName,
                       event.modeImage,
                       event.mapImage,
-                      globalStatsFromDB["trophies"][range][
-                        camelize(event.modeName)
-                      ][event.mapID]["performanceBrawlers"],
-                      globalStatsFromDB["trophies"][range][
-                        camelize(event.modeName)
-                      ][event.mapID]["performanceTeams"]
+                      globalStatsFromDB["trophies"][range][event.modeName][
+                        event.mapID
+                      ]["performanceBrawlers"],
+                      globalStatsFromDB["trophies"][range][event.modeName][
+                        event.mapID
+                      ]["performanceTeams"]
                     );
+                    await requestAd();
                   }}
                   style={{
                     position: "absolute",
@@ -372,7 +336,33 @@ const EventsModule = ({ season, typeIndex, range }) => {
       );
     });
 
-    return <View style={{ marginBottom: 10 }}>{eventModule}</View>;
+
+ 
+
+
+
+
+    return (
+      <View style={{ marginBottom: 10 }}>
+        {loading && (
+          <ActivityIndicator
+            animating={true}
+            color={"blue"}
+            size={"large"}
+            style={{
+              position: "absolute",
+              top: 0,
+              margin: "auto",
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 8,
+            }}
+          />
+        )}
+        {eventModule}
+      </View>
+    );
   } else if (typeIndex == 1) {
     let powerLeagueStats = useSelector(
       (state) => state.globalStatsReducer.globalStats["powerLeagueSolo"][range]
@@ -607,13 +597,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
                       {(sortedBrawlers[mapID] || sortedTeams[mapID]) && (
                         <TouchableOpacity
                           onPress={async () => {
-                            if (
-                              (countImageAd == 0 && countVideoAd == 0) ||
-                              countImageAd == countVideoAd
-                            )
-                              await showImageInterstitial();
-                            else if (countImageAd > countVideoAd)
-                              await showVideoInterstitial();
+                            await showInterstitial();
                             // console.log('look here', modeName,mapID)
                             let globalStatsFromDB = await getGlobalStatsFromDB(
                               globalStats,
@@ -637,6 +621,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                 modeName
                               ][mapID]["performanceTeams"]
                             );
+                            await requestAd();
                           }}
                           style={{
                             position: "absolute",
@@ -857,13 +842,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
                       {(sortedBrawlers[mapID] || sortedTeams[mapID]) && (
                         <TouchableOpacity
                           onPress={async () => {
-                            if (
-                              (countImageAd == 0 && countVideoAd == 0) ||
-                              countImageAd == countVideoAd
-                            )
-                              await showImageInterstitial();
-                            else if (countImageAd > countVideoAd)
-                              await showVideoInterstitial();
+                            await showInterstitial();
                             let globalStatsFromDB = await getGlobalStatsFromDB(
                               globalStats,
                               season,
@@ -886,6 +865,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                 modeName
                               ][mapID]["performanceTeams"]
                             );
+                            await requestAd();
                           }}
                           style={{
                             position: "absolute",
@@ -912,7 +892,42 @@ const EventsModule = ({ season, typeIndex, range }) => {
       );
     }
     // console.log(eventModule);
-    return <View>{eventModule}</View>;
+    return (
+      <View>
+        {loading && (
+          <ActivityIndicator
+            animating={true}
+            color={"blue"}
+            size={"large"}
+            style={{
+              position: "absolute",
+              top: 0,
+              margin: "auto",
+              left: 0,
+              right: 0,
+              zIndex: 8,
+            }}
+          />
+        )}
+        {loading && (
+          <ActivityIndicator
+            animating={true}
+            color={"blue"}
+            size={"large"}
+            style={{
+              position: "absolute",
+              top: 50,
+              margin: "auto",
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 8,
+            }}
+          />
+        )}
+        {eventModule}
+      </View>
+    );
   }
 };
 

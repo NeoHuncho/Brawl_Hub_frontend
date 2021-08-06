@@ -10,43 +10,52 @@ const slice = createSlice({
       totalUnlockables: undefined,
     },
     ranges: undefined,
-    minBrawlerEvent: undefined,
-    minTeamEvent: undefined,
-    minBrawlerPL: undefined,
-    minTeamPL: undefined,
     seasonGlobal: undefined,
     globalStats: undefined,
-    slotNumberActive: undefined,
-    slotNumberUpcoming: undefined,
     seasonStats: undefined,
     powerLeagueActive: undefined,
+    eventActive: undefined,
+    slotIDMaximum: undefined,
   },
   reducers: {
     globalCountsReceived: (globalStats, action) => {
-      const data = action.payload;
+      const data = action.payload["switches"];
+      globalStats.challenge_active = data.challenge_active;
+      if (globalStats.challenge_active == true) {
+        globalStats.challenge_endTime = data.challenge_endTime;
+        globalStats.challenge_startTime = data.challenge_startTime;
+        globalStats.challenge_icon = data.challenge_icon;
+        globalStats.challenge_name = data.challenge_name;
+      }
       globalStats.ranges = data.ranges;
-      globalStats.numbers.numberOfBrawlers = data.nBrawlers;
-      globalStats.numbers.numberOfGadgets = data.nGadgets;
-      globalStats.numbers.numberOfStarPowers = data.nStarPowers;
+      globalStats.numbers.numberOfBrawlers = data.total_numberOfBrawlers;
+      globalStats.numbers.numberOfGadgets = data.total_numberOfGadgets;
+      globalStats.numbers.numberOfStarPowers = data.total_numberOfStarPowers;
       globalStats.numbers.totalUnlockables =
-        data.nBrawlers + data.nGadgets + data.nStarPowers;
-      globalStats.minBrawlerEvent = data.minBrawlerEvent;
-      globalStats.minTeamEvent = data.minTeamEvent;
-      globalStats.minBrawlerPL = data.minBrawlerPL;
-      globalStats.minTeamPL = data.minTeamPL;
+        globalStats.numbers.numberOfBrawlers +
+        globalStats.numbers.numberOfGadgets +
+        globalStats.numbers.numberOfStarPowers;
+      +data.total_numberOfGadgets;
+      +data.total_numberOfStarPowers;
       globalStats.seasonGlobal = data.seasonGlobal;
       globalStats.seasonStats = data.seasonStats;
-      globalStats.slotNumberActive = data.slotNumActive;
-      globalStats.slotNumberUpcoming = data.slotNumUpcoming;
       globalStats.powerLeagueActive = data.powerLeagueActive;
+      globalStats.slotIDMaximum = data.slotIDMaximum;
     },
 
     globalStatsReceived: (globalStats, action) => {
       const data = action.payload;
       globalStats.globalStats = data;
     },
+    seasonChangeReceived: (globalStats, action) => {
+      globalStats.seasonGlobal = action.payload;
+    },
   },
 });
 
-export const { globalCountsReceived, globalStatsReceived } = slice.actions;
+export const {
+  globalCountsReceived,
+  globalStatsReceived,
+  seasonChangeReceived,
+} = slice.actions;
 export default slice.reducer;

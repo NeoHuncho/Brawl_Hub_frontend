@@ -270,6 +270,14 @@ const getAssets = (seasonIndex, gameTypeName) => {
         return require("../assets/modeIcons/takedown.png");
       case "loneStar":
         return require("../assets/modeIcons/loneStar.png");
+      case "basketBrawl":
+        return require("../assets/modeIcons/basketBrawl.png");
+      case "volleyBrawl":
+        return require("../assets/modeIcons/volleyBrawl.png");
+      case "trophyThieves":
+        return require("../assets/modeIcons/trophyThieves.png");
+      case "holdTheTrophy":
+        return require("../assets/modeIcons/holdTheTrophy.png");
     }
   };
 
@@ -296,7 +304,7 @@ const getAssets = (seasonIndex, gameTypeName) => {
 
   getMapImage = (mapID) => {
     let mapUrl = undefined;
-    state.brawlifyReducer.mapsList.list.map((map) => {
+    state.brawlifyReducer.mapsList.map((map) => {
       if (map.id == mapID) {
         mapUrl = map.imageUrl;
       }
@@ -306,7 +314,7 @@ const getAssets = (seasonIndex, gameTypeName) => {
 
   getMapName = (mapID) => {
     let mapName = undefined;
-    state.brawlifyReducer.mapsList.list.map((map) => {
+    state.brawlifyReducer.mapsList.map((map) => {
       if (map.id == mapID) {
         mapName = map.name;
       }

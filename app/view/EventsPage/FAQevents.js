@@ -74,7 +74,7 @@ export default function FaqPage() {
         How do you avoid stats duplication?
       </Text>
       <Text style={device != "tablet" ? styles.answer : styles.answerTablet}>
-        Each time I save the stats of a new battle, I add its time( precise to
+        Each time I save the stats of a new battle, I add its time (precise to
         the second) to a list. If this battle time matches a time in the list,
         then I skip to the next battle.
       </Text>

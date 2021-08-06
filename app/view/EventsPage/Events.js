@@ -25,6 +25,7 @@ import EventsModule from "../../components/modules/eventsBoxes/eventsModule";
 import EventsMoreInfo from "../EventsPage/EventsMoreInfo";
 import MessageBox from "../../components/modules/MessageBox";
 import FAQevents from "./FAQevents";
+import ReloadButton from "../../components/reloadButton";
 
 import trophy_1 from "../../assets/icons/trophy1.png";
 import trophy_2 from "../../assets/icons/trophy2.png";
@@ -38,7 +39,7 @@ import diamond from "../../assets/icons/diamond.png";
 import mythic from "../../assets/icons/mythic.png";
 import legendary from "../../assets/icons/legendary.png";
 import master from "../../assets/icons/master.png";
-import { getGlobalStatsFromDB } from "../../store/apiDB";
+import { getGlobalStatsFromDB } from "../../lib/apiDB";
 import { globalStatsReceived } from "../../store/reducers/globalStatsReducer";
 
 export default function Events() {
@@ -93,6 +94,7 @@ export default function Events() {
   }
 
   const rangesFromDB = useSelector((state) => state.globalStatsReducer.ranges);
+
   const listRangesItems = [];
 
   let ranges = [
@@ -100,26 +102,23 @@ export default function Events() {
     ["underGold", "gold", "diamond", "mythic", "legendary", "master"],
   ];
 
-  let logoRanges = [
-    [trophy_1, trophy_2, trophy_3, trophy_4, trophy_5],
-    [silver, gold, diamond, mythic, legendary, master],
-  ];
-  const logoRangesOrdered = [];
-
-  const rangesOrdered = (ranges, logoRanges, unorderedRanges) => {
-    return ranges.filter((el, index) => {
-      if (unorderedRanges.includes(el)) {
-        logoRangesOrdered.push(logoRanges[index]);
-      }
-      return unorderedRanges.includes(el);
-    });
+  let logoRanges = {
+    trophies: [trophy_1, trophy_2, trophy_3, trophy_4, trophy_5],
+    powerLeague: [silver, gold, diamond, mythic, legendary, master],
   };
+  // const logoRangesOrdered = [];
 
-  ranges = rangesOrdered(
-    ranges[typeIndex],
-    logoRanges[typeIndex],
-    rangesFromDB[typeIndex]
-  );
+  // const rangesOrdered = (ranges, logoRanges, unorderedRanges) => {
+  //   return ranges.filter((el, index) => {
+  //     if (unorderedRanges.includes(el)) {
+  //       logoRangesOrdered.push(logoRanges[index]);
+  //     }
+  //     return unorderedRanges.includes(el);
+  //   });
+  // };
+
+  ranges = rangesFromDB[typeIndex == 0 ? "trophies" : "powerLeague"];
+  console.log(1982, ranges);
   // console.log("sorted", logoRangesOrdered);
   ranges.map((range, index) => {
     listRangesItems.push({
@@ -127,7 +126,9 @@ export default function Events() {
       value: range,
       icon: () => (
         <Image
-          source={logoRangesOrdered[index]}
+          source={
+            logoRanges[typeIndex == 0 ? "trophies" : "powerLeague"][index]
+          }
           style={
             typeIndex == 0
               ? { width: 32, height: 20 }
@@ -158,6 +159,7 @@ export default function Events() {
         onDidFailToReceiveAdWithError={(e) => console.log(e)}
         style={{ marginTop: StatusBar.currentHeight }}
       />
+
       {plMessage == true && typeIndex != 0 && (
         <MessageBox
           message={
@@ -174,6 +176,7 @@ export default function Events() {
           color={colors.red}
         />
       )}
+
       {moreInfoEventOpen === false && (
         <ScrollView style={styles.container}>
           <View style={{ marginTop: 20, margin: 20 }}>
@@ -265,6 +268,7 @@ export default function Events() {
               }}
               enabled={powerLeagueActive == false ? false : true}
             />
+            {/* <ReloadButton /> */}
             {/* <View> */}
             {/* <SegmentedControlTab
                 values={seasonsKey}

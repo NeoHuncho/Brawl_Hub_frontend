@@ -49,7 +49,7 @@ export default function EventsMoreInfo() {
   }, []);
   const dispatch = useDispatch();
   const carouselInfo = useSelector((state) => state.uiReducerNoPersist);
-
+  console.log(675,carouselInfo.sortedTeams)
   const [typeIndex, setTypeIndex] = useState(
     carouselInfo.sortedBrawlers == undefined &&
       carouselInfo.sortedTeams != undefined
@@ -69,7 +69,7 @@ export default function EventsMoreInfo() {
       (brawler) => (totalCountBrawlers += parseInt(brawler.count))
     );
   }
-  if (carouselInfo.sortedTeams != undefined) {
+  if (carouselInfo.sortedTeams != undefined && carouselInfo.sortedTeams.length !==0) {
     topPointsTeams = carouselInfo.sortedTeams[0].points;
     carouselInfo.sortedTeams.map(
       (team) => (totalCountTeams += parseInt(team.count))

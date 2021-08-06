@@ -1,49 +1,46 @@
 import { store } from "../../../store/configureStore";
 import moment from "moment";
-let eventActiveData = [];
-let eventUpcomingData = [];
-const eventsData = () => {
-  let state = store.getState();
-  eventActiveData = [];
-  eventUpcomingData = [];
-  if (state.brawlifyReducer.eventsList) {
-    let eventsActive = state.brawlifyReducer.eventsList.active;
-    let eventsUpcoming = state.brawlifyReducer.eventsList.upcoming;
-    let slotNumberActive = state.globalStatsReducer.slotNumberActive;
-    let slotNumberUpcoming = state.globalStatsReducer.slotNumberUpcoming;
+import { camelize } from "../../../lib/getGlobalStatsFunctions";
 
-    for (const eventKey in eventsActive) {
-      if (eventsActive[eventKey].reward === 5) {
+const sortEventsData = () => {
+  let state = store.getState();
+  let normalEvents = [];
+  let specialEvents = [];
+
+  if (state.brawlifyReducer.eventsList) {
+    let events = state.brawlifyReducer.eventsList.active;
+    let eventsUpcoming = state.brawlifyReducer.eventsList.upcoming;
+
+    for (const eventKey in events) {
+      if (events[eventKey].slot.id < state.globalStatsReducer.slotIDMaximum) {
         if (
           Math.sign(
-            moment.duration(
-              moment(eventsActive[eventKey].endTime).diff(moment.now())
-            )
+            moment.duration(moment(events[eventKey].endTime).diff(moment.now()))
           ) == 1
         ) {
-          eventActiveData.push({
-            modeName: eventsActive[eventKey].map.gameMode.name,
-            modeImage: eventsActive[eventKey].map.gameMode.imageUrl,
-            modeColor: eventsActive[eventKey].map.gameMode.color,
-            mapID: eventsActive[eventKey].map.id,
-            mapName: eventsActive[eventKey].map.name,
-            mapImage: eventsActive[eventKey].map.imageUrl,
-            mapEnvironment: eventsActive[eventKey].map.environment.imageUrl,
-            endTime: eventsActive[eventKey].endTime,
-            eventID: eventsActive[eventKey].slot.id,
+          normalEvents.push({
+            modeName: camelize(events[eventKey].map.gameMode.name),
+            modeImage: events[eventKey].map.gameMode.imageUrl,
+            modeColor: events[eventKey].map.gameMode.color,
+            mapID: events[eventKey].map.id,
+            mapName: events[eventKey].map.name,
+            mapImage: events[eventKey].map.imageUrl,
+            mapEnvironment: events[eventKey].map.environment.imageUrl,
+            endTime: events[eventKey].endTime,
+            eventID: events[eventKey].slot.id,
             eventLeftTime: moment.duration(
-              moment(eventsActive[eventKey].endTime).diff(moment.now())
+              moment(events[eventKey].endTime).diff(moment.now())
             ),
           });
         } else {
           // console.log('called!')
           for (const eventKeyUpcoming in eventsUpcoming) {
             if (
-              eventsActive[eventKey].slot.id ==
+              events[eventKey].slot.id ==
               eventsUpcoming[eventKeyUpcoming].slot.id
             )
-              eventActiveData.push({
-                modeName: eventsUpcoming[eventKeyUpcoming].map.gameMode.name,
+              normalEvents.push({
+                modeName: eventsUpcoming[eventKeyUpcoming].map.gameMode.hash,
                 modeImage:
                   eventsUpcoming[eventKeyUpcoming].map.gameMode.imageUrl,
                 modeColor: eventsUpcoming[eventKeyUpcoming].map.gameMode.color,
@@ -64,28 +61,11 @@ const eventsData = () => {
         }
       }
     }
-    // for (const eventKey in eventsUpcoming) {
-    //   if (eventsUpcoming[eventKey].slot.id <= slotNumberUpcoming) {
-    //     eventUpcomingData.push({
-    //       modeName: eventsUpcoming[eventKey].map.gameMode.name,
-    //       modeImage: eventsUpcoming[eventKey].map.gameMode.imageUrl,
-    //       modeColor: eventsUpcoming[eventKey].map.gameMode.color,
-    //       mapID: eventsUpcoming[eventKey].map.id,
-    //       mapName: eventsUpcoming[eventKey].map.name,
-    //       mapImage: eventsUpcoming[eventKey].map.imageUrl,
-    //       mapEnvironment: eventsUpcoming[eventKey].map.environment.imageUrl,
-    //       eventID: eventsUpcoming[eventKey].slot.id,
-    //       eventLeftTime: moment.duration(
-    //         moment(eventsUpcoming[eventKey].endTime).diff(moment.now())
-    //       ),
-    //     });
-    //   }
-    // }
   }
-  return eventActiveData, eventUpcomingData;
+  return { normalEvents, specialEvents };
 };
 
-export { eventsData, eventUpcomingData, eventActiveData };
+export { sortEventsData };
 
-const unsubscribe = store.subscribe(eventsData);
+const unsubscribe = store.subscribe(sortEventsData);
 unsubscribe();

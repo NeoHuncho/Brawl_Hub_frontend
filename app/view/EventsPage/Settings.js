@@ -34,9 +34,7 @@ export default function Settings() {
   const soloPLTrophies = useSelector(
     (state) => state.battleLogReducer.soloPLTrophies
   );
-  const teamPLTrophies = useSelector(
-    (state) => state.battleLogReducer.teamPLTrophies
-  );
+
   const trophiesRange = useSelector(
     (state) => state.uiReducerPersist.trophiesRange
   );
@@ -51,79 +49,42 @@ export default function Settings() {
   const listRangesItemsTrophies = [];
   const listRangesItemsPL = [];
 
-  let rangesTrophies = [
-    "under400",
-    "400-600",
-    "600-800",
-    "800-1000",
-    "1000-1200",
-    "1200+",
-  ];
-  let rangesPL = [
-    "underGold",
-    "gold",
-    "diamond",
-    "mythic",
-    "legendary",
-    "master",
+  let ranges = [
+    ["under400", "400-600", "600-800", "800-1000", "1000-1200", "1200+"],
+    ["underGold", "gold", "diamond", "mythic", "legendary", "master"],
   ];
 
-  let logoRangesTrophies = [trophy_1, trophy_2, trophy_3, trophy_4, trophy_5];
-
-  let logoRangesPL = [silver, gold, diamond, mythic, legendary, master];
-
-  const logoRangesOrderedTrophies = [];
-  const logoRangesOrderedPL = [];
-
-  const rangesOrderedTrophies = (ranges, logoRanges, unorderedRanges) => {
-    return ranges.filter((el, index) => {
-      if (unorderedRanges.includes(el)) {
-        logoRangesOrderedTrophies.push(logoRanges[index]);
-      }
-      return unorderedRanges.includes(el);
-    });
-  };
-  const rangesOrderedPL = (ranges, logoRanges, unorderedRanges) => {
-    return ranges.filter((el, index) => {
-      if (unorderedRanges.includes(el)) {
-        logoRangesOrderedPL.push(logoRanges[index]);
-      }
-      return unorderedRanges.includes(el);
-    });
+  let logoRanges = {
+    trophies: [trophy_1, trophy_2, trophy_3, trophy_4, trophy_5],
+    powerLeague: [silver, gold, diamond, mythic, legendary, master],
   };
 
-  rangesTrophies = rangesOrderedTrophies(
-    rangesTrophies,
-    logoRangesTrophies,
-    rangesFromDB[0]
-  );
-  rangesPL = rangesOrderedPL(rangesPL, logoRangesPL, rangesFromDB[1]);
-  // console.log("sorted", logoRangesOrdered);
-
-  rangesTrophies.map((range, index) => {
+  rangesFromDB["trophies"].map((range, index) => {
     listRangesItemsTrophies.push({
       label: range,
       value: range,
       icon: () => (
         <Image
-          source={logoRangesOrderedTrophies[index]}
+          source={logoRanges["trophies"][index]}
           style={{ width: 32, height: 20 }}
         />
       ),
     });
   });
-  rangesPL.map((range, index) => {
+  rangesFromDB["powerLeague"].map((range, index) => {
     listRangesItemsPL.push({
       label: range,
       value: range,
       icon: () => (
         <Image
-          source={logoRangesOrderedPL[index]}
+          source={logoRanges["powerLeague"][index]}
           style={{ width: 20, height: 24 }}
         />
       ),
     });
   });
+  // console.log("sorted", logoRangesOrdered);
+
   // console.log(rangesTrophies[2]);
 
   const rangeFinder = () => {
@@ -156,11 +117,6 @@ export default function Settings() {
 
     return rangeToApply;
   };
-
-  const [rangeTrophies, setRangeTrophies] = useState(
-    rangesTrophies[trophiesRange]
-  );
-  const [rangePL, setRangePL] = useState(rangesPL[plRange]);
 
   return (
     <View style={{ marginBottom: 20 }}>
@@ -199,7 +155,7 @@ export default function Settings() {
           </Text>
           <DropDownPicker
             items={listRangesItemsTrophies}
-            defaultValue={rangeTrophies}
+            defaultValue={listRangesItemsTrophies[trophiesRange].label}
             globalTextStyle={{
               fontSize: device == "tablet" ? 20 : 15,
               fontWeight: "900",
@@ -216,7 +172,6 @@ export default function Settings() {
             dropDownStyle={{ backgroundColor: "#fafafa" }}
             onChangeItem={(item, index) => {
               dispatch(trophiesRangeChanged(index));
-              setRangeTrophies(item.value);
             }}
           />
           <View style={{ marginTop: 10, flexDirection: "row" }}>
@@ -236,7 +191,7 @@ export default function Settings() {
           </Text>
           <DropDownPicker
             items={listRangesItemsPL}
-            defaultValue={rangePL}
+            defaultValue={listRangesItemsPL[plRange].label}
             globalTextStyle={{
               fontSize: device == "tablet" ? 20 : 15,
               fontWeight: "900",
@@ -253,7 +208,6 @@ export default function Settings() {
             dropDownStyle={{ backgroundColor: "#fafafa" }}
             onChangeItem={(item, index) => {
               dispatch(plRangeChanged(index));
-              setRangePL(item.value);
             }}
           />
         </View>

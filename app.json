@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Brawl Max",
+    "name": "Brawl Max For Brawl Stars",
     "slug": "Brawl_Max",
-    "version": "1.0.7",
+    "version": "1.0.13",
     "orientation": "portrait",
     "icon": "./app/assets/icon.png",
     "splash": {
@@ -18,8 +18,11 @@
     ],
     "ios": {
       "bundleIdentifier": "com.brawlMax.brawlMax",
-      "buildNumber": "1.0.7",
-      "supportsTablet": true
+      "buildNumber": "1.0.13",
+      "supportsTablet": true,
+      "config": {
+        "googleMobileAdsAppId": "ca-app-pub-2795080443480499~5524209059"
+      }
     },
     "android": {
       "config": {
@@ -27,7 +30,7 @@
       },
       "permissions" : [],
       "package": "com.brawlMax.brawlMax",
-      "versionCode": 10
+      "versionCode": 21
     },
     "web": {
       "favicon": "./app/assets/favicon.png"

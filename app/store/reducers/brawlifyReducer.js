@@ -6,14 +6,14 @@ const slice = createSlice({
     brawlersList: undefined,
     mapsList: undefined,
     eventsList: undefined,
-    iconList: undefined,
+
   },
   reducers: {
     brawlifyDataReceived: (brawlify, action) => {
       const data = action.payload;
       brawlify.brawlersList = data.brawlers;
       brawlify.mapsList = data.maps;
-      brawlify.iconList = data.icons;
+      
     },
     eventsReceived:(brawlify,action)=>{
       brawlify.eventsList= action.payload

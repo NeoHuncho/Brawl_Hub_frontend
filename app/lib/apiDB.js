@@ -1,29 +1,27 @@
-import { db, fireStore } from "../lib/initFirebase";
+import { db, fireStore } from "./initFirebase";
 import axios from "axios";
 import moment from "moment";
 import cloneDeep from "lodash.clonedeep";
 import { store } from "../store/configureStore";
-import { camelize } from "../lib/getGlobalStatsFunctions";
+import { camelize } from "./getGlobalStatsFunctions";
 import sizeOf from "object-sizeof";
 
 const getStatsFirstLogin = async (userID) => {
   return new Promise(async function (resolve, reject) {
     await axios
       .post(
-        "http://europe-west1-brawl-hub-6a708.cloudfunctions.net/getPlayerBPandStats",
+        "https://europe-west1-brawl-hub-6a708.cloudfunctions.net/getPlayerBPandStats-1",
         {
           playerID: userID,
         }
       )
-      .then((response) => {
-        // console.log(response);
-        resolve("all good");
+      .then((returnedPlayerStats) => {
+        console.log(returnedPlayerStats);
+        resolve(returnedPlayerStats.data);
       })
       .catch(function (error) {
         console.log(userID, error);
-        if (error) {
-          reject(error);
-        }
+        reject(error);
       });
   });
 };
@@ -52,24 +50,20 @@ const writeError = async (userID, error) => {
   playerRef.set(error).then(() => "nothingness");
 };
 
-const getBrawlifyFromDB = async () => {
-  const brawlify = await db
-    .ref("global/brawlify")
+const getEvents = async () => {
+  return await db
+    .ref("global/events")
     .once("value")
     .then((snapshot) => snapshot.val());
-
-  const maps = brawlify["maps"];
-  const brawlers = brawlify["brawlers"];
-  const icons = brawlify["icons"]["player"];
-
-  return { maps, brawlers, icons };
 };
 
 const getStatsFromDB = async (userID, season) => {
   try {
     console.log("called db");
     let globalStats = {};
-    const snapShot = await fireStore.collection(`S${season}_${userID}`).get();
+    let snapShot = null;
+    snapShot = await fireStore.collection(`S${season}_${userID}`).get();
+
     snapShot.docs.map((doc) => {
       const data = doc.data(); //Here is your content
       const id = doc.id; //Here is the key of your document
@@ -83,41 +77,41 @@ const getStatsFromDB = async (userID, season) => {
   }
 };
 
-const getGlobalNumbersFromDB = async () => {
-  const globalCount = await db
-    .ref("global/count")
-    .once("value")
-    .then((snapshot) => snapshot.val());
+const getSwitchesFromDB = async () => {
+  const globalSwitches = await (
+    await fireStore.collection("Commands").doc("Switches").get()
+  ).data();
 
-  const ranges = globalCount["ranges"];
-  const nBrawlers = globalCount["totals"]["numberOfBrawlers"];
-  const nGadgets = globalCount["totals"]["numberOfGadgets"];
-  const nStarPowers = globalCount["totals"]["numberOfStarPowers"];
-  const minBrawlerEvent = globalCount["minBrawlerEvent"];
-  const minTeamEvent = globalCount["minTeamEvent"];
-  const minBrawlerPL = globalCount["minBrawlerPL"];
-  const minTeamPL = globalCount["minTeamPL"];
-  const seasonGlobal = globalCount["seasonGlobal"];
-  const seasonStats = globalCount["seasonStats"];
-  const slotNumActive = globalCount["slotNumActive"];
-  const slotNumUpcoming = globalCount["slotNumUpcoming"];
-  const powerLeagueActive= globalCount['powerLeagueApp']
+  return globalSwitches;
+  // const ranges = globalCount["ranges"];
+  // const nBrawlers = globalCount["totals"]["numberOfBrawlers"];
+  // const nGadgets = globalCount["totals"]["numberOfGadgets"];
+  // const nStarPowers = globalCount["totals"]["numberOfStarPowers"];
+  // const minBrawlerEvent = globalCount["minBrawlerEvent"];
+  // const minTeamEvent = globalCount["minTeamEvent"];
+  // const minBrawlerPL = globalCount["minBrawlerPL"];
+  // const minTeamPL = globalCount["minTeamPL"];
+  // const seasonGlobal = globalCount["seasonGlobal"];
+  // const seasonStats = globalCount["seasonStats"];
+  // const slotNumActive = globalCount["slotNumActive"];
+  // const slotNumUpcoming = globalCount["slotNumUpcoming"];
+  // const powerLeagueActive = globalCount["powerLeagueApp"];
 
-  return {
-    ranges,
-    nBrawlers,
-    nGadgets,
-    nStarPowers,
-    minBrawlerEvent,
-    minTeamEvent,
-    minBrawlerPL,
-    minTeamPL,
-    seasonGlobal,
-    seasonStats,
-    slotNumActive,
-    slotNumUpcoming,
-    powerLeagueActive
-  };
+  // return {
+  //   ranges,
+  //   nBrawlers,
+  //   nGadgets,
+  //   nStarPowers,
+  //   minBrawlerEvent,
+  //   minTeamEvent,
+  //   minBrawlerPL,
+  //   minTeamPL,
+  //   seasonGlobal,
+  //   seasonStats,
+  //   slotNumActive,
+  //   slotNumUpcoming,
+  //   powerLeagueActive,
+  // };
 };
 const getGlobalStatsFromDB = async (
   gStats,
@@ -170,24 +164,8 @@ const getGlobalStatsFromDB = async (
     const trophiesRange = state.uiReducerPersist.trophiesRange;
 
     const plRange = state.uiReducerPersist.plRange;
-    let eventsActive = state.brawlifyReducer.eventsList.active;
-    let slotNumberActive = state.globalStatsReducer.slotNumberActive;
-    let events = {};
+
     if (typeIndex == 0 || typeIndexPersist == 0) {
-      for (const eventKey in eventsActive) {
-        if (eventsActive[eventKey].slot.id <= slotNumberActive) {
-          if (
-            Math.sign(
-              moment.duration(
-                moment(eventsActive[eventKey].endTime).diff(moment.now())
-              )
-            ) == 1
-          ) {
-            events[camelize(eventsActive[eventKey].map.gameMode.name)] =
-              eventsActive[eventKey].map.id;
-          }
-        }
-      }
     }
     // console.log(events);
     let type = null;
@@ -253,9 +231,9 @@ const getGlobalStatsFromDB = async (
 
 export {
   getStatsFirstLogin,
-  getBrawlifyFromDB,
   getStatsFromDB,
-  getGlobalNumbersFromDB,
+  getSwitchesFromDB,
+  getEvents,
   getGlobalStatsFromDB,
   writeLastLogin,
   writeError,

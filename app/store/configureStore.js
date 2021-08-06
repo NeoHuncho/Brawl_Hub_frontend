@@ -9,10 +9,22 @@ import AsyncStorage from "@react-native-community/async-storage";
 import { composeWithDevTools } from "redux-devtools-extension";
 import reducers from "./reducers";
 
+const migrations = {
+  1: (state) => {
+    return {
+      ...state,
+      playerPersistReducer: {
+        ...state.playerPersistReducer,
+        playerName: undefined,
+      },
+    };
+  },
+};
+
 const persistConfig = {
   // Root
   key: "root",
-  version: 0,
+  version: 1,
   // Storage Method (React Native)
   storage: AsyncStorage,
   // Whitelist (Save Specific Reducers)
@@ -25,6 +37,8 @@ const persistConfig = {
     "brawlifyReducer",
     "uiReducerNoPersist",
   ],
+  // stateReconciler: "autoMergeLevel2",
+  // migrate: createMigrate(migrations, { debug: true }),
 };
 
 const persistedReducer = persistReducer(persistConfig, reducers);

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-
+import { ActivityIndicator } from "react-native-paper";
 import {
   View,
   Text,
@@ -11,8 +11,8 @@ import {
 } from "react-native";
 import Carousel from "react-native-snap-carousel";
 import { Ionicons } from "@expo/vector-icons";
-import { AdMobInterstitial } from "expo-ads-admob";
 
+import { showInterstitial, requestAd } from "../../../config/ads";
 import { imageAdID, videoAdID } from "../../../config/ads";
 import colors from "../../../config/colors";
 import {
@@ -32,43 +32,15 @@ import {
   moreInfoCarouselOpen,
   moreInfoCarouselClosed,
 } from "../../../store/reducers/uiReducerNoPersist";
+import { compose } from "@reduxjs/toolkit";
 
 let countImageAd = 0;
 let countVideoAd = 0;
 export default function CarouselModule({ dataType, style, sort }) {
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const carouselRef = useRef(null);
 
-  const goForward = () => {
-    carouselRef.current.snapToNext();
-  };
-
-  const prepareAds = async () => {
-    if (
-      (countImageAd == 0 && countVideoAd == 0) ||
-      countImageAd == countVideoAd
-    ) {
-      await AdMobInterstitial.setAdUnitID(imageAdID); // Test ID, Replace with your-admob-unit-id
-      await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
-    } else if (countImageAd > countVideoAd) {
-      await AdMobInterstitial.setAdUnitID(videoAdID); // Test ID, Replace with your-admob-unit-id
-      await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
-    }
-  };
-  prepareAds();
-
-  const showImageInterstitial = async () => {
-    if ((await AdMobInterstitial.getIsReadyAsync()) == true) {
-      await AdMobInterstitial.showAdAsync();
-      countImageAd += 1;
-    }
-  };
-  const showVideoInterstitial = async () => {
-    if ((await AdMobInterstitial.getIsReadyAsync()) == true) {
-      await AdMobInterstitial.showAdAsync();
-      countVideoAd += 1;
-    }
-  };
   const getBackgroundColor = (item) => {
     if (item.winRatio >= 5) return "#003924";
     else if (item.winRatio >= 3) return "#005841";
@@ -99,6 +71,7 @@ export default function CarouselModule({ dataType, style, sort }) {
         image: image,
       })
     );
+    setLoading(false);
   };
 
   const renderItem = ({ item, index }) => {
@@ -152,19 +125,15 @@ export default function CarouselModule({ dataType, style, sort }) {
               dataType !== "mapMore" && (
                 <TouchableOpacity
                   onPress={async () => {
-                    if (
-                      (countImageAd == 0 && countVideoAd == 0) ||
-                      countImageAd == countVideoAd
-                    )
-                      await showImageInterstitial();
-                    else if (countImageAd > countVideoAd)
-                      await showVideoInterstitial();
+                    setLoading(true);
+                    await showInterstitial();
                     onPressCarousel(
                       item.title,
                       item.titleCamel,
                       item.mode,
                       item.image
                     );
+                    await requestAd();
                   }}
                   style={{
                     position: "absolute",
@@ -290,6 +259,22 @@ export default function CarouselModule({ dataType, style, sort }) {
         dataType === "map" || dataType === "mapMore" ? styles.mapItem : null,
       ]}
     >
+      {loading && (
+        <ActivityIndicator
+          animating={true}
+          color={"blue"}
+          size={"large"}
+          style={{
+            position: "absolute",
+            top: -100,
+            margin: "auto",
+            bottom: 0,
+            right: 0,
+            left: 0,
+            zIndex: 8,
+          }}
+        />
+      )}
       <View
         style={{
           flex: 1,

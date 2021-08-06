@@ -13,11 +13,15 @@ import {
   ImageBackground,
   Dimensions,
 } from "react-native";
+import { ActivityIndicator } from "react-native-paper";
+
 import { useSelector, useDispatch } from "react-redux";
 import { Ionicons } from "@expo/vector-icons";
 import SegmentedControlTab from "react-native-segmented-control-tab";
 import * as Progress from "react-native-progress";
 
+import { receivedPlayerStatsFromDB } from "../../store/reducers/battleLogReducer";
+import { getStatsFromDB } from "../../lib/apiDB";
 import { bannerAdID } from "../../config/ads";
 import colors from "../../config/colors";
 import { userIdReset } from "../../store/reducers/playerIdReducer";
@@ -33,8 +37,9 @@ import PlayerStatsMoreInfo from "../PlayerStats/playerStatsMoreInfo";
 import FaqPage from "./FaqPage";
 import MessageBox from "../../components/modules/MessageBox";
 
+
 const PlayerStats = () => {
-  console.log("called playerstats");
+  // console.log("called playerstats");
   getAssets();
   const dispatch = useDispatch();
   const device = useSelector((state) => state.uiReducerNoPersist.deviceType);
@@ -43,10 +48,12 @@ const PlayerStats = () => {
   // console.log("look here", battleLogReducer.playerStats.brawlers);
   const playerName = battleLogReducer.name;
   const season = useSelector((state) => state.globalStatsReducer.seasonGlobal);
+  console.log("look here", season);
   const icon = battleLogReducer.icon;
 
   const playerID = useSelector((state) => state.playerPersistReducer.playerID);
 
+  console.log("look here", playerID);
   const globalNumbers = useSelector(
     (state) => state.globalStatsReducer.numbers
   );
@@ -95,7 +102,7 @@ const PlayerStats = () => {
     playerStats !== null &&
     playerStats !== undefined
   ) {
-    seasons = useSelector((state) => ["6"]);
+    seasons = useSelector((state) => ["6", "7"]);
     Object.keys(playerStats).map((key) => {
       key.includes("ranked")
         ? types.push("ranked")
@@ -123,14 +130,14 @@ const PlayerStats = () => {
       typesKey[2] = "Team PL";
     }
   }
-
+  const [loading, setLoading] = useState(false);
   const [styleIndex, setStyleIndex] = useState(
     preferencesCarouselStored.styleIndex
   );
   const [sortIndex, setSortIndex] = useState(
     preferencesCarouselStored.sortIndex
   );
-  const [seasonIndex, setSeasonIndex] = useState(season);
+  const [seasonIndex, setSeasonIndex] = useState(season - 6);
 
   const [showOverallStats, setShowOverallStats] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -192,8 +199,30 @@ const PlayerStats = () => {
       : setShowOverallStats(false);
   };
 
-  //
+  const userId = useSelector((state) => state.playerPersistReducer.playerID);
 
+  const handleTypeChange = (index) => {
+    setLoading(true);
+    setTypeIndex(index);
+    setLoading(false);
+  };
+
+  const handleSeasonChange = async (index) => {
+    try {
+      setLoading(true);
+      const stats = await getStatsFromDB(userId, index + 6);
+      if (Object.keys(stats).length !== 0) {
+        await dispatch(receivedPlayerStatsFromDB(stats));
+        setSeasonIndex(index);
+        setLoading(false);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  //
+  console.log("heree", loading);
   //this will intialise the creation of the data for the carousels
 
   return (
@@ -205,15 +234,32 @@ const PlayerStats = () => {
         onDidFailToReceiveAdWithError={(e) => console.log(e)}
         style={{ marginTop: StatusBar.currentHeight }}
       />
+
       {playerID &&
       playerStats !== "no data" &&
       playerStats !== { season: {} } &&
       playerStats !== undefined &&
       moreInfoCarouselOpen === false ? (
-        <SafeAreaView>
-          <ScrollView>
+        <SafeAreaView style={{ zIndex: 1 }}>
+          {loading && (
+            <ActivityIndicator
+              animating={true}
+              color={"blue"}
+              size={"large"}
+              style={{
+                position: "absolute",
+                top: 0,
+                margin: "auto",
+                bottom: 0,
+                right: 0,
+                left: 0,
+                zIndex: 8,
+              }}
+            />
+          )}
+          <ScrollView style={{ zIndex: 1 }}>
             <View style={styles.container}>
-              <View style={{ marginTop: 20 }}>
+              <View style={{ marginTop: 10 }}>
                 {updateMessage == true && (
                   <MessageBox
                     message={
@@ -232,6 +278,7 @@ const PlayerStats = () => {
                     color={colors.green}
                   />
                 )}
+
                 <View style={styles.nameContainer}>
                   {iconImage ? (
                     <Image
@@ -323,7 +370,7 @@ const PlayerStats = () => {
                 </View>
                 {showSettings == true && (
                   <View style={{ marginTop: 20 }}>
-                    {/* <Text
+                    <Text
                       style={[
                         styles.sliderTitle,
                         { marginLeft: 30 },
@@ -331,14 +378,14 @@ const PlayerStats = () => {
                       ]}
                     >
                       Choose Season:
-                    </Text> */}
+                    </Text>
                     <View style={{ marginLeft: 20, marginRight: 20 }}>
-                      {/* <SegmentedControlTab
+                      <SegmentedControlTab
                         values={seasons}
                         //The plus 5 is because we are starting 5 seasons late
                         // the minus 5 is to convert it back
-                        selectedIndex={seasonIndex - 6}
-                        onTabPress={(index) => setSeasonIndex(index + 5)}
+                        selectedIndex={seasonIndex}
+                        onTabPress={(index) => handleSeasonChange(index)}
                         tabsContainerStyle={
                           device == "tablet"
                             ? {
@@ -353,7 +400,7 @@ const PlayerStats = () => {
                           fontSize: device != "tablet" ? 14 : 25,
                           fontFamily: "Lilita-One",
                         }}
-                      /> */}
+                      />
                       <View style={{ marginTop: 10 }}>
                         <Text
                           style={[
@@ -888,7 +935,7 @@ const PlayerStats = () => {
                       values={typesKey}
                       enabled={typesKey.length > 1 ? true : false}
                       selectedIndex={typeIndex}
-                      onTabPress={(index) => setTypeIndex(index)}
+                      onTabPress={(index) => handleTypeChange(index)}
                       tabsContainerStyle={
                         device == "tablet"
                           ? {
@@ -1031,6 +1078,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+    zIndex: 1,
   },
   imageProgress: {
     width: 35,
