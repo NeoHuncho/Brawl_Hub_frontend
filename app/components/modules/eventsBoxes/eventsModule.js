@@ -12,7 +12,7 @@ import { ActivityIndicator } from "react-native-paper";
 import { showInterstitial, requestAd } from "../../../config/ads";
 import { sortEventsData } from "./eventsData";
 import colors from "../../../config/colors";
-import { bestBrawlers, bestTeams } from "../../../lib/getGlobalStatsFunctions";
+
 import {
   getBrawlerImage,
   getMapName,
@@ -25,16 +25,16 @@ import { useSelector, useDispatch } from "react-redux";
 import { moreInfoEventOpen } from "../../../store/reducers/uiReducerNoPersist";
 import { getGlobalStatsFromDB } from "../../../lib/apiDB";
 import { globalStatsReceived } from "../../../store/reducers/globalStatsReducer";
-import { isLoaded } from "expo-font";
 
 let device = null;
 const EventsModule = ({ season, typeIndex, range }) => {
+  console.log(typeIndex);
   const [loading, setLoading] = useState(false);
+  const [challengeClicked, setChallengeClicked] = useState(false);
 
   device = useSelector((state) => state.uiReducerNoPersist.deviceType);
-  let globalStats = useSelector(
-    (state) => state.globalStatsReducer.globalStats
-  );
+  let globalNumbers = useSelector((state) => state.globalStatsReducer);
+  let globalStats = globalNumbers.globalStats;
   const dispatch = useDispatch();
   const onPressEvent = (
     type,
@@ -58,7 +58,10 @@ const EventsModule = ({ season, typeIndex, range }) => {
     );
     setLoading(false);
   };
-  let { normalEvents } = sortEventsData();
+  let { normalEvents, specialEvents } = sortEventsData(
+    typeIndex,
+    globalNumbers.challenge_hash
+  );
 
   let eventModule = [];
 
@@ -73,7 +76,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
     // console.log("look here g", range);
 
     normalEvents.map((event) => {
-      console.log(event.modeName)
+      console.log(event.modeName);
       let sortedBrawlers = null;
       let sortedTeams = null;
       if (trophiesStats[event.modeName]) {
@@ -335,12 +338,6 @@ const EventsModule = ({ season, typeIndex, range }) => {
         </View>
       );
     });
-
-
- 
-
-
-
 
     return (
       <View style={{ marginBottom: 10 }}>
@@ -909,6 +906,290 @@ const EventsModule = ({ season, typeIndex, range }) => {
             }}
           />
         )}
+
+        {eventModule}
+      </View>
+    );
+  } else if (typeIndex == "challenge") {
+    let trophiesStats = useSelector(
+      (state) => state.globalStatsReducer.globalStats["trophies"][range]
+    );
+    let challengeImage = null;
+    let challenge_endTime = undefined;
+    let challenge_startTime = undefined;
+
+    specialEvents.map((event) => {
+      let sortedBrawlers = null;
+      let sortedTeams = null;
+      challengeImage = event.eventImage;
+      challenge_startTime == undefined
+        ? (challenge_startTime = event.eventStartTime)
+        : null;
+      challenge_endTime == undefined
+        ? (challenge_endTime = event.eventLeftTime)
+        : null;
+      if (trophiesStats[event.modeName]) {
+        if (trophiesStats[event.modeName][event.mapID]) {
+          sortedBrawlers =
+            trophiesStats[event.modeName][event.mapID][
+              "performanceBrawlersReduced"
+            ];
+          sortedTeams =
+            trophiesStats[event.modeName][event.mapID][
+              "performanceTeamsReduced"
+            ];
+        }
+      }
+
+      let teamBrawler1 = null;
+      let teamBrawler2 = null;
+      let teamBrawler3 = null;
+      // console.log(sortedTeams);
+      if (sortedTeams) {
+        if (sortedTeams.length != 0) {
+          teamBrawler1 = sortedTeams[0].ID.slice(0, 8);
+          teamBrawler2 = sortedTeams[0].ID.slice(10, 18);
+          teamBrawler3 = sortedTeams[0].ID.slice(20, 28);
+        }
+      }
+
+      eventModule.push(
+        <View
+          key={event.mapID}
+          style={[
+            styles.rectangle,
+            device == "tablet" ? { width: 500, height: 150 } : null,
+          ]}
+        >
+          <View
+            style={{
+              height: device != "tablet" ? 30 : 50,
+              width: device != "tablet" ? 280 : 500,
+              backgroundColor: event.modeColor,
+              borderTopLeftRadius: 5,
+              borderTopRightRadius: 5,
+            }}
+          >
+            <View
+              style={{
+                margin: 5,
+                marginTop: device != "tablet" ? 7 : 10,
+                flexDirection: "row",
+              }}
+            >
+              <Image
+                source={{ uri: event.modeImage }}
+                style={[
+                  styles.modeImage,
+                  device == "tablet" ? { width: 30, height: 30 } : null,
+                ]}
+              />
+              <Text
+                style={{
+                  fontSize: device != "tablet" ? 14 : 25,
+                  fontFamily: "Lilita-One",
+                  color: colors.secondary,
+                  marginLeft: 4,
+                }}
+              >
+                {event.mapName.includes("Required")
+                  ? "Some Assembly R."
+                  : event.mapName}
+              </Text>
+
+              <Text
+                style={{
+                  fontSize: device != "tablet" ? 11 : 20,
+                  fontFamily: "Lilita-One",
+                  color: colors.secondary,
+                  position: "absolute",
+                  right: device != "tablet" ? 30 : 40,
+                  top: 3,
+                }}
+              >
+                {event.challengeNumber}
+              </Text>
+              {(sortedBrawlers != undefined || sortedTeams != undefined) && (
+                <TouchableOpacity
+                  onPress={async () => {
+                    await showInterstitial();
+                    let globalStatsFromDB = await getGlobalStatsFromDB(
+                      globalStats,
+                      season,
+                      [event.modeName, event.mapID],
+                      0,
+                      range
+                    );
+                    await dispatch(globalStatsReceived(globalStatsFromDB));
+
+                    onPressEvent(
+                      "trophies",
+                      event.mapName,
+                      event.modeImage,
+                      event.mapImage,
+                      globalStatsFromDB["trophies"][range][event.modeName][
+                        event.mapID
+                      ]["performanceBrawlers"],
+                      globalStatsFromDB["trophies"][range][event.modeName][
+                        event.mapID
+                      ]["performanceTeams"]
+                    );
+                    await requestAd();
+                  }}
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    top: -3,
+                  }}
+                >
+                  <Image
+                    source={require("../../../assets/icons/infoButton.png")}
+                    style={{
+                      width: device != "tablet" ? 20 : 30,
+                      height: device != "tablet" ? 20 : 30,
+                    }}
+                  />
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+          <View
+            style={{
+              width: device != "tablet" ? 280 : 500,
+              flex: 1,
+            }}
+          >
+            <ImageBackground
+              source={{ uri: event.mapEnvironment }}
+              style={styles.eventImage}
+              imageStyle={{
+                borderBottomLeftRadius: 5,
+                borderBottomRightRadius: 5,
+                opacity: 0.4,
+              }}
+            >
+              <View
+                style={{ flexDirection: "row", marginTop: 25, marginLeft: 10 }}
+              >
+                {sortedBrawlers && (
+                  <>
+                    {sortedBrawlers[0] && (
+                      <Text
+                        style={[
+                          {
+                            position: "absolute",
+                            top: device != "tablet" ? -14 : -22,
+
+                            fontSize: device != "tablet" ? 10 : 15,
+                          },
+                          styles.text,
+                        ]}
+                      >
+                        Top 3 Brawlers
+                      </Text>
+                    )}
+                    {sortedBrawlers[0] && (
+                      <Image
+                        style={[
+                          device != "tablet"
+                            ? styles.brawlerImage
+                            : styles.brawlerImageTablet,
+                          styles.border,
+                          { borderColor: "gold", marginRight: 5 },
+                        ]}
+                        source={getBrawlerImage(sortedBrawlers[0].ID)}
+                      />
+                    )}
+                    {sortedBrawlers[1] && (
+                      <Image
+                        style={[
+                          device != "tablet"
+                            ? styles.brawlerImage
+                            : styles.brawlerImageTablet,
+                          styles.border,
+                          { borderColor: "silver", marginRight: 5 },
+                        ]}
+                        source={getBrawlerImage(sortedBrawlers[1].ID)}
+                      />
+                    )}
+                    {sortedBrawlers[2] && (
+                      <Image
+                        style={[
+                          device != "tablet"
+                            ? styles.brawlerImage
+                            : styles.brawlerImageTablet,
+                          styles.border,
+                          { borderColor: "#cd7f32", marginRight: 5 },
+                        ]}
+                        source={getBrawlerImage(sortedBrawlers[2].ID)}
+                      />
+                    )}
+                  </>
+                )}
+                {sortedTeams && (
+                  <View
+                    style={{
+                      position: "absolute",
+                      flexDirection: "row",
+                      right: 10,
+                    }}
+                  >
+                    {sortedTeams[0] && (
+                      <Text
+                        style={[
+                          {
+                            position: "absolute",
+                            top: device != "tablet" ? -14 : -22,
+                            fontSize: device != "tablet" ? 10 : 15,
+                            right: 0,
+                          },
+                          styles.text,
+                        ]}
+                      >
+                        Top Team
+                      </Text>
+                    )}
+                    <Image
+                      style={
+                        device != "tablet"
+                          ? styles.brawlerImage
+                          : styles.brawlerImageTablet
+                      }
+                      source={getBrawlerImage(teamBrawler1)}
+                    />
+
+                    <Image
+                      style={
+                        device != "tablet"
+                          ? styles.brawlerImage
+                          : styles.brawlerImageTablet
+                      }
+                      source={getBrawlerImage(teamBrawler2)}
+                    />
+
+                    {teamBrawler3 ? (
+                      teamBrawler3.length == 8 ? (
+                        <Image
+                          style={
+                            device != "tablet"
+                              ? styles.brawlerImage
+                              : styles.brawlerImageTablet
+                          }
+                          source={getBrawlerImage(teamBrawler3)}
+                        />
+                      ) : null
+                    ) : null}
+                  </View>
+                )}
+              </View>
+            </ImageBackground>
+          </View>
+        </View>
+      );
+    });
+    console.log(challenge_startTime);
+    return (
+      <View style={{ marginBottom: 10 }}>
         {loading && (
           <ActivityIndicator
             animating={true}
@@ -916,7 +1197,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
             size={"large"}
             style={{
               position: "absolute",
-              top: 50,
+              top: 0,
               margin: "auto",
               left: 0,
               right: 0,
@@ -925,7 +1206,33 @@ const EventsModule = ({ season, typeIndex, range }) => {
             }}
           />
         )}
-        {eventModule}
+
+        <TouchableOpacity
+          onPress={() =>
+            challengeClicked == false
+              ? setChallengeClicked(true)
+              : setChallengeClicked(false)
+          }
+        >
+          <View style={{ alignItems: "center" }}>
+            <Image
+              source={{ uri: challengeImage }}
+              style={{ height: 60, width: 60, marginTop: 20 }}
+            />
+            <Text
+              style={{
+                fontFamily: "Lilita-One",
+                color: colors.primary,
+                fontSize: 13,
+                marginTop: 5,
+              }}
+            >
+              {globalNumbers.challenge_name}
+            </Text>
+          </View>
+        </TouchableOpacity>
+
+        {challengeClicked == true && eventModule}
       </View>
     );
   }

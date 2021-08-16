@@ -12,6 +12,7 @@ import {
   FlatList,
   BackHandler,
 } from "react-native";
+import { SearchBar } from "react-native-elements";
 
 import {
   getBrawlerImage,
@@ -64,6 +65,7 @@ export default function EventsMoreInfo() {
       : 0
   );
   // console.log(carouselInfo.sortedTeams);
+
   let topPointsBrawlers = undefined;
   let totalCountBrawlers = 0;
   let totalNumberOfBrawlers = 0;
@@ -103,18 +105,15 @@ export default function EventsMoreInfo() {
         brawlerindexImage = trophyLoss2;
       } else brawlerindexImage = trophyLoss3;
     }
+
     let performanceAgainstBrawler = [];
     let performanceAgainstTeam = [];
-
     if (item.performanceAgainstBrawler) {
       let brawlerKeys = Object.keys(item.performanceAgainstBrawler);
       brawlerKeys.map((key) => {
         performanceAgainstBrawler.push(item.performanceAgainstBrawler[key]);
       });
     }
-
-    // console.log(performanceAgainstBrawler)
-
     if (item.performanceAgainstTeam) {
       let teamKeys = Object.keys(item.performanceAgainstTeam);
       teamKeys.map((key) => {
@@ -147,14 +146,14 @@ export default function EventsMoreInfo() {
               device == "tablet" ? styles.itemBrawlerTablet : styles.itemBrawler
             }
           >
-            <Image
+            {/* <Image
               style={
                 device == "tablet"
                   ? styles.trophyImageTablet
                   : styles.trophyImage
               }
               source={brawlerindexImage}
-            />
+            /> */}
             <Image
               style={
                 device == "tablet"
@@ -168,7 +167,7 @@ export default function EventsMoreInfo() {
                 device != "tablet" ? styles.stats : styles.statsTablet,
                 { marginLeft: device != "tablet" ? 20 : 40 },
                 performanceBrawlers == 100
-                  ? { fontSize: device != "tablet" ? 12 : 23 }
+                  ? { fontSize: device != "tablet" ? 16 : 23 }
                   : null,
               ]}
             >
@@ -177,14 +176,14 @@ export default function EventsMoreInfo() {
             <Text
               style={[
                 device != "tablet" ? styles.stats : styles.statsTablet,
-                { position: "absolute", left: device != "tablet" ? 160 : 180 },
+                { index: "absolute", left: device != "tablet" ? 130 : 180 },
               ]}
             >
               {pickRateBrawlers + "%"}
             </Text>
             {performanceAgainstBrawler[0] && (
               <View
-                style={{ flexDirection: "row", position: "absolute", right: 0 }}
+                style={{ flexDirection: "row", index: "absolute", right: 0 }}
               >
                 <Image
                   style={[
@@ -266,14 +265,14 @@ export default function EventsMoreInfo() {
             <Text
               style={[
                 device != "tablet" ? styles.stats : styles.statsTablet,
-                { position: "absolute", left: device != "tablet" ? 200 : 300 },
+                { index: "absolute", left: device != "tablet" ? 200 : 300 },
               ]}
             >
               {pickRateTeams + "%"}
             </Text>
             {performanceAgainstTeam[0] && (
               <View
-                style={{ flexDirection: "row", position: "absolute", right: 0 }}
+                style={{ flexDirection: "row", index: "absolute", right: 0 }}
               >
                 <Image
                   style={[
@@ -321,7 +320,7 @@ export default function EventsMoreInfo() {
         <>
           <SafeAreaView style={styles.container}>
             <TouchableOpacity
-              style={{ position: "absolute", left: 5, top: 5 }}
+              style={{ index: "absolute", left: 0, top: 5 }}
               onPress={() => handleReturn()}
             >
               <Ionicons
@@ -376,7 +375,6 @@ export default function EventsMoreInfo() {
                   ? carouselInfo.name
                   : getMapName(carouselInfo.name)}
               </Text>
-              {console.log(carouselInfo.mode)}
 
               <Image
                 source={
@@ -418,21 +416,24 @@ export default function EventsMoreInfo() {
                 />
               </View>
             )}
+            <View
+              style={{ width: device != "tablet" ? 300 : 600, marginTop: 10 }}
+            >
+              {/* <SearchBar style={{ height: 10 }} /> */}
+            </View>
 
             <View style={{ flexDirection: "row", marginTop: 10 }}>
               <Text
                 style={[
                   device != "tablet"
-                    ? {
-                        color: colors.primary,
-                        fontFamily: "Lilita-One",
-                        fontSize: 11,
-                        position: "absolute",
-                        right: 14,
-                      }
+                    ? styles.columnName
                     : styles.columnNameTablet,
-
-                  typeIndex !== 0 ? { right: -8 } : null,
+                  carouselInfo.mode.includes("Show") && typeIndex == 0
+                    ? { paddingRight: 10 }
+                    : typeIndex == 0
+                    ? { paddingLeft: 15 }
+                    : { paddingLeft: device != "tablet" ? 100 : 150 },
+                  null,
                 ]}
               >
                 Performance
@@ -440,16 +441,14 @@ export default function EventsMoreInfo() {
               <Text
                 style={[
                   device != "tablet"
-                    ? {
-                        color: colors.primary,
-                        fontFamily: "Lilita-One",
-                        fontSize: 11,
-                        position: "absolute",
-                        left: -6,
-                      }
+                    ? styles.columnName
                     : styles.columnNameTablet,
                   ,
-                  typeIndex !== 0 ? { left: 18 } : null,
+                  carouselInfo.mode.includes("Show")
+                    ? { paddingRight: 80 }
+                    : typeIndex == 0
+                    ? { paddingLeft: 10 }
+                    : { paddingLeft: 5 },
                 ]}
               >
                 Pick Rate
@@ -458,15 +457,11 @@ export default function EventsMoreInfo() {
                 <Text
                   style={[
                     device != "tablet"
-                      ? {
-                          color: colors.primary,
-                          fontFamily: "Lilita-One",
-                          fontSize: 11,
-                          position: "absolute",
-                          left: 66,
-                        }
+                      ? styles.columnName
                       : styles.columnNameTablet,
-                    typeIndex !== 0 ? { left: 90 } : null,
+                    typeIndex == 0
+                      ? { paddingLeft: 30 }
+                      : { paddingLeft: device != "tablet" ? 5 : 50 },
                   ]}
                 >
                   Best Against
@@ -474,7 +469,7 @@ export default function EventsMoreInfo() {
               )}
             </View>
 
-            <ScrollView style={{ marginTop: 15 }}>
+            <ScrollView>
               <FlatList
                 data={
                   typeIndex == 0
@@ -501,7 +496,7 @@ const styles = StyleSheet.create({
   stats: {
     color: colors.primary,
     fontFamily: "Lilita-One",
-    fontSize: 16,
+    fontSize: 20,
     textAlign: "center",
   },
   statsTablet: {
@@ -524,7 +519,7 @@ const styles = StyleSheet.create({
   },
   itemBrawler: {
     height: 60,
-    width: 315,
+    width: 300,
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
@@ -559,6 +554,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
   },
+
   brawlerImage: {
     width: 35,
     height: 35,
@@ -568,7 +564,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontFamily: "Lilita-One",
     fontSize: 11,
-    marginLeft: 0,
+    marginLeft: 6,
   },
   columnNameTablet: {
     color: colors.primary,

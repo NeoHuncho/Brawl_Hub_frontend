@@ -16,16 +16,20 @@ const slice = createSlice({
     powerLeagueActive: undefined,
     eventActive: undefined,
     slotIDMaximum: undefined,
+    challenge_hash: undefined,
+    challenge_active: undefined,
   },
   reducers: {
     globalCountsReceived: (globalStats, action) => {
       const data = action.payload["switches"];
+ 
       globalStats.challenge_active = data.challenge_active;
       if (globalStats.challenge_active == true) {
         globalStats.challenge_endTime = data.challenge_endTime;
         globalStats.challenge_startTime = data.challenge_startTime;
         globalStats.challenge_icon = data.challenge_icon;
         globalStats.challenge_name = data.challenge_name;
+        globalStats.challenge_hash = data.challenge_hash;
       }
       globalStats.ranges = data.ranges;
       globalStats.numbers.numberOfBrawlers = data.total_numberOfBrawlers;

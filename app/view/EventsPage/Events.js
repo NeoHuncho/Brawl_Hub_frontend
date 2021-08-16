@@ -60,10 +60,9 @@ export default function Events() {
   const powerLeagueActive = useSelector(
     (state) => state.globalStatsReducer.powerLeagueActive
   );
+  const globalNumbers = useSelector((state) => state.globalStatsReducer);
 
-  const globalStatsInStore = useSelector(
-    (state) => state.globalStatsReducer.globalStats
-  );
+  const globalStatsInStore = globalNumbers.globalStats;
   const seasonIndex = season - 5;
   const isOpen = useSelector((state) => state.uiReducerNoPersist.isOpenEvents);
 
@@ -316,6 +315,16 @@ export default function Events() {
           )}
 
           <View style={{ alignContent: "center", alignItems: "center" }}>
+            {typeIndexChanging == false &&
+              typeIndex == 0 &&
+              globalNumbers.challenge_active == true && (
+                <EventsModule
+                  season={season}
+                  typeIndex={"challenge"}
+                  range={range}
+                />
+              )}
+
             {typeIndexChanging == false && (
               <EventsModule
                 season={season}
