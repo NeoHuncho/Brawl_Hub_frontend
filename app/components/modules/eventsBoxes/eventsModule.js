@@ -6,6 +6,7 @@ import {
   Text,
   Image,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
 import { AdMobInterstitial } from "expo-ads-admob";
 import { ActivityIndicator } from "react-native-paper";
@@ -25,7 +26,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { moreInfoEventOpen } from "../../../store/reducers/uiReducerNoPersist";
 import { getGlobalStatsFromDB } from "../../../lib/apiDB";
 import { globalStatsReceived } from "../../../store/reducers/globalStatsReducer";
-
+const windowWidth = Dimensions.get("window").width;
 let device = null;
 const EventsModule = ({ season, typeIndex, range }) => {
   console.log(typeIndex);
@@ -70,13 +71,14 @@ const EventsModule = ({ season, typeIndex, range }) => {
   }
 
   if (typeIndex == 0) {
+    // console.log(range)
     let trophiesStats = useSelector(
       (state) => state.globalStatsReducer.globalStats["trophies"][range]
     );
     // console.log("look here g", range);
 
     normalEvents.map((event) => {
-      console.log(event.modeName);
+      console.log(5, event.modeName);
       let sortedBrawlers = null;
       let sortedTeams = null;
       if (trophiesStats[event.modeName]) {
@@ -105,17 +107,46 @@ const EventsModule = ({ season, typeIndex, range }) => {
       }
 
       eventModule.push(
-        <View
+        <TouchableOpacity
           key={event.mapID}
           style={[
             styles.rectangle,
             device == "tablet" ? { width: 500, height: 150 } : null,
           ]}
+          activeOpacity={0.7}
+          onPress={async () => {
+            // console.log(11122, sortedBrawlers, sortedTeams);
+            if (sortedBrawlers.length > 0 || sortedTeams.length > 0) {
+              await showInterstitial();
+              let globalStatsFromDB = await getGlobalStatsFromDB(
+                globalStats,
+                season,
+                [event.modeName, event.mapID],
+                typeIndex,
+                range
+              );
+              await dispatch(globalStatsReceived(globalStatsFromDB));
+
+              onPressEvent(
+                "trophies",
+                event.mapName,
+                event.modeImage,
+                event.mapImage,
+                globalStatsFromDB["trophies"][range][event.modeName][
+                  event.mapID
+                ]["performanceBrawlers"],
+                globalStatsFromDB["trophies"][range][event.modeName][
+                  event.mapID
+                ]["performanceTeams"]
+              );
+              await requestAd();
+            }
+          }}
         >
           <View
             style={{
               height: device != "tablet" ? 30 : 50,
-              width: device != "tablet" ? 280 : 500,
+              width: device != "tablet" ? windowWidth - 100 : 500,
               backgroundColor: event.modeColor,
               borderTopLeftRadius: 5,
               borderTopRightRadius: 5,
@@ -143,9 +174,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
                   marginLeft: 4,
                 }}
               >
-                {event.mapName.includes("Required")
-                  ? "Some Assembly R."
-                  : event.mapName}
+                {event.mapName}
               </Text>
 
               <Text
@@ -154,59 +183,17 @@ const EventsModule = ({ season, typeIndex, range }) => {
                   fontFamily: "Lilita-One",
                   color: colors.secondary,
                   position: "absolute",
-                  right: device != "tablet" ? 30 : 40,
+                  right: device != "tablet" ? 10 : 40,
                   top: 3,
                 }}
               >
                 {`${event.eventLeftTime.hours()}h: ${event.eventLeftTime.minutes()}m left`}
               </Text>
-              {(sortedBrawlers != undefined || sortedTeams != undefined) && (
-                <TouchableOpacity
-                  onPress={async () => {
-                    await showInterstitial();
-                    let globalStatsFromDB = await getGlobalStatsFromDB(
-                      globalStats,
-                      season,
-                      [event.modeName, event.mapID],
-                      typeIndex,
-                      range
-                    );
-                    await dispatch(globalStatsReceived(globalStatsFromDB));
-
-                    onPressEvent(
-                      "trophies",
-                      event.mapName,
-                      event.modeImage,
-                      event.mapImage,
-                      globalStatsFromDB["trophies"][range][event.modeName][
-                        event.mapID
-                      ]["performanceBrawlers"],
-                      globalStatsFromDB["trophies"][range][event.modeName][
-                        event.mapID
-                      ]["performanceTeams"]
-                    );
-                    await requestAd();
-                  }}
-                  style={{
-                    position: "absolute",
-                    right: 0,
-                    top: -3,
-                  }}
-                >
-                  <Image
-                    source={require("../../../assets/icons/infoButton.png")}
-                    style={{
-                      width: device != "tablet" ? 20 : 30,
-                      height: device != "tablet" ? 20 : 30,
-                    }}
-                  />
-                </TouchableOpacity>
-              )}
             </View>
           </View>
           <View
             style={{
-              width: device != "tablet" ? 280 : 500,
+              width: device != "tablet" ? windowWidth - 100 : 500,
               flex: 1,
             }}
           >
@@ -220,7 +207,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
               }}
             >
               <View
-                style={{ flexDirection: "row", marginTop: 25, marginLeft: 10 }}
+                style={{ flexDirection: "row", marginTop: 30, marginLeft: 20 }}
               >
                 {sortedBrawlers && (
                   <>
@@ -229,8 +216,8 @@ const EventsModule = ({ season, typeIndex, range }) => {
                         style={[
                           {
                             position: "absolute",
-                            top: device != "tablet" ? -14 : -22,
-
+                            top: device != "tablet" ? -20 : -22,
+                            left: 16,
                             fontSize: device != "tablet" ? 10 : 15,
                           },
                           styles.text,
@@ -282,7 +269,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
                     style={{
                       position: "absolute",
                       flexDirection: "row",
-                      right: 10,
+                      right: 20,
                     }}
                   >
                     {sortedTeams[0] && (
@@ -290,9 +277,9 @@ const EventsModule = ({ season, typeIndex, range }) => {
                         style={[
                           {
                             position: "absolute",
-                            top: device != "tablet" ? -14 : -22,
+                            top: device != "tablet" ? -20 : -22,
                             fontSize: device != "tablet" ? 10 : 15,
-                            right: 0,
+                            right: 25,
                           },
                           styles.text,
                         ]}
@@ -303,7 +290,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
                     <Image
                       style={
                         device != "tablet"
-                          ? styles.brawlerImage
+                          ? styles.brawlerImageTeam
                           : styles.brawlerImageTablet
                       }
                       source={getBrawlerImage(teamBrawler1)}
@@ -312,7 +299,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
                     <Image
                       style={
                         device != "tablet"
-                          ? styles.brawlerImage
+                          ? styles.brawlerImageTeam
                           : styles.brawlerImageTablet
                       }
                       source={getBrawlerImage(teamBrawler2)}
@@ -323,7 +310,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
                         <Image
                           style={
                             device != "tablet"
-                              ? styles.brawlerImage
+                              ? styles.brawlerImageTeam
                               : styles.brawlerImageTablet
                           }
                           source={getBrawlerImage(teamBrawler3)}
@@ -335,7 +322,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
               </View>
             </ImageBackground>
           </View>
-        </View>
+        </TouchableOpacity>
       );
     });
 
@@ -402,7 +389,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
                 <Text
                   style={[
                     styles.text,
-                    { fontSize: device != "tablet" ? 20 : 30, marginTop: 10 },
+                    { fontSize: device != "tablet" ? 20 : 30, marginTop: 20 },
                   ]}
                 >
                   {capitalizeFirstLetter(
@@ -416,7 +403,41 @@ const EventsModule = ({ season, typeIndex, range }) => {
               <View style={{ flexDirection: "row" }}>
                 {maps.map((mapID, index) => {
                   return index <= 1 ? (
-                    <View
+                    <TouchableOpacity
+                      onPress={async () => {
+                        if (sortedBrawlers[mapID] || sortedTeams[mapID]) {
+                          await showInterstitial();
+                          // console.log('look here', modeName,mapID)
+                          let globalStatsFromDB = await getGlobalStatsFromDB(
+                            globalStats,
+                            season,
+                            [modeName, mapID],
+                            typeIndex,
+                            range
+                          );
+                          await dispatch(
+                            globalStatsReceived(globalStatsFromDB)
+                          );
+                          onPressEvent(
+                            "powerLeague",
+                            mapID,
+                            mapID,
+                            mapID,
+                            globalStatsFromDB["powerLeagueSolo"][range][
+                              modeName
+                            ][mapID]["performanceBrawlers"],
+                            globalStatsFromDB["powerLeagueSolo"][range][
+                              modeName
+                            ][mapID]["performanceTeams"]
+                          );
+                          await requestAd();
+                        }
+                      }}
+                      style={{
+                        position: "absolute",
+                        right: 4,
+                        top: 3.5,
+                      }}
                       style={[
                         device != "tablet"
                           ? styles.square
@@ -433,13 +454,11 @@ const EventsModule = ({ season, typeIndex, range }) => {
                           {
                             marginTop: 4,
                             marginLeft: 4,
-                            fontSize: device != "tablet" ? 11 : 25,
+                            fontSize: device != "tablet" ? 13 : 25,
                           },
                         ]}
                       >
-                        {getMapName(mapID) == "Some Assembly Required"
-                          ? "Some Assembly R."
-                          : getMapName(mapID)}
+                        {getMapName(mapID)}
                       </Text>
                       <View style={{ flexDirection: "row" }}>
                         <View style={{ marginLeft: 4 }}>
@@ -453,6 +472,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                       {
                                         fontSize: device != "tablet" ? 8 : 15,
                                         marginTop: 3,
+                                        marginBottom: 2,
                                       },
                                     ]}
                                   >
@@ -470,7 +490,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                             height:
                                               device != "tablet" ? 28 : 50,
                                             borderWidth:
-                                              device != "tablet" ? 1 : 3,
+                                              device != "tablet" ? 2 : 3,
                                           },
                                         ]}
                                         source={getBrawlerImage(
@@ -488,9 +508,9 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                             height:
                                               device != "tablet" ? 28 : 50,
                                             borderWidth:
-                                              device != "tablet" ? 1 : 3,
+                                              device != "tablet" ? 2 : 3,
                                             marginLeft:
-                                              device != "tablet" ? 0 : 5,
+                                              device != "tablet" ? 2 : 5,
                                           },
                                         ]}
                                         source={getBrawlerImage(
@@ -508,9 +528,9 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                             height:
                                               device != "tablet" ? 28 : 50,
                                             borderWidth:
-                                              device != "tablet" ? 1 : 3,
+                                              device != "tablet" ? 2 : 3,
                                             marginLeft:
-                                              device != "tablet" ? 0 : 5,
+                                              device != "tablet" ? 2 : 5,
                                           },
                                         ]}
                                         source={getBrawlerImage(
@@ -531,6 +551,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                   {
                                     fontSize: device != "tablet" ? 8 : 15,
                                     marginTop: 5,
+                                    marginBottom: 2,
                                   },
                                 ]}
                               >
@@ -583,67 +604,22 @@ const EventsModule = ({ season, typeIndex, range }) => {
                         <Image
                           source={getMapImage(mapID)}
                           style={{
-                            width: device != "tablet" ? 50 : 75,
-                            height: device != "tablet" ? 85 : 127.5,
+                            width: device != "tablet" ? 55 : 75,
+                            height: device != "tablet" ? 93.5 : 127.5,
                             position: "absolute",
                             right: 10,
-                            top: 6,
                           }}
                         />
                       </View>
-                      {(sortedBrawlers[mapID] || sortedTeams[mapID]) && (
-                        <TouchableOpacity
-                          onPress={async () => {
-                            await showInterstitial();
-                            // console.log('look here', modeName,mapID)
-                            let globalStatsFromDB = await getGlobalStatsFromDB(
-                              globalStats,
-                              season,
-                              [modeName, mapID],
-                              typeIndex,
-                              range
-                            );
-                            await dispatch(
-                              globalStatsReceived(globalStatsFromDB)
-                            );
-                            onPressEvent(
-                              "powerLeague",
-                              mapID,
-                              mapID,
-                              mapID,
-                              globalStatsFromDB["powerLeagueSolo"][range][
-                                modeName
-                              ][mapID]["performanceBrawlers"],
-                              globalStatsFromDB["powerLeagueSolo"][range][
-                                modeName
-                              ][mapID]["performanceTeams"]
-                            );
-                            await requestAd();
-                          }}
-                          style={{
-                            position: "absolute",
-                            right: 4,
-                            top: 3.5,
-                          }}
-                        >
-                          <Image
-                            source={require("../../../assets/icons/infoButton.png")}
-                            style={{
-                              width: device != "tablet" ? 20 : 30,
-                              height: device != "tablet" ? 20 : 30,
-                            }}
-                          />
-                        </TouchableOpacity>
-                      )}
-                    </View>
+                    </TouchableOpacity>
                   ) : null;
                 })}
               </View>
               {/*Bottom Row */}
-              <View style={{ flexDirection: "row" }}>
+              <View style={{ flexDirection: "row", marginTop: 10 }}>
                 {maps.map((mapID, index) => {
                   return index >= 2 ? (
-                    <View
+                    <TouchableOpacity
                       style={[
                         device != "tablet"
                           ? styles.square
@@ -653,6 +629,34 @@ const EventsModule = ({ season, typeIndex, range }) => {
                           marginRight: 10,
                         },
                       ]}
+                      onPress={async () => {
+                        if (sortedBrawlers[mapID] || sortedTeams[mapID]) {
+                          await showInterstitial();
+                          let globalStatsFromDB = await getGlobalStatsFromDB(
+                            globalStats,
+                            season,
+                            [modeName, mapID],
+                            typeIndex,
+                            range
+                          );
+                          await dispatch(
+                            globalStatsReceived(globalStatsFromDB)
+                          );
+                          onPressEvent(
+                            "powerLeague",
+                            mapID,
+                            mapID,
+                            mapID,
+                            globalStatsFromDB["powerLeagueSolo"][range][
+                              modeName
+                            ][mapID]["performanceBrawlers"],
+                            globalStatsFromDB["powerLeagueSolo"][range][
+                              modeName
+                            ][mapID]["performanceTeams"]
+                          );
+                          await requestAd();
+                        }
+                      }}
                     >
                       <Text
                         style={[
@@ -660,13 +664,11 @@ const EventsModule = ({ season, typeIndex, range }) => {
                           {
                             marginTop: 4,
                             marginLeft: 4,
-                            fontSize: device != "tablet" ? 11 : 25,
+                            fontSize: device != "tablet" ? 13 : 25,
                           },
                         ]}
                       >
-                        {getMapName(mapID) == "Some Assembly Required"
-                          ? "Some Assembly R."
-                          : getMapName(mapID)}
+                        {getMapName(mapID)}
                       </Text>
                       <View style={{ flexDirection: "row" }}>
                         <View style={{ marginLeft: 4 }}>
@@ -680,6 +682,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                       {
                                         fontSize: device != "tablet" ? 8 : 15,
                                         marginTop: 3,
+                                        marginBottom: 2,
                                       },
                                     ]}
                                   >
@@ -700,7 +703,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                             height:
                                               device != "tablet" ? 28 : 50,
                                             borderWidth:
-                                              device != "tablet" ? 1 : 3,
+                                              device != "tablet" ? 2 : 3,
                                           },
                                         ]}
                                         source={getBrawlerImage(
@@ -721,9 +724,9 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                             height:
                                               device != "tablet" ? 28 : 50,
                                             borderWidth:
-                                              device != "tablet" ? 1 : 3,
+                                              device != "tablet" ? 2 : 3,
                                             marginLeft:
-                                              device != "tablet" ? 0 : 5,
+                                              device != "tablet" ? 2 : 5,
                                           },
                                         ]}
                                         source={getBrawlerImage(
@@ -744,9 +747,9 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                             height:
                                               device != "tablet" ? 28 : 50,
                                             borderWidth:
-                                              device != "tablet" ? 1 : 3,
+                                              device != "tablet" ? 2 : 3,
                                             marginLeft:
-                                              device != "tablet" ? 0 : 5,
+                                              device != "tablet" ? 2 : 5,
                                           },
                                         ]}
                                         source={getBrawlerImage(
@@ -767,6 +770,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                   {
                                     fontSize: device != "tablet" ? 8 : 15,
                                     marginTop: 5,
+                                    marginBottom: 2,
                                   },
                                 ]}
                               >
@@ -828,58 +832,14 @@ const EventsModule = ({ season, typeIndex, range }) => {
                         <Image
                           source={getMapImage(mapID)}
                           style={{
-                            width: device != "tablet" ? 50 : 75,
-                            height: device != "tablet" ? 85 : 127.5,
+                            width: device != "tablet" ? 55 : 75,
+                            height: device != "tablet" ? 93.5 : 127.5,
                             position: "absolute",
                             right: 10,
-                            top: 6,
                           }}
                         />
                       </View>
-                      {(sortedBrawlers[mapID] || sortedTeams[mapID]) && (
-                        <TouchableOpacity
-                          onPress={async () => {
-                            await showInterstitial();
-                            let globalStatsFromDB = await getGlobalStatsFromDB(
-                              globalStats,
-                              season,
-                              [modeName, mapID],
-                              typeIndex,
-                              range
-                            );
-                            await dispatch(
-                              globalStatsReceived(globalStatsFromDB)
-                            );
-                            onPressEvent(
-                              "powerLeague",
-                              mapID,
-                              mapID,
-                              mapID,
-                              globalStatsFromDB["powerLeagueSolo"][range][
-                                modeName
-                              ][mapID]["performanceBrawlers"],
-                              globalStatsFromDB["powerLeagueSolo"][range][
-                                modeName
-                              ][mapID]["performanceTeams"]
-                            );
-                            await requestAd();
-                          }}
-                          style={{
-                            position: "absolute",
-                            right: 4,
-                            top: 3.5,
-                          }}
-                        >
-                          <Image
-                            source={require("../../../assets/icons/infoButton.png")}
-                            style={{
-                              width: device != "tablet" ? 20 : 30,
-                              height: device != "tablet" ? 20 : 30,
-                            }}
-                          />
-                        </TouchableOpacity>
-                      )}
-                    </View>
+                    </TouchableOpacity>
                   ) : null;
                 })}
               </View>
@@ -954,17 +914,44 @@ const EventsModule = ({ season, typeIndex, range }) => {
       }
 
       eventModule.push(
-        <View
+        <TouchableOpacity
           key={event.mapID}
           style={[
             styles.rectangle,
             device == "tablet" ? { width: 500, height: 150 } : null,
           ]}
+          onPress={async () => {
+            if (sortedBrawlers != undefined || sortedTeams != undefined) {
+            }
+            await showInterstitial();
+            let globalStatsFromDB = await getGlobalStatsFromDB(
+              globalStats,
+              season,
+              [event.modeName, event.mapID],
+              0,
+              range
+            );
+            await dispatch(globalStatsReceived(globalStatsFromDB));
+
+            onPressEvent(
+              "trophies",
+              event.mapName,
+              event.modeImage,
+              event.mapImage,
+              globalStatsFromDB["trophies"][range][event.modeName][event.mapID][
+                "performanceBrawlers"
+              ],
+              globalStatsFromDB["trophies"][range][event.modeName][event.mapID][
+                "performanceTeams"
+              ]
+            );
+            await requestAd();
+          }}
         >
           <View
             style={{
               height: device != "tablet" ? 30 : 50,
-              width: device != "tablet" ? 280 : 500,
+              width: device != "tablet" ? windowWidth - 100 : 500,
               backgroundColor: event.modeColor,
               borderTopLeftRadius: 5,
               borderTopRightRadius: 5,
@@ -992,14 +979,12 @@ const EventsModule = ({ season, typeIndex, range }) => {
                   marginLeft: 4,
                 }}
               >
-                {event.mapName.includes("Required")
-                  ? "Some Assembly R."
-                  : event.mapName}
+                {event.mapName}
               </Text>
 
               <Text
                 style={{
-                  fontSize: device != "tablet" ? 11 : 20,
+                  fontSize: device != "tablet" ? 14 : 20,
                   fontFamily: "Lilita-One",
                   color: colors.secondary,
                   position: "absolute",
@@ -1009,53 +994,11 @@ const EventsModule = ({ season, typeIndex, range }) => {
               >
                 {event.challengeNumber}
               </Text>
-              {(sortedBrawlers != undefined || sortedTeams != undefined) && (
-                <TouchableOpacity
-                  onPress={async () => {
-                    await showInterstitial();
-                    let globalStatsFromDB = await getGlobalStatsFromDB(
-                      globalStats,
-                      season,
-                      [event.modeName, event.mapID],
-                      0,
-                      range
-                    );
-                    await dispatch(globalStatsReceived(globalStatsFromDB));
-
-                    onPressEvent(
-                      "trophies",
-                      event.mapName,
-                      event.modeImage,
-                      event.mapImage,
-                      globalStatsFromDB["trophies"][range][event.modeName][
-                        event.mapID
-                      ]["performanceBrawlers"],
-                      globalStatsFromDB["trophies"][range][event.modeName][
-                        event.mapID
-                      ]["performanceTeams"]
-                    );
-                    await requestAd();
-                  }}
-                  style={{
-                    position: "absolute",
-                    right: 0,
-                    top: -3,
-                  }}
-                >
-                  <Image
-                    source={require("../../../assets/icons/infoButton.png")}
-                    style={{
-                      width: device != "tablet" ? 20 : 30,
-                      height: device != "tablet" ? 20 : 30,
-                    }}
-                  />
-                </TouchableOpacity>
-              )}
             </View>
           </View>
           <View
             style={{
-              width: device != "tablet" ? 280 : 500,
+              width: device != "tablet" ? windowWidth - 100 : 500,
               flex: 1,
             }}
           >
@@ -1069,7 +1012,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
               }}
             >
               <View
-                style={{ flexDirection: "row", marginTop: 25, marginLeft: 10 }}
+                style={{ flexDirection: "row", marginTop: 30, marginLeft: 20 }}
               >
                 {sortedBrawlers && (
                   <>
@@ -1078,8 +1021,8 @@ const EventsModule = ({ season, typeIndex, range }) => {
                         style={[
                           {
                             position: "absolute",
-                            top: device != "tablet" ? -14 : -22,
-
+                            top: device != "tablet" ? -20 : -22,
+                            left: 16,
                             fontSize: device != "tablet" ? 10 : 15,
                           },
                           styles.text,
@@ -1131,7 +1074,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
                     style={{
                       position: "absolute",
                       flexDirection: "row",
-                      right: 10,
+                      right: 20,
                     }}
                   >
                     {sortedTeams[0] && (
@@ -1139,9 +1082,9 @@ const EventsModule = ({ season, typeIndex, range }) => {
                         style={[
                           {
                             position: "absolute",
-                            top: device != "tablet" ? -14 : -22,
+                            top: device != "tablet" ? -20 : -22,
                             fontSize: device != "tablet" ? 10 : 15,
-                            right: 0,
+                            right: 25,
                           },
                           styles.text,
                         ]}
@@ -1184,7 +1127,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
               </View>
             </ImageBackground>
           </View>
-        </View>
+        </TouchableOpacity>
       );
     });
     console.log(challenge_startTime);
@@ -1217,7 +1160,11 @@ const EventsModule = ({ season, typeIndex, range }) => {
           <View style={{ alignItems: "center" }}>
             <Image
               source={{ uri: challengeImage }}
-              style={{ height: 60, width: 60, marginTop: 20 }}
+              style={{
+                height: globalNumbers.challenge_imageHeight,
+                width: globalNumbers.challenge_imageWidth,
+                marginTop: 20,
+              }}
             />
             <Text
               style={{
@@ -1241,24 +1188,30 @@ const EventsModule = ({ season, typeIndex, range }) => {
 const styles = StyleSheet.create({
   border: {
     borderWidth: 2,
+    borderRadius: 3,
   },
   brawlerImage: {
-    width: 35,
-    height: 35,
+    width: 34,
+    height: 34,
+  },
+  brawlerImageTeam: {
+    width: 33,
+    height: 33,
+    marginLeft: 2,
   },
   brawlerImageTablet: {
     width: 50,
     height: 50,
   },
   rectangle: {
-    width: 280,
+    width: windowWidth - 100,
     height: 120,
     marginTop: 20,
   },
   square: {
     width: 175,
-    height: 110,
-    marginTop: 15,
+    height: 120,
+    marginTop: 10,
   },
   squareTablet: {
     width: 350,

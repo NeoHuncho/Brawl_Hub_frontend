@@ -9,7 +9,10 @@ import {
   SafeAreaView,
   StatusBar,
   Dimensions,
+  Modal,
+  Button,
 } from "react-native";
+import { getStatusBarHeight } from "react-native-status-bar-height";
 
 import SegmentedControlTab from "react-native-segmented-control-tab";
 import DropDownPicker from "react-native-dropdown-picker";
@@ -56,7 +59,7 @@ export default function Events() {
   const [moreInfoEventOpen, setMoreInfoEventOpen] = useState(false);
   const [typeIndexChanging, setTypeIndexChanging] = useState(false);
 
-  const season = useSelector((state) => state.globalStatsReducer.seasonStats);
+  const season = useSelector((state) => state.globalStatsReducer.seasonEvents);
   const powerLeagueActive = useSelector(
     (state) => state.globalStatsReducer.powerLeagueActive
   );
@@ -81,6 +84,7 @@ export default function Events() {
   const plMessage = useSelector((state) => state.uiReducerPersist.plMessage);
   const adMessage = useSelector((state) => state.uiReducerPersist.adMessage);
 
+  const language = useSelector((state) => state.uiReducerPersist.language);
   // console.log(soloPLTrophies, teamPLTrophies);
   if (moreInfoEventOpen === false) {
     if (isOpen === true) {
@@ -96,32 +100,20 @@ export default function Events() {
 
   const listRangesItems = [];
 
-  let ranges = [
-    ["under400", "400-600", "600-800", "800-1000", "1000-1200", "1200+"],
-    ["underGold", "gold", "diamond", "mythic", "legendary", "master"],
-  ];
-
+  let ranges = rangesFromDB[typeIndex == 0 ? "trophies" : "powerLeague"];
   let logoRanges = {
     trophies: [trophy_1, trophy_2, trophy_3, trophy_4, trophy_5],
     powerLeague: [silver, gold, diamond, mythic, legendary, master],
   };
-  // const logoRangesOrdered = [];
 
-  // const rangesOrdered = (ranges, logoRanges, unorderedRanges) => {
-  //   return ranges.filter((el, index) => {
-  //     if (unorderedRanges.includes(el)) {
-  //       logoRangesOrdered.push(logoRanges[index]);
-  //     }
-  //     return unorderedRanges.includes(el);
-  //   });
-  // };
+  let rangesDisplay = useSelector(
+    (state) => state.globalStatsReducer.rangesDisplay
+  );
 
-  ranges = rangesFromDB[typeIndex == 0 ? "trophies" : "powerLeague"];
-  console.log(1982, ranges);
   // console.log("sorted", logoRangesOrdered);
   ranges.map((range, index) => {
     listRangesItems.push({
-      label: range,
+      label: typeIndex == 0 ? rangesDisplay[index] : range,
       value: range,
       icon: () => (
         <Image
@@ -156,7 +148,7 @@ export default function Events() {
         adUnitID={bannerAdID}
         servePersonalizedAds={true} // true or false
         onDidFailToReceiveAdWithError={(e) => console.log(e)}
-        style={{ marginTop: StatusBar.currentHeight }}
+        style={{ marginTop: getStatusBarHeight() }}
       />
 
       {plMessage == true && typeIndex != 0 && (
@@ -174,6 +166,66 @@ export default function Events() {
           idMessage={"ad"}
           color={colors.red}
         />
+      )}
+      {language == undefined && (
+        <Modal animationType="fade" visible={true} transparent={true}>
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <Text
+                style={{
+                  textAlign: "center",
+                  color: colors.primary,
+                  fontFamily: "Lilita-One",
+                  fontSize: 15,
+                }}
+              >
+                Language/ Idioma/ Dilim / Linguaggio / язык / भाषा: हिन्दी /
+                言語 /
+              </Text>
+              <DropDownPicker
+                items={listRangesItems}
+                globalTextStyle={{
+                  fontSize: device == "tablet" ? 20 : 15,
+                }}
+                defaultValue={range}
+                containerStyle={{
+                  height: device != "tablet" ? 40 : 60,
+                  marginTop: device != "tablet" ? 20 : 60,
+                  width: 140,
+                }}
+                style={{ backgroundColor: "#fafafa" }}
+                itemStyle={{
+                  justifyContent: "flex-start",
+                }}
+                dropDownStyle={{ backgroundColor: "#fafafa" }}
+              />
+              <View style={{ marginTop: 30, zIndex: 0 }}>
+                <TouchableOpacity
+                  style={{
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingVertical: 12,
+                    paddingHorizontal: 32,
+                    borderRadius: 4,
+                    elevation: 3,
+                    backgroundColor: colors.background3,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: colors.primary,
+                      fontFamily: "Lilita-One",
+                      fontSize: 20,
+                      color: colors.primary,
+                    }}
+                  >
+                    OK
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       )}
 
       {moreInfoEventOpen === false && (
@@ -215,7 +267,7 @@ export default function Events() {
                   flexDirection: "row",
                   alignItems: "center",
                   position: "absolute",
-                  right: 60,
+                  right: 70,
                 }}
               >
                 <Text
@@ -241,11 +293,11 @@ export default function Events() {
             {showSettings == true && <Settings />}
 
             <SegmentedControlTab
-              values={["Trophies", "Power League"]}
+              values={["Events", "Power League"]}
               tabsContainerStyle={
                 device == "tablet"
                   ? { marginTop: 10, marginLeft: 50, marginRight: 50 }
-                  : null
+                  : { marginLeft: 17, marginRight: 17 }
               }
               tabTextStyle={{
                 fontSize: device != "tablet" ? 14 : 25,
@@ -283,13 +335,13 @@ export default function Events() {
               items={listRangesItems}
               globalTextStyle={{
                 fontSize: device == "tablet" ? 20 : 15,
-                fontWeight: "900",
               }}
               defaultValue={range}
               containerStyle={{
                 height: device != "tablet" ? 40 : 60,
-                marginLeft: device != "tablet" ? 50 : 250,
-                marginRight: device != "tablet" ? 50 : 250,
+                marginTop: device != "tablet" ? -5 : 60,
+                marginLeft: device != "tablet" ? 90 : 250,
+                marginRight: device != "tablet" ? 90 : 250,
               }}
               style={{ backgroundColor: "#fafafa" }}
               itemStyle={{
@@ -314,7 +366,13 @@ export default function Events() {
             />
           )}
 
-          <View style={{ alignContent: "center", alignItems: "center" }}>
+          <View
+            style={{
+              alignContent: "center",
+              alignItems: "center",
+              marginTop: 5,
+            }}
+          >
             {typeIndexChanging == false &&
               typeIndex == 0 &&
               globalNumbers.challenge_active == true && (
@@ -350,6 +408,27 @@ const styles = StyleSheet.create({
     fontFamily: "Lilita-One",
     fontSize: 20,
     marginLeft: 6,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: colors.background2,
+    borderRadius: 20,
+    padding: 25,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
 });
 const unsubscribe = store.subscribe(Events);

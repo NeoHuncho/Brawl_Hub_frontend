@@ -10,12 +10,12 @@ import { composeWithDevTools } from "redux-devtools-extension";
 import reducers from "./reducers";
 
 const migrations = {
-  1: (state) => {
+  2: (state) => {
     return {
       ...state,
-      playerPersistReducer: {
-        ...state.playerPersistReducer,
-        playerName: undefined,
+      uiReducerPersist: {
+        ...state.uiReducerReducer,
+        languages: undefined,
       },
     };
   },
@@ -24,7 +24,7 @@ const migrations = {
 const persistConfig = {
   // Root
   key: "root",
-  version: 1,
+  version: 2,
   // Storage Method (React Native)
   storage: AsyncStorage,
   // Whitelist (Save Specific Reducers)

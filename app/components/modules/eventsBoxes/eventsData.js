@@ -40,7 +40,9 @@ const sortEventsData = (typeIndex, challenge_hash) => {
               eventsUpcoming[eventKeyUpcoming].slot.id
             )
               normalEvents.push({
-                modeName: eventsUpcoming[eventKeyUpcoming].map.gameMode.hash,
+                modeName: camelize(
+                  eventsUpcoming[eventKeyUpcoming].map.gameMode.name
+                ),
                 modeImage:
                   eventsUpcoming[eventKeyUpcoming].map.gameMode.imageUrl,
                 modeColor: eventsUpcoming[eventKeyUpcoming].map.gameMode.color,
@@ -65,16 +67,13 @@ const sortEventsData = (typeIndex, challenge_hash) => {
       ) {
         specialEvents.push({
           eventImage: events[eventKey].slot.background,
-          modeName: camelize(
-            events[eventKey].map.gameMode.name
-          ),
+          modeName: camelize(events[eventKey].map.gameMode.name),
           modeImage: events[eventKey].map.gameMode.imageUrl,
           modeColor: events[eventKey].map.gameMode.color,
           mapID: events[eventKey].map.id,
           mapName: events[eventKey].map.name,
           mapImage: events[eventKey].map.imageUrl,
-          mapEnvironment:
-            events[eventKey].map.environment.imageUrl,
+          mapEnvironment: events[eventKey].map.environment.imageUrl,
 
           eventStartTime: moment.duration(
             moment(events[eventKey].startTime).diff(moment.now())

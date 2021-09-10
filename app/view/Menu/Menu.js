@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { AdMobBanner } from "expo-ads-admob";
 import { useSelector } from "react-redux";
+import { getStatusBarHeight } from "react-native-status-bar-height";
 
 import { bannerAdID } from "../../config/ads";
 import { writeError } from "../../lib/apiDB";
@@ -117,7 +118,7 @@ export default function Menu() {
         adUnitID={bannerAdID}
         servePersonalizedAds={true} // true or false
         onDidFailToReceiveAdWithError={(e) => console.log(e)}
-        style={{ marginTop: StatusBar.currentHeight }}
+        style={{ marginTop: getStatusBarHeight() }}
       />
       <ScrollView>
         {menuMessage == true && (
@@ -241,7 +242,7 @@ export default function Menu() {
                     device != "tablet"
                       ? styles.explanation
                       : styles.explanationTablet,
-                    { marginBottom: 5 },
+                    { marginBottom: 5, marginTop:10 },
                   ]}
                 >
                   {sent}
@@ -393,6 +394,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   buttonTablet: {
-    marginTop:10
+    marginTop: 10,
   },
 });

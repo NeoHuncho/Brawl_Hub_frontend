@@ -105,7 +105,7 @@ export default function PlayerLogin() {
 
       const globalStats = await getGlobalStatsFromDB(
         null,
-        switches.seasonStats,
+        switches.seasonEvents,
         "global"
       );
       // console.log('called')

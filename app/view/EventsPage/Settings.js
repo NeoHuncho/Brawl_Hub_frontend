@@ -49,11 +49,6 @@ export default function Settings() {
   const listRangesItemsTrophies = [];
   const listRangesItemsPL = [];
 
-  let ranges = [
-    ["under400", "400-600", "600-800", "800-1000", "1000-1200", "1200+"],
-    ["underGold", "gold", "diamond", "mythic", "legendary", "master"],
-  ];
-
   let logoRanges = {
     trophies: [trophy_1, trophy_2, trophy_3, trophy_4, trophy_5],
     powerLeague: [silver, gold, diamond, mythic, legendary, master],
@@ -83,40 +78,6 @@ export default function Settings() {
       ),
     });
   });
-  // console.log("sorted", logoRangesOrdered);
-
-  // console.log(rangesTrophies[2]);
-
-  const rangeFinder = () => {
-    let rangeToApply = null;
-    typeIndex == 0
-      ? averageTrophiesPlayer < 600
-        ? (rangeToApply = ranges.length - rangesMinus[0])
-        : 600 <= averageTrophiesPlayer < 800
-        ? (rangeToApply = ranges.length - rangesMinus[1])
-        : averageTrophiesPlayer > 800
-        ? (rangeToApply = ranges.length - rangesMinus[2])
-        : (rangeToApply = ranges.length - rangesMinus[2])
-      : typeIndex == 1
-      ? soloPLTrophies == 0
-        ? (rangeToApply = ranges.length - rangesPLMinus[0][2])
-        : soloPLTrophies <= 6
-        ? (rangeToApply = ranges.length - rangesPLMinus[0][0])
-        : 6 < soloPLTrophies <= 9
-        ? (rangeToApply = ranges.length - rangesPLMinus[0][1])
-        : 9 < soloPLTrophies <= 12
-        ? (rangeToApply = ranges.length - rangesPLMinus[0][2])
-        : 12 < soloPLTrophies <= 15
-        ? (rangeToApply = ranges.length - rangesPLMinus[0][3])
-        : 15 < soloPLTrophies <= 18
-        ? (rangeToApply = ranges.length - rangesPLMinus[0][4])
-        : 19 <= soloPLTrophies
-        ? (rangeToApply = ranges.length - rangesPLMinus[0][5])
-        : null
-      : null;
-
-    return rangeToApply;
-  };
 
   return (
     <View style={{ marginBottom: 20 }}>

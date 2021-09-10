@@ -14,6 +14,7 @@ import {
   Dimensions,
 } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
+import { getStatusBarHeight } from "react-native-status-bar-height";
 
 import { useSelector, useDispatch } from "react-redux";
 import { Ionicons } from "@expo/vector-icons";
@@ -37,7 +38,6 @@ import PlayerStatsMoreInfo from "../PlayerStats/playerStatsMoreInfo";
 import FaqPage from "./FaqPage";
 import MessageBox from "../../components/modules/MessageBox";
 
-
 const PlayerStats = () => {
   // console.log("called playerstats");
   getAssets();
@@ -47,13 +47,13 @@ const PlayerStats = () => {
 
   // console.log("look here", battleLogReducer.playerStats.brawlers);
   const playerName = battleLogReducer.name;
-  const season = useSelector((state) => state.globalStatsReducer.seasonGlobal);
-  console.log("look here", season);
+  const season = useSelector((state) => state.globalStatsReducer.seasonStats);
+  // console.log("look here", season);
   const icon = battleLogReducer.icon;
 
   const playerID = useSelector((state) => state.playerPersistReducer.playerID);
 
-  console.log("look here", playerID);
+  // console.log("look here", playerID);
   const globalNumbers = useSelector(
     (state) => state.globalStatsReducer.numbers
   );
@@ -92,7 +92,7 @@ const PlayerStats = () => {
 
   const iconImage = getIconImage(icon);
 
-  let seasons = null;
+  let seasons = useSelector((state) => state.globalStatsReducer.seasons);
   let types = [];
 
   let typesKey = null;
@@ -102,7 +102,6 @@ const PlayerStats = () => {
     playerStats !== null &&
     playerStats !== undefined
   ) {
-    seasons = useSelector((state) => ["6", "7"]);
     Object.keys(playerStats).map((key) => {
       key.includes("ranked")
         ? types.push("ranked")
@@ -112,7 +111,7 @@ const PlayerStats = () => {
         ? types.push("teamRanked")
         : null;
     });
-    console.log(2, types);
+    // console.log(2, types);
     typesKey = types
       .map((x) =>
         x === "ranked"
@@ -137,7 +136,7 @@ const PlayerStats = () => {
   const [sortIndex, setSortIndex] = useState(
     preferencesCarouselStored.sortIndex
   );
-  const [seasonIndex, setSeasonIndex] = useState(season - 6);
+  const [seasonIndex, setSeasonIndex] = useState(seasons.length-1);
 
   const [showOverallStats, setShowOverallStats] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -147,7 +146,7 @@ const PlayerStats = () => {
 
   const [typeIndex, setTypeIndex] = useState(0);
 
-  console.log(sortIndex, styleIndex, seasonIndex, typesKey[typeIndex]);
+  // console.log(sortIndex, styleIndex, seasonIndex, typesKey[typeIndex]);
   // Infinite Re rendering is happening here!!!!!!
 
   useEffect(() => {
@@ -232,7 +231,7 @@ const PlayerStats = () => {
         adUnitID={bannerAdID}
         servePersonalizedAds={true} // true or false
         onDidFailToReceiveAdWithError={(e) => console.log(e)}
-        style={{ marginTop: StatusBar.currentHeight }}
+        style={{ marginTop: getStatusBarHeight() }}
       />
 
       {playerID &&

@@ -63,6 +63,8 @@ export default function EventsMoreInfo() {
       ? 1
       : 0
   );
+  const [showAdvancedPerformance, setShowAdvancedPerformance] = useState(false);
+
   // console.log(carouselInfo.sortedTeams);
   let topPointsBrawlers = undefined;
   let totalCountBrawlers = 0;
@@ -85,11 +87,11 @@ export default function EventsMoreInfo() {
       (team) => (totalCountTeams += parseInt(team.count))
     );
   }
-
   const listItem = ({ item, index }) => {
     let brawlerindexImage = null;
+
     if (index <= totalNumberOfBrawlers) {
-      console.log(index, totalNumberOfBrawlers);
+      // console.log(index, totalNumberOfBrawlers);
 
       if (index <= totalNumberOfBrawlers * 0.1) {
         brawlerindexImage = trophy3;
@@ -147,14 +149,28 @@ export default function EventsMoreInfo() {
               device == "tablet" ? styles.itemBrawlerTablet : styles.itemBrawler
             }
           >
-            <Image
-              style={
-                device == "tablet"
-                  ? styles.trophyImageTablet
-                  : styles.trophyImage
-              }
-              source={brawlerindexImage}
-            />
+            <View
+              style={{
+                width: 15,
+                height: 14,
+                backgroundColor: "black",
+                position: "absolute",
+                bottom: 10,
+                zIndex: 4,
+              }}
+            >
+              <Text
+                style={[
+                  device != "tablet" ? styles.stats : styles.statsTablet,
+                  {
+                    color: "white",
+                    fontSize: 10,
+                  },
+                ]}
+              >
+                {index + 1}
+              </Text>
+            </View>
             <Image
               style={
                 device == "tablet"
@@ -163,7 +179,7 @@ export default function EventsMoreInfo() {
               }
               source={getBrawlerImage(item.ID)}
             />
-            <Text
+            {/* <Text
               style={[
                 device != "tablet" ? styles.stats : styles.statsTablet,
                 { marginLeft: device != "tablet" ? 20 : 40 },
@@ -173,11 +189,42 @@ export default function EventsMoreInfo() {
               ]}
             >
               {performanceBrawlers + "%"}
-            </Text>
+            </Text> */}
+            <TouchableOpacity
+              onPress={() =>
+                setShowAdvancedPerformance(
+                  showAdvancedPerformance == false ? true : false
+                )
+              }
+            >
+              {showAdvancedPerformance == false && (
+                <Image
+                  style={
+                    device == "tablet"
+                      ? styles.trophyImageTablet
+                      : styles.trophyImage
+                  }
+                  source={brawlerindexImage}
+                />
+              )}
+              {showAdvancedPerformance == true && (
+                <Text
+                  style={[
+                    device != "tablet" ? styles.stats : styles.statsTablet,
+                    { marginLeft: device != "tablet" ? 40 : 40 },
+                    performanceBrawlers == 100
+                      ? { fontSize: device != "tablet" ? 12 : 23 }
+                      : null,
+                  ]}
+                >
+                  {performanceBrawlers + "%"}
+                </Text>
+              )}
+            </TouchableOpacity>
             <Text
               style={[
                 device != "tablet" ? styles.stats : styles.statsTablet,
-                { position: "absolute", left: device != "tablet" ? 160 : 180 },
+                { position: "absolute", left: device != "tablet" ? 150 : 180 },
               ]}
             >
               {pickRateBrawlers + "%"}
@@ -428,7 +475,7 @@ export default function EventsMoreInfo() {
                         fontFamily: "Lilita-One",
                         fontSize: 11,
                         position: "absolute",
-                        right: 14,
+                        right: 35,
                       }
                     : styles.columnNameTablet,
 
@@ -445,7 +492,7 @@ export default function EventsMoreInfo() {
                         fontFamily: "Lilita-One",
                         fontSize: 11,
                         position: "absolute",
-                        left: -6,
+                        left: -19,
                       }
                     : styles.columnNameTablet,
                   ,
@@ -553,7 +600,7 @@ const styles = StyleSheet.create({
   trophyImage: {
     width: 35,
     height: 25,
-    marginRight: 5,
+    marginLeft: 35,
   },
   trophyImageTablet: {
     width: 50,

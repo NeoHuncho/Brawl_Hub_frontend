@@ -16,7 +16,7 @@ const getStatsFirstLogin = async (userID) => {
         }
       )
       .then((returnedPlayerStats) => {
-        console.log(returnedPlayerStats);
+        // console.log(returnedPlayerStats);
         resolve(returnedPlayerStats.data);
       })
       .catch(function (error) {
@@ -59,7 +59,7 @@ const getEvents = async () => {
 
 const getStatsFromDB = async (userID, season) => {
   try {
-    console.log("called db");
+    // console.log("called db");
     let globalStats = {};
     let snapShot = null;
     snapShot = await fireStore.collection(`S${season}_${userID}`).get();
@@ -69,12 +69,42 @@ const getStatsFromDB = async (userID, season) => {
       const id = doc.id; //Here is the key of your document
       globalStats[id] = data;
     });
-    console.log(sizeOf(globalStats));
+    // console.log(sizeOf(globalStats));
     return globalStats;
   } catch (error) {
     console.log("error in getStatsFromDB", error);
     return "error";
   }
+};
+
+const setStats = (playerID, season, stats) => {
+  fireStore
+    .collection(`S${season}_${playerID}`)
+    .doc("brawlers")
+    .set(stats.brawlers)
+    .then(() => {
+      fireStore
+        .collection(`S${season}_${playerID}`)
+        .doc("teams")
+        .set(stats.teams)
+        .then(() => {
+          fireStore
+            .collection(`S${season}_${playerID}`)
+            .doc("globalStats")
+            .set(stats.globalStats)
+            .then(() => {
+              for (const [key, value] of Object.entries(stats)) {
+                if (key.includes("maps")) {
+                  fireStore
+                    .collection(`S${season}_${playerID}`)
+                    .doc(key)
+                    .set(value)
+                    .then(() => {});
+                }
+              }
+            });
+        });
+    });
 };
 
 const getSwitchesFromDB = async () => {
@@ -83,35 +113,6 @@ const getSwitchesFromDB = async () => {
   ).data();
 
   return globalSwitches;
-  // const ranges = globalCount["ranges"];
-  // const nBrawlers = globalCount["totals"]["numberOfBrawlers"];
-  // const nGadgets = globalCount["totals"]["numberOfGadgets"];
-  // const nStarPowers = globalCount["totals"]["numberOfStarPowers"];
-  // const minBrawlerEvent = globalCount["minBrawlerEvent"];
-  // const minTeamEvent = globalCount["minTeamEvent"];
-  // const minBrawlerPL = globalCount["minBrawlerPL"];
-  // const minTeamPL = globalCount["minTeamPL"];
-  // const seasonGlobal = globalCount["seasonGlobal"];
-  // const seasonStats = globalCount["seasonStats"];
-  // const slotNumActive = globalCount["slotNumActive"];
-  // const slotNumUpcoming = globalCount["slotNumUpcoming"];
-  // const powerLeagueActive = globalCount["powerLeagueApp"];
-
-  // return {
-  //   ranges,
-  //   nBrawlers,
-  //   nGadgets,
-  //   nStarPowers,
-  //   minBrawlerEvent,
-  //   minTeamEvent,
-  //   minBrawlerPL,
-  //   minTeamPL,
-  //   seasonGlobal,
-  //   seasonStats,
-  //   slotNumActive,
-  //   slotNumUpcoming,
-  //   powerLeagueActive,
-  // };
 };
 const getGlobalStatsFromDB = async (
   gStats,
@@ -125,40 +126,20 @@ const getGlobalStatsFromDB = async (
   try {
     let globalStats = {};
     gStats == null ? null : (globalStats = cloneDeep(gStats));
-
+    let state = store.getState();
+    let ranges = state.globalStatsReducer.ranges;
     let typeAndRangeNameFinder = (type, rangeTrophies, rangePL) => {
       let typeName = null;
       let rangeName = null;
       type == 0 ? (typeName = "trophies") : (typeName = "powerLeagueSolo");
       type == 1
-        ? rangePL == 0
-          ? (rangeName = "underGold")
-          : rangePL == 1
-          ? (rangeName = "gold")
-          : rangePL == 2
-          ? (rangeName = "diamond")
-          : rangePL == 3
-          ? (rangeName = "mythic")
-          : rangePL == 4
-          ? (rangeName = "legendary")
-          : (rangePL = 5 ? (rangeName = "master") : null)
+        ? (rangeName = ranges["powerLeague"][rangePL])
         : type == 0
-        ? rangeTrophies == 0
-          ? (rangeName = "under400")
-          : rangeTrophies == 1
-          ? (rangeName = "400-600")
-          : rangeTrophies == 2
-          ? (rangeName = "600-800")
-          : rangeTrophies == 3
-          ? (rangeName = "800-1000")
-          : rangeTrophies == 4
-          ? (rangeName = "1000-1200")
-          : null
+        ? (rangeName = ranges["trophies"][rangeTrophies])
         : null;
 
       return { typeName: typeName, rangeNameFromFinder: rangeName };
     };
-    let state = store.getState();
     const typeIndexPersist = state.uiReducerPersist.typeIndex;
 
     const trophiesRange = state.uiReducerPersist.trophiesRange;
@@ -237,6 +218,7 @@ export {
   getGlobalStatsFromDB,
   writeLastLogin,
   writeError,
+  setStats,
 };
 const unsubscribe = store.subscribe(getGlobalStatsFromDB);
 unsubscribe();

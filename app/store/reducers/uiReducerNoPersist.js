@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { KEY_PREFIX } from "redux-persist/es/constants";
 
 const slice = createSlice({
   name: "uiData",
@@ -17,6 +18,23 @@ const slice = createSlice({
     sortedBrawlers: null,
     sortedTeams: null,
     deviceType: null,
+    languages: {
+      Português: " PT",
+      Deutsh: " DE",
+      Suomi: " FI",
+      हिन्दी: "IN",
+      中文: " CN",
+      Español: " ES",
+      Français: " FR",
+      Italiano: "IT",
+      日本語: " JP",
+      한국어: " KR",
+      Nederlands: " NL",
+      Русский: " RU",
+      Svenska: " SE",
+      Türkçe: "TR",
+      繁體中文: " HK",
+    },
   },
   reducers: {
     deviceTypeReceived: (uiData, action) => {

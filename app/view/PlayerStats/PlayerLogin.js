@@ -25,6 +25,7 @@ import imageBackground from "../../assets/background-login.jpg";
 import {
   getStatsFirstLogin,
   getStatsFromDB,
+  setStats,
   writeLastLogin,
 } from "../../lib/apiDB";
 
@@ -36,8 +37,8 @@ export default function PlayerLogin() {
   const playerID = useSelector((state) => state.playerPersistReducer.playerID);
   const name = useSelector((state) => state.playerPersistReducer.playerName);
   const saved = useSelector((state) => state.playerPersistReducer.saved);
-  const season = useSelector((state) => state.globalStatsReducer.seasonGlobal);
-  console.log(playerID, "lookgere");
+  const season = useSelector((state) => state.globalStatsReducer.seasonStats);
+  // console.log(playerID, "lookgere");
   const [userId, setUserId] = useState(); //8LP0P8LVC
   const [validId, setValidId] = useState(false);
   const [howToClicked, setHowToClicked] = useState(false);
@@ -77,8 +78,8 @@ export default function PlayerLogin() {
             }
 
             if (name === undefined) {
-              console.log("called no name");
-              console.log("called no name2 ", stats.globalStats.name);
+      
+              console.log("called no name ", stats.globalStats.name);
               dispatch(
                 userIdAndNameReceived({
                   userId: userId,
@@ -87,7 +88,7 @@ export default function PlayerLogin() {
               );
             }
             await dispatch(receivedPlayerStatsFromDB(stats));
-            console.log("125", name);
+            // console.log("125", name);
             setProgress(1);
             setValidId(true);
           }
@@ -112,7 +113,6 @@ export default function PlayerLogin() {
 
             let checkDBStats = await getStatsFromDB(userId, season);
 
-            console.log(1445, checkDBStats);
             if (
               checkDBStats == "error" ||
               checkDBStats.length == 0 ||
@@ -133,19 +133,32 @@ export default function PlayerLogin() {
                         );
                       else
                         setMessage("Unexpected error! please try again later.");
+                    } else {
+                      setConfirmClicked(false);
+                      setMessage("Unexpected error! please try again later.");
                     }
                   });
                 setProgress(0.7);
-                console.log("called 2");
-                writeLastLogin(userId);
-                setProgress(0.8);
-                console.log(4445, statsFromDB);
-                dispatch(
-                  userIdAndNameReceived({
-                    userId: userId,
-                    name: statsFromDB.globalStats.name,
-                  })
-                );
+
+                if (
+                  statsFromDB.globalStats &&
+                  statsFromDB.brawlers &&
+                  Object.keys(statsFromDB).length > 2
+                ) {
+                  writeLastLogin(userId);
+                  setProgress(0.8);
+           
+                  dispatch(
+                    userIdAndNameReceived({
+                      userId: userId,
+                      name: statsFromDB.globalStats.name,
+                    })
+                  );
+                } else {
+                  setConfirmClicked(false);
+                  setMessage("Unexpected error! please try again later.");
+                }
+
                 setProgress(0.9);
                 dispatch(receivedPlayerStatsFromDB(statsFromDB));
               } catch (error) {
@@ -168,7 +181,7 @@ export default function PlayerLogin() {
                 }
               }
             } else {
-              console.log("called already saved");
+              // console.log("called already saved");
               setLoadingText("fetching your stats... Hang in there!");
               setProgress(0.9);
               await dispatch(
@@ -178,7 +191,7 @@ export default function PlayerLogin() {
                 })
               );
               await dispatch(receivedPlayerStatsFromDB(checkDBStats));
-              console.log("finished saving");
+              // console.log("finished saving");
             }
             setProgress(1);
             setValidId(true);

@@ -36,6 +36,9 @@ const slice = createSlice({
     plRangeChanged: (uiDataPersist, action) => {
       uiDataPersist.plRange = action.payload;
     },
+    languageChanged: (uiDataPersist, action) => {
+      uiDataPersist.language = action.payload;
+    },
   },
 });
 
@@ -45,5 +48,6 @@ export const {
   typeIndexChanged,
   trophiesRangeChanged,
   plRangeChanged,
+  languageChanged,
 } = slice.actions;
 export default slice.reducer;

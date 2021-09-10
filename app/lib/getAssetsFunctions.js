@@ -296,7 +296,7 @@ const getAssets = (seasonIndex, gameTypeName) => {
     let brawlerUrl = undefined;
     state.brawlifyReducer.brawlersList.list.map((brawler) => {
       if (brawler.id == brawlerID) {
-        brawlerUrl = brawler.imageUrl;
+        brawlerUrl = brawler.imageUrl2;
       }
     });
     return { uri: brawlerUrl };
