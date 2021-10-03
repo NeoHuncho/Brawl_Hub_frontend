@@ -3,13 +3,13 @@ import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Text, ImageBackground } from "react-native";
 import { getDeviceTypeAsync } from "expo-device";
 import { useDispatch, useSelector } from "react-redux";
-import { setTestDeviceIDAsync } from "expo-ads-admob";
 import * as Progress from "react-native-progress";
 import { auth } from "../lib/initFirebase";
-import { AdMobInterstitial } from "expo-ads-admob";
 
-import { videoAdID } from "../config/ads";
 import { getAssets } from "../lib/getAssetsFunctions";
+import season8_1 from "../assets/backgrounds/season8_1.jpg";
+import season8_2 from "../assets/backgrounds/season8_2.jpg";
+import season8_3 from "../assets/backgrounds/season8_3.jpg";
 import season7_1 from "../assets/backgrounds/season7_1.jpg";
 import season7_2 from "../assets/backgrounds/season7_2.jpg";
 import season7_3 from "../assets/backgrounds/season7_3.jpg";
@@ -20,31 +20,39 @@ import season5_1 from "../assets/backgrounds/season5_1.jpg";
 import season5_2 from "../assets/backgrounds/season5_2.jpg";
 import season5_3 from "../assets/backgrounds/season5_3.jpg";
 import season4_1 from "../assets/backgrounds/season4_1.jpg";
-import getEvents from "../lib/getBrawlifyEvents";
+import {
+  getBrawlifyMapsAndBrawlers,
+  getBrawlifyEvents,
+} from "../lib/getBrawlify";
 
 import {
   globalStatsReceived,
   globalCountsReceived,
 } from "../store/reducers/globalStatsReducer";
 
-import { deviceTypeReceived } from "../store/reducers/uiReducerNoPersist";
 import {
-  brawlifyDataReceived,
-  eventsReceived,
-} from "../store/reducers/brawlifyReducer";
+  deviceTypeReceived,
+  translationsChanged,
+} from "../store/reducers/uiReducerNoPersist";
+
+import { brawlifyDataReceived } from "../store/reducers/brawlifyReducer";
 
 import colors from "../config/colors";
 
-import getBrawlify from "../lib/getBrawlify";
 import {
   getGlobalStatsFromDB,
   getSwitchesFromDB,
   writeLastLogin,
+  getTranslations,
+  getTranslation,
 } from "../lib/apiDB";
 
 import BottomBar from "../components/modules/BottomBar";
 
 const backgrounds = [
+  season8_1,
+  season8_2,
+  season8_3,
   season7_1,
   season7_2,
   season7_3,
@@ -69,6 +77,8 @@ export default function PlayerLogin() {
   const dispatch = useDispatch();
   const userID = useSelector((state) => state.playerPersistReducer.playerID);
   const name = useSelector((state) => state.playerPersistReducer.playerName);
+  const language = useSelector((state) => state.uiReducerPersist.language);
+  const languages = useSelector((state) => state.uiReducerNoPersist.languages);
 
   const [progress, setProgress] = useState(0);
   const [loadingText, setLoadingText] = useState("");
@@ -78,9 +88,19 @@ export default function PlayerLogin() {
       // await setTestDeviceIDAsync("EMULATOR");
       try {
       } catch (error) {}
-      setLoadingText("fetching Assets...");
+      console.log(432, language);
+      if (
+        language !== undefined &&
+        language !== "en" &&
+        Object.values(languages).includes(language) !== false
+      ) {
+        let translations = await getTranslations(language);
+        dispatch(translationsChanged(translations));
+      }
 
-      const { maps, brawlers } = await getBrawlify();
+      setLoadingText(getTranslation("Loading Accurate Stats..."));
+
+      const { maps, brawlers } = await getBrawlifyMapsAndBrawlers();
       dispatch(deviceTypeReceived(deviceType));
       dispatch(
         brawlifyDataReceived({
@@ -91,7 +111,9 @@ export default function PlayerLogin() {
       setProgress(0.5);
       const switches = await getSwitchesFromDB();
       setProgress(0.8);
-      setLoadingText("fetching global stats. Hang in there!");
+      setLoadingText(
+        getTranslation("Getting everything ready... Hang in there!")
+      );
       dispatch(
         globalCountsReceived({
           switches,
@@ -101,7 +123,7 @@ export default function PlayerLogin() {
         // console.log(1, userID);
         await writeLastLogin(userID);
       }
-     await getEvents();
+      await getBrawlifyEvents();
 
       const globalStats = await getGlobalStatsFromDB(
         null,
@@ -174,7 +196,7 @@ export default function PlayerLogin() {
                       })
                     }
                   >
-                    logged in as:
+                    {getTranslation("Logged in as:")}
                   </Text>
                   <Text
                     style={

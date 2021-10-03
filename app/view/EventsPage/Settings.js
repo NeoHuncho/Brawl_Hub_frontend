@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, Image, Switch } from "react-native";
+import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 
 import colors from "../../config/colors";
@@ -23,6 +23,8 @@ import diamond from "../../assets/icons/diamond.png";
 import mythic from "../../assets/icons/mythic.png";
 import legendary from "../../assets/icons/legendary.png";
 import master from "../../assets/icons/master.png";
+import { getTranslation } from "../../lib/apiDB";
+import LanguageSelector from "../../components/modules/LanguageSelector";
 
 export default function Settings() {
   const device = useSelector((state) => state.uiReducerNoPersist.deviceType);
@@ -80,98 +82,126 @@ export default function Settings() {
   });
 
   return (
-    <View style={{ marginBottom: 20 }}>
+    <View
+      style={{
+        marginTop: -10,
+        paddingTop: 20,
+        paddingBottom: 20,
+        marginBottom: 20,
+        backgroundColor: colors.background2,
+        borderRadius: 10,
+        marginLeft: 20,
+        marginRight: 20,
+      }}
+    >
       <Text
         style={
           device != "tablet" ? styles.sliderTitle : styles.sliderTitleTablet
         }
       >
-        Default Category:
+        {getTranslation("Change Language") + ":"}
       </Text>
-      <View style={{ marginLeft: 20, marginRight: 20 }}>
-        <SegmentedControlTab
-          values={["Trophies", "Power League"]}
-          selectedIndex={typeIndex}
-          onTabPress={(index) => {
-            dispatch(typeIndexChanged(index));
-            setTypeIndex(index);
-          }}
-          tabsContainerStyle={
-            device == "tablet"
-              ? { marginTop: 10, marginLeft: 50, marginRight: 50 }
-              : null
+      <View
+        style={{
+          alignItems: "center",
+          justifyContent: "center",
+          marginBottom: 10,
+        }}
+      >
+        <LanguageSelector type={"DropDownPicker"} />
+      </View>
+
+      <Text
+        style={
+          device != "tablet" ? styles.sliderTitle : styles.sliderTitleTablet
+        }
+      >
+        {getTranslation("Default Category:")}
+      </Text>
+
+      <SegmentedControlTab
+        values={[getTranslation("Events"), getTranslation("Power League")]}
+        selectedIndex={typeIndex}
+        onTabPress={(index) => {
+          dispatch(typeIndexChanged(index));
+          setTypeIndex(index);
+        }}
+        tabsContainerStyle={
+          device == "tablet"
+            ? { marginTop: 10, marginLeft: 50, marginRight: 50 }
+            : {  marginLeft: 30, marginRight: 30 }
+        }
+        tabTextStyle={{
+          fontSize: device != "tablet" ? 14 : 25,
+          fontFamily: "Lilita-One",
+        }}
+      />
+      <View style={{ marginTop: 15 }}>
+        <Text
+          style={
+            device != "tablet" ? styles.sliderTitle : styles.sliderTitleTablet
           }
-          tabTextStyle={{
-            fontSize: device != "tablet" ? 14 : 25,
-            fontFamily: "Lilita-One",
+        >
+          {getTranslation("Default Event Range:")}
+        </Text>
+        <DropDownPicker
+          items={listRangesItemsTrophies}
+          defaultValue={listRangesItemsTrophies[trophiesRange].label}
+          globalTextStyle={{
+            fontSize: device == "tablet" ? 20 : 15,
+            fontWeight: "900",
+          }}
+          containerStyle={{
+            height: device != "tablet" ? 40 : 60,
+            marginLeft: device != "tablet" ? 50 : 250,
+            marginRight: device != "tablet" ? 50 : 250,
+          }}
+          style={{ backgroundColor: "#fafafa" }}
+          itemStyle={{
+            justifyContent: "flex-start",
+          }}
+          dropDownStyle={{ backgroundColor: "#fafafa" }}
+          onChangeItem={(item, index) => {
+            dispatch(trophiesRangeChanged(index));
           }}
         />
-        <View style={{ marginTop: 15 }}>
-          <Text
-            style={
-              device != "tablet" ? styles.sliderTitle : styles.sliderTitleTablet
-            }
-          >
-            Default trophy Range:
-          </Text>
-          <DropDownPicker
-            items={listRangesItemsTrophies}
-            defaultValue={listRangesItemsTrophies[trophiesRange].label}
-            globalTextStyle={{
-              fontSize: device == "tablet" ? 20 : 15,
-              fontWeight: "900",
-            }}
-            containerStyle={{
-              height: device != "tablet" ? 40 : 60,
-              marginLeft: device != "tablet" ? 50 : 250,
-              marginRight: device != "tablet" ? 50 : 250,
-            }}
-            style={{ backgroundColor: "#fafafa" }}
-            itemStyle={{
-              justifyContent: "flex-start",
-            }}
-            dropDownStyle={{ backgroundColor: "#fafafa" }}
-            onChangeItem={(item, index) => {
-              dispatch(trophiesRangeChanged(index));
-            }}
-          />
-          <View style={{ marginTop: 10, flexDirection: "row" }}>
-            {/* <Text style={[styles.sliderTitle, { fontSize: 14 }]}>
+        <View style={{ marginTop: 10, flexDirection: "row" }}>
+          {/* <Text style={[styles.sliderTitle, { fontSize: 14 }]}>
               Default to your avg brawler trophies
             </Text>
             <Switch /> */}
-          </View>
         </View>
-        <View style={{ marginTop: 15 }}>
-          <Text
-            style={
-              device != "tablet" ? styles.sliderTitle : styles.sliderTitleTablet
-            }
-          >
-            Default Power League Range:
-          </Text>
-          <DropDownPicker
-            items={listRangesItemsPL}
-            defaultValue={listRangesItemsPL[plRange].label}
-            globalTextStyle={{
-              fontSize: device == "tablet" ? 20 : 15,
-              fontWeight: "900",
-            }}
-            containerStyle={{
-              height: device != "tablet" ? 40 : 60,
-              marginLeft: device != "tablet" ? 50 : 250,
-              marginRight: device != "tablet" ? 50 : 250,
-            }}
-            style={{ backgroundColor: "#fafafa" }}
-            itemStyle={{
-              justifyContent: "flex-start",
-            }}
-            dropDownStyle={{ backgroundColor: "#fafafa" }}
-            onChangeItem={(item, index) => {
-              dispatch(plRangeChanged(index));
-            }}
-          />
-        </View>
+      </View>
+      <View style={{ marginTop: 15 }}>
+        <Text
+          style={
+            device != "tablet" ? styles.sliderTitle : styles.sliderTitleTablet
+          }
+        >
+          {getTranslation("Default Power League Range:")}
+        </Text>
+        <DropDownPicker
+          items={listRangesItemsPL}
+          defaultValue={listRangesItemsPL[plRange].label}
+          globalTextStyle={{
+            fontSize: device == "tablet" ? 20 : 15,
+            fontWeight: "900",
+          }}
+          containerStyle={{
+            height: device != "tablet" ? 40 : 60,
+            marginLeft: device != "tablet" ? 50 : 250,
+            marginRight: device != "tablet" ? 50 : 250,
+            marginBottom: device != "tablet" ? 20 : 30,
+          }}
+          style={{ backgroundColor: "#fafafa" }}
+          itemStyle={{
+            justifyContent: "flex-start",
+          }}
+          dropDownStyle={{ backgroundColor: "#fafafa" }}
+          onChangeItem={(item, index) => {
+            dispatch(plRangeChanged(index));
+          }}
+        />
       </View>
     </View>
   );

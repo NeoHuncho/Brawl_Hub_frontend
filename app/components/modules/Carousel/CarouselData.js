@@ -8,7 +8,7 @@ import {
   getMapName,
   getModeImage,
 } from "../../../lib/getAssetsFunctions";
-import { camelize } from "../../../lib/getGlobalStatsFunctions";
+
 
 let modesByPerformance = undefined;
 let modesByWins = undefined;

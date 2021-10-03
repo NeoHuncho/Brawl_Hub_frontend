@@ -1,6 +1,9 @@
 import axios from "axios-proxy-fix";
+import { store } from "../store/configureStore";
+import { eventsReceived } from "../store/reducers/brawlifyReducer";
+import { tran } from "../store/reducers/uiReducerNoPersist";
 
-export default getBrawlify = async () => {
+const getBrawlifyMapsAndBrawlers = async () => {
   try {
     // const maps = brawlify["maps"];
     // const brawlers = brawlify["brawlers"];
@@ -23,4 +26,24 @@ export default getBrawlify = async () => {
   } catch (error) {
     console.log(error);
   }
+};
+
+const getBrawlifyEvents = async () => {
+  await axios.get("https://api.brawlapi.com/v1/events").then((response) => {
+    // console.log(response.data);
+    store.dispatch(eventsReceived(response.data));
+  });
+};
+
+const getBrawlifyTranslations = async (language) => {
+  let data = await axios.get(
+    `https://api.brawlapi.com/v1/translations/${language}`
+  );
+  return data.data.strings;
+};
+
+export {
+  getBrawlifyMapsAndBrawlers,
+  getBrawlifyEvents,
+  getBrawlifyTranslations,
 };

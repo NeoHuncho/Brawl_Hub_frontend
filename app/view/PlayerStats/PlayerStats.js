@@ -22,7 +22,7 @@ import SegmentedControlTab from "react-native-segmented-control-tab";
 import * as Progress from "react-native-progress";
 
 import { receivedPlayerStatsFromDB } from "../../store/reducers/battleLogReducer";
-import { getStatsFromDB } from "../../lib/apiDB";
+import { getStatsFromDB, getTranslation } from "../../lib/apiDB";
 import { bannerAdID } from "../../config/ads";
 import colors from "../../config/colors";
 import { userIdReset } from "../../store/reducers/playerIdReducer";
@@ -262,7 +262,7 @@ const PlayerStats = () => {
                 {updateMessage == true && (
                   <MessageBox
                     message={
-                      "Your stats will automatically update daily, if you open Brawl Max at least once every 3 DAYS!"
+                    getTranslation("Your stats will automatically update daily, if you open Brawl Max at least once every 3 DAYS!")
                     }
                     idMessage={"update"}
                     color={colors.red}
@@ -271,7 +271,7 @@ const PlayerStats = () => {
                 {betaMessage == true && (
                   <MessageBox
                     message={
-                      "This app is in open beta! please report bugs in the menu. (bottom right)"
+                    getTranslation("This app is in open beta! please report bugs in the menu (bottom right)")
                     }
                     idMessage={"beta"}
                     color={colors.green}

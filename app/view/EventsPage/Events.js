@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -6,13 +6,10 @@ import {
   TouchableOpacity,
   View,
   Image,
-  SafeAreaView,
-  StatusBar,
   Dimensions,
-  Modal,
-  Button,
 } from "react-native";
 import { getStatusBarHeight } from "react-native-status-bar-height";
+import * as Localization from "expo-localization";
 
 import SegmentedControlTab from "react-native-segmented-control-tab";
 import DropDownPicker from "react-native-dropdown-picker";
@@ -28,7 +25,7 @@ import EventsModule from "../../components/modules/eventsBoxes/eventsModule";
 import EventsMoreInfo from "../EventsPage/EventsMoreInfo";
 import MessageBox from "../../components/modules/MessageBox";
 import FAQevents from "./FAQevents";
-import ReloadButton from "../../components/reloadButton";
+import { languageChanged } from "../../store/reducers/uiReducerPersist";
 
 import trophy_1 from "../../assets/icons/trophy1.png";
 import trophy_2 from "../../assets/icons/trophy2.png";
@@ -42,13 +39,16 @@ import diamond from "../../assets/icons/diamond.png";
 import mythic from "../../assets/icons/mythic.png";
 import legendary from "../../assets/icons/legendary.png";
 import master from "../../assets/icons/master.png";
-import { getGlobalStatsFromDB } from "../../lib/apiDB";
+import { getGlobalStatsFromDB, getTranslation } from "../../lib/apiDB";
 import { globalStatsReceived } from "../../store/reducers/globalStatsReducer";
+import LanguageSelector from "../../components/modules/LanguageSelector";
+import { getURL } from "../../lib/getUrls";
 
+let firstLoginLanguageCall = false;
 export default function Events() {
   const dispatch = useDispatch();
   const device = useSelector((state) => state.uiReducerNoPersist.deviceType);
-
+  let topRef = useRef();
   const typeIndexPersist = useSelector(
     (state) => state.uiReducerPersist.typeIndex
   );
@@ -58,6 +58,7 @@ export default function Events() {
   const [showFAQ, setShowFAQ] = useState(false);
   const [moreInfoEventOpen, setMoreInfoEventOpen] = useState(false);
   const [typeIndexChanging, setTypeIndexChanging] = useState(false);
+  const [menuClicked, setMenuClicked] = useState(false);
 
   const season = useSelector((state) => state.globalStatsReducer.seasonEvents);
   const powerLeagueActive = useSelector(
@@ -75,17 +76,43 @@ export default function Events() {
   const plRange = useSelector((state) => state.uiReducerPersist.plRange);
 
   const handleSettingsPress = () => {
+    setShowFAQ(false);
     showSettings === false ? setShowSettings(true) : setShowSettings(false);
   };
   const handleFAQPress = () => {
+    setShowSettings(false);
     showFAQ === false ? setShowFAQ(true) : setShowFAQ(false);
+  };
+  const handleMenuPress = (condition) => {
+    if (condition == "open") {
+      setMenuClicked(true);
+    } else {
+      setMenuClicked(false);
+      setShowFAQ(false);
+      setShowSettings(false);
+    }
   };
 
   const plMessage = useSelector((state) => state.uiReducerPersist.plMessage);
   const adMessage = useSelector((state) => state.uiReducerPersist.adMessage);
-
+  const languageChanging = useSelector(
+    (state) => state.uiReducerNoPersist.languageChanging
+  );
   const language = useSelector((state) => state.uiReducerPersist.language);
-  // console.log(soloPLTrophies, teamPLTrophies);
+
+  const languages = useSelector((state) => state.uiReducerNoPersist.languages);
+  // console.log(11222, language);
+  if (
+    language === undefined ||
+    Object.values(languages).includes(language) == false
+  ) {
+    // console.log(44, Localization.locale);
+    firstLoginLanguageCall = true;
+    let localizationLanguage = Localization.locale.substr(3, 5).toLowerCase();
+    console.log(44, localizationLanguage);
+    if (Object.values(languages).includes(localizationLanguage) == true)
+      dispatch(languageChanged(Localization.locale.substr(3, 5)));
+  }
   if (moreInfoEventOpen === false) {
     if (isOpen === true) {
       setMoreInfoEventOpen(isOpen);
@@ -106,9 +133,15 @@ export default function Events() {
     powerLeague: [silver, gold, diamond, mythic, legendary, master],
   };
 
-  let rangesDisplay = useSelector(
+  let rangesDisplayFromFirebase = useSelector(
     (state) => state.globalStatsReducer.rangesDisplay
   );
+  console.log("HEY", language);
+
+  let rangesDisplay =
+    language != "en" && language !== undefined
+      ? getTranslation("rangesDisplay")
+      : rangesDisplayFromFirebase;
 
   // console.log("sorted", logoRangesOrdered);
   ranges.map((range, index) => {
@@ -153,35 +186,166 @@ export default function Events() {
 
       {plMessage == true && typeIndex != 0 && (
         <MessageBox
-          message={
-            "Open this app BEFORE starting a power league game!   Otherwise switching back and forth could lead to a disconnect."
-          }
+          message={getTranslation(
+            "Open this app BEFORE starting a power league game!   Otherwise switching back and forth could lead to a disconnect"
+          )}
           idMessage={"pl"}
           color={colors.red}
         />
       )}
-      {adMessage == true && (
+      {/* {adMessage == true && (
         <MessageBox
-          message={"The possibility to remove ads will be coming very soon !!"}
+          message={getTranslation(
+            getTranslation(
+              "The possibility to remove ads will be coming very soon !!"
+            )
+          )}
           idMessage={"ad"}
           color={colors.red}
         />
-      )}
-      {language == undefined && (
-        <Modal animationType="fade" visible={true} transparent={true}>
-          <View style={styles.centeredView}>
-            <View style={styles.modalView}>
-              <Text
+      )} */}
+      {firstLoginLanguageCall == true && <LanguageSelector type={"Modal"} />}
+      {moreInfoEventOpen === false && languageChanging == false && (
+        <View style={styles.back}>
+          <TouchableOpacity
+            style={{
+              position: "absolute",
+              bottom: 10,
+              right: 5,
+
+              zIndex: 2,
+            }}
+            onPress={() => {
+              menuClicked == false
+                ? handleMenuPress("open")
+                : handleMenuPress("closed");
+            }}
+          >
+            <Image source={getURL("menu")} style={{ width: 35, height: 35 }} />
+          </TouchableOpacity>
+          {menuClicked == true && (
+            <View
+              style={{
+                flexDirection: "row",
+                height: 50,
+                left: 15,
+                width: Dimensions.get("window").width - 15,
+                alignContent: "space-between",
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => {
+                  topRef.current.scrollTo({
+                    x: 0,
+                    y: 0,
+                    animated: true,
+                  });
+                  handleSettingsPress();
+                }}
+                style={{ flexDirection: "row", alignItems: "center" }}
+              >
+                <Ionicons
+                  name="settings"
+                  size={device != "tablet" ? 20 : 40}
+                  color={colors.secondary}
+                />
+                <Text
+                  style={[
+                    styles.categoryName,
+                    {
+                      textAlign: "center",
+                      fontSize: device != "tablet" ? 15 : 40,
+                    },
+                  ]}
+                >
+                  {getTranslation("Settings")}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  topRef.current.scrollTo({
+                    x: 0,
+                    y: 0,
+                    animated: true,
+                  });
+                  handleFAQPress();
+                }}
                 style={{
-                  textAlign: "center",
-                  color: colors.primary,
-                  fontFamily: "Lilita-One",
-                  fontSize: 15,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  position: "absolute",
+                  right: 15,
+                  top: 11.5,
                 }}
               >
-                Language/ Idioma/ Dilim / Linguaggio / язык / भाषा: हिन्दी /
-                言語 /
-              </Text>
+                <Text
+                  style={[
+                    styles.categoryName,
+                    {
+                      textAlign: "center",
+                      fontSize: device != "tablet" ? 15 : 40,
+                    },
+                  ]}
+                >
+                  {getTranslation("Questions & Answers")}
+                </Text>
+                <Ionicons
+                  style={{ marginLeft: 5, marginTop: 3 }}
+                  name="book"
+                  size={device != "tablet" ? 20 : 40}
+                  color={colors.secondary}
+                />
+              </TouchableOpacity>
+            </View>
+          )}
+
+          <ScrollView style={styles.container} ref={topRef}>
+            <View style={{ marginTop: 20, margin: 20 }}>
+              {showFAQ == true && <FAQevents />}
+              {showSettings == true && <Settings />}
+
+              <SegmentedControlTab
+                values={[
+                  getTranslation("Events"),
+                  getTranslation("Power League"),
+                ]}
+                tabsContainerStyle={
+                  device == "tablet"
+                    ? { marginTop: 10, marginLeft: 50, marginRight: 50 }
+                    : { marginLeft: 10, marginRight: 10 }
+                }
+                tabTextStyle={{
+                  fontSize: device != "tablet" ? 14 : 25,
+                  fontFamily: "Lilita-One",
+                }}
+                selectedIndex={typeIndex}
+                onTabPress={async (index) => {
+                  setTypeIndexChanging(true);
+                  let globalStats = await getGlobalStatsFromDB(
+                    globalStatsInStore,
+                    season,
+                    "global",
+                    index
+                  );
+                  await dispatch(globalStatsReceived(globalStats));
+                  setTypeIndex(index);
+                  setTypeIndexChange(true);
+                  setTypeIndexChanging(false);
+                }}
+                enabled={powerLeagueActive == false ? false : true}
+              />
+              {/* <ReloadButton /> */}
+              {/* <View> */}
+              {/* <SegmentedControlTab
+                values={seasonsKey}
+                //The plus 5 is because we are starting 5 seasons late
+                // the minus 5 is to convert it back
+                selectedIndex={seasonIndex - 5}
+                onTabPress={(index) => setSeasonIndex(index + 5)}
+              /> */}
+              {/* </View> */}
+            </View>
+            {typeIndexChanging == false && (
               <DropDownPicker
                 items={listRangesItems}
                 globalTextStyle={{
@@ -190,208 +354,60 @@ export default function Events() {
                 defaultValue={range}
                 containerStyle={{
                   height: device != "tablet" ? 40 : 60,
-                  marginTop: device != "tablet" ? 20 : 60,
-                  width: 140,
+                  marginTop: device != "tablet" ? -5 : 60,
+                  marginLeft: device != "tablet" ? 80 : 250,
+                  marginRight: device != "tablet" ? 80 : 250,
                 }}
                 style={{ backgroundColor: "#fafafa" }}
                 itemStyle={{
                   justifyContent: "flex-start",
                 }}
                 dropDownStyle={{ backgroundColor: "#fafafa" }}
-              />
-              <View style={{ marginTop: 30, zIndex: 0 }}>
-                <TouchableOpacity
-                  style={{
-                    alignItems: "center",
-                    justifyContent: "center",
-                    paddingVertical: 12,
-                    paddingHorizontal: 32,
-                    borderRadius: 4,
-                    elevation: 3,
-                    backgroundColor: colors.background3,
-                  }}
-                >
-                  <Text
-                    style={{
-                      color: colors.primary,
-                      fontFamily: "Lilita-One",
-                      fontSize: 20,
-                      color: colors.primary,
-                    }}
-                  >
-                    OK
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </Modal>
-      )}
+                onChangeItem={async (item, index) => {
+                  setTypeIndexChanging(true);
+                  let globalStats = await getGlobalStatsFromDB(
+                    globalStatsInStore,
+                    season,
+                    "global",
+                    typeIndex,
+                    item.value
+                  );
 
-      {moreInfoEventOpen === false && (
-        <ScrollView style={styles.container}>
-          <View style={{ marginTop: 20, margin: 20 }}>
+                  await dispatch(globalStatsReceived(globalStats));
+                  setRange(item.value);
+
+                  setTypeIndexChanging(false);
+                }}
+              />
+            )}
+
             <View
               style={{
-                flexDirection: "row",
-                marginLeft: 15,
-                marginBottom: 15,
-                width: Dimensions.get("window").width,
-                alignContent: "space-around",
+                alignContent: "center",
+                alignItems: "center",
+                marginTop: 5,
               }}
             >
-              <TouchableOpacity
-                onPress={() => handleSettingsPress()}
-                style={{ flexDirection: "row", alignItems: "center" }}
-              >
-                <Ionicons
-                  name="settings"
-                  size={device != "tablet" ? 24 : 40}
-                  color={colors.secondary}
-                />
-                <Text
-                  style={[
-                    styles.categoryName,
-                    {
-                      textAlign: "center",
-                      fontSize: device != "tablet" ? 25 : 40,
-                    },
-                  ]}
-                >
-                  Settings
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => handleFAQPress()}
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  position: "absolute",
-                  right: 70,
-                }}
-              >
-                <Text
-                  style={[
-                    styles.categoryName,
-                    {
-                      textAlign: "center",
-                      fontSize: device != "tablet" ? 25 : 40,
-                    },
-                  ]}
-                >
-                  F.A.Q
-                </Text>
-                <Ionicons
-                  style={{ marginLeft: 5, marginTop: 5 }}
-                  name="book"
-                  size={device != "tablet" ? 24 : 40}
-                  color={colors.secondary}
-                />
-              </TouchableOpacity>
-            </View>
-            {showFAQ == true && <FAQevents />}
-            {showSettings == true && <Settings />}
+              {typeIndexChanging == false &&
+                typeIndex == 0 &&
+                globalNumbers.challenge_active == true && (
+                  <EventsModule
+                    season={season}
+                    typeIndex={"challenge"}
+                    range={range}
+                  />
+                )}
 
-            <SegmentedControlTab
-              values={["Events", "Power League"]}
-              tabsContainerStyle={
-                device == "tablet"
-                  ? { marginTop: 10, marginLeft: 50, marginRight: 50 }
-                  : { marginLeft: 17, marginRight: 17 }
-              }
-              tabTextStyle={{
-                fontSize: device != "tablet" ? 14 : 25,
-                fontFamily: "Lilita-One",
-              }}
-              selectedIndex={typeIndex}
-              onTabPress={async (index) => {
-                setTypeIndexChanging(true);
-                let globalStats = await getGlobalStatsFromDB(
-                  globalStatsInStore,
-                  season,
-                  "global",
-                  index
-                );
-                await dispatch(globalStatsReceived(globalStats));
-                setTypeIndex(index);
-                setTypeIndexChange(true);
-                setTypeIndexChanging(false);
-              }}
-              enabled={powerLeagueActive == false ? false : true}
-            />
-            {/* <ReloadButton /> */}
-            {/* <View> */}
-            {/* <SegmentedControlTab
-                values={seasonsKey}
-                //The plus 5 is because we are starting 5 seasons late
-                // the minus 5 is to convert it back
-                selectedIndex={seasonIndex - 5}
-                onTabPress={(index) => setSeasonIndex(index + 5)}
-              /> */}
-            {/* </View> */}
-          </View>
-          {typeIndexChanging == false && (
-            <DropDownPicker
-              items={listRangesItems}
-              globalTextStyle={{
-                fontSize: device == "tablet" ? 20 : 15,
-              }}
-              defaultValue={range}
-              containerStyle={{
-                height: device != "tablet" ? 40 : 60,
-                marginTop: device != "tablet" ? -5 : 60,
-                marginLeft: device != "tablet" ? 90 : 250,
-                marginRight: device != "tablet" ? 90 : 250,
-              }}
-              style={{ backgroundColor: "#fafafa" }}
-              itemStyle={{
-                justifyContent: "flex-start",
-              }}
-              dropDownStyle={{ backgroundColor: "#fafafa" }}
-              onChangeItem={async (item, index) => {
-                setTypeIndexChanging(true);
-                let globalStats = await getGlobalStatsFromDB(
-                  globalStatsInStore,
-                  season,
-                  "global",
-                  typeIndex,
-                  item.value
-                );
-
-                await dispatch(globalStatsReceived(globalStats));
-                setRange(item.value);
-
-                setTypeIndexChanging(false);
-              }}
-            />
-          )}
-
-          <View
-            style={{
-              alignContent: "center",
-              alignItems: "center",
-              marginTop: 5,
-            }}
-          >
-            {typeIndexChanging == false &&
-              typeIndex == 0 &&
-              globalNumbers.challenge_active == true && (
+              {typeIndexChanging == false && (
                 <EventsModule
                   season={season}
-                  typeIndex={"challenge"}
+                  typeIndex={typeIndex}
                   range={range}
                 />
               )}
-
-            {typeIndexChanging == false && (
-              <EventsModule
-                season={season}
-                typeIndex={typeIndex}
-                range={range}
-              />
-            )}
-          </View>
-        </ScrollView>
+            </View>
+          </ScrollView>
+        </View>
       )}
       {moreInfoEventOpen == true && <EventsMoreInfo />}
     </>
@@ -399,6 +415,10 @@ export default function Events() {
 }
 
 const styles = StyleSheet.create({
+  back: {
+    flex: 1,
+    backgroundColor: "#1C3273",
+  },
   container: {
     flex: 1,
     backgroundColor: "#1C3273",
@@ -408,27 +428,6 @@ const styles = StyleSheet.create({
     fontFamily: "Lilita-One",
     fontSize: 20,
     marginLeft: 6,
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22,
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: colors.background2,
-    borderRadius: 20,
-    padding: 25,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
   },
 });
 const unsubscribe = store.subscribe(Events);

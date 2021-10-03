@@ -10,7 +10,7 @@ const slice = createSlice({
       totalUnlockables: undefined,
     },
     ranges: undefined,
-    rangesDisplay:undefined,
+    rangesDisplay: undefined,
     seasons: undefined,
     seasonStats: undefined,
     globalStats: undefined,
@@ -22,6 +22,7 @@ const slice = createSlice({
     challenge_active: undefined,
     challenge_imageWidth: undefined,
     challenge_imageHeight: undefined,
+    challenge_endTime: undefined,
   },
   reducers: {
     globalCountsReceived: (globalStats, action) => {
@@ -38,7 +39,7 @@ const slice = createSlice({
         globalStats.challenge_imageHeight = data.challenge_imageHeight;
       }
       globalStats.ranges = data.rangesV2;
-      globalStats.rangesDisplay= data.rangesDisplay
+      globalStats.rangesDisplay = data.rangesDisplay;
       globalStats.numbers.numberOfBrawlers = data.total_numberOfBrawlers;
       globalStats.numbers.numberOfGadgets = data.total_numberOfGadgets;
       globalStats.numbers.numberOfStarPowers = data.total_numberOfStarPowers;

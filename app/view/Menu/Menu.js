@@ -17,7 +17,7 @@ import { useSelector } from "react-redux";
 import { getStatusBarHeight } from "react-native-status-bar-height";
 
 import { bannerAdID } from "../../config/ads";
-import { writeError } from "../../lib/apiDB";
+import { getTranslation, writeError } from "../../lib/apiDB";
 import MessageBox from "../../components/modules/MessageBox";
 import colors from "../../config/colors";
 
@@ -124,7 +124,7 @@ export default function Menu() {
         {menuMessage == true && (
           <MessageBox
             message={
-              "All these modules are ideas I want to build in the next few weeks/months!"
+              getTranslation("All these modules are ideas I want to build in the next few weeks/months!")
             }
             idMessage={"menu"}
             color={colors.green}

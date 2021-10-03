@@ -6,6 +6,7 @@ const sortEventsData = (typeIndex, challenge_hash) => {
   let state = store.getState();
   let normalEvents = [];
   let specialEvents = [];
+  // console.log(333, moment.now().valueOf());
 
   if (state.brawlifyReducer.eventsList) {
     let events = state.brawlifyReducer.eventsList.active;
@@ -15,7 +16,9 @@ const sortEventsData = (typeIndex, challenge_hash) => {
       if (events[eventKey].slot.id < state.globalStatsReducer.slotIDMaximum) {
         if (
           Math.sign(
-            moment.duration(moment(events[eventKey].endTime).diff(moment.now()))
+            moment.duration(
+              moment(events[eventKey].endTime).diff(moment.now().valueOf())
+            )
           ) == 1
         ) {
           normalEvents.push({
@@ -51,7 +54,7 @@ const sortEventsData = (typeIndex, challenge_hash) => {
                 mapImage: eventsUpcoming[eventKeyUpcoming].map.imageUrl,
                 mapEnvironment:
                   eventsUpcoming[eventKeyUpcoming].map.environment.imageUrl,
-                endTime: eventsUpcoming[eventKeyUpcoming].endTime,
+                endTime: moment(eventsUpcoming[eventKeyUpcoming].endTime),
                 eventID: eventsUpcoming[eventKeyUpcoming].slot.id,
                 eventLeftTime: moment.duration(
                   moment(eventsUpcoming[eventKeyUpcoming].endTime).diff(

@@ -3,8 +3,8 @@ import axios from "axios";
 import moment from "moment";
 import cloneDeep from "lodash.clonedeep";
 import { store } from "../store/configureStore";
-import { camelize } from "./getGlobalStatsFunctions";
 import sizeOf from "object-sizeof";
+import { getBrawlifyTranslations } from "./getBrawlify";
 
 const getStatsFirstLogin = async (userID) => {
   return new Promise(async function (resolve, reject) {
@@ -27,7 +27,6 @@ const getStatsFirstLogin = async (userID) => {
 };
 
 const writeLastLogin = async (userID) => {
-  console.log(2, userID);
   if (userID.length !== 0 && userID !== undefined && userID !== null)
     try {
       let playerRef = db.ref(`lastLogin/${userID}`);
@@ -48,13 +47,6 @@ const writeError = async (userID, error) => {
 
   let playerRef = db.ref("errors/" + userID);
   playerRef.set(error).then(() => "nothingness");
-};
-
-const getEvents = async () => {
-  return await db
-    .ref("global/events")
-    .once("value")
-    .then((snapshot) => snapshot.val());
 };
 
 const getStatsFromDB = async (userID, season) => {
@@ -210,15 +202,94 @@ const getGlobalStatsFromDB = async (
   }
 };
 
+const getStarGadgetVotesFromDB = async (season, mapID, rangeName) => {
+  console.log(season, mapID, rangeName);
+  let votes = await fireStore
+    .collection(`season${season}_starPowers_gadgets_votes`)
+    .doc(`${mapID}_${rangeName}`)
+    .get();
+  // console.log(332, votes.data());
+  return votes.data();
+};
+
+const getTranslations = async (language) => {
+  if (language !== undefined && language !== "en") {
+    const brawlifyTranslations = await getBrawlifyTranslations(language);
+    let translationsDB = await db
+      .ref(`translations/${language}`)
+      .once("value")
+      .then((snapshot) => snapshot.val());
+    // console.log(22, language, brawlifyTranslations);
+    // console.log(23333, translationsDB);
+    return { ...translationsDB, ...brawlifyTranslations };
+  } else {
+    return undefined;
+  }
+};
+
+const getTranslation = (phrase, key) => {
+  try {
+    let state = store.getState();
+    const translations = state.uiReducerNoPersist.translations;
+    const languages = state.uiReducerNoPersist.languages;
+    const language = state.uiReducerPersist.language;
+    // console.log("hello1", language, languages[language]);
+    if (
+      language !== undefined &&
+      Object.values(languages).includes(language) !== false &&
+      language != "en"
+    ) {
+      if (phrase == "Top 3 Brawlers") {
+        return translations["stats_links_top_brawlers"];
+      } else if (phrase === "Events") {
+        return translations["event_name"];
+      } else if (phrase === "Power League") {
+        return translations["navigation_menu_league_short"] == undefined
+          ? translations["navigation_menu_league"] == undefined
+            ? "Power League"
+            : translations["navigation_menu_league"]
+          : translations["navigation_menu_league_short"];
+      } else if (phrase === "Default Category:") {
+        return `${translations["Default"]} ${translations["Range"]}:`;
+      } else if (phrase === "Default Event Range:") {
+        return `${translations["Default"]} ${translations["event_name"]} ${translations["Range"]}:`;
+      } else if (phrase === "Default Power League Range:") {
+        return `${translations["Default"]} ${translations["navigation_menu_league"]} ${translations["Range"]}:`;
+      } else if (phrase === "rangesDisplay") {
+        return translations["rangesDisplay"];
+      } else {
+        if (key !== undefined) {
+          return translations[key];
+        } else if (
+          translations[
+            phrase.includes(".") ? phrase.replace(/\./g, "@") : phrase
+          ] !== undefined
+        ) {
+          return translations[
+            phrase.includes(".") ? phrase.replace(/\./g, "@") : phrase
+          ];
+        } else return phrase;
+      }
+    } else {
+      return phrase;
+    }
+  } catch (error) {
+    console.log(error, "in translation");
+    return phrase;
+  }
+};
+
 export {
   getStatsFirstLogin,
   getStatsFromDB,
   getSwitchesFromDB,
-  getEvents,
   getGlobalStatsFromDB,
   writeLastLogin,
   writeError,
   setStats,
+  getTranslations,
+  getTranslation,
+  getStarGadgetVotesFromDB,
 };
-const unsubscribe = store.subscribe(getGlobalStatsFromDB);
+const unsubscribe = store.subscribe(getGlobalStatsFromDB, getTranslation);
 unsubscribe();

@@ -1,4 +1,5 @@
 import { store } from "../store/configureStore";
+
 import colors from "../config/colors";
 let getModeColor = () => {};
 let getBrawlerImageOld = () => {};
@@ -6,12 +7,13 @@ let getModeImage = () => {};
 let getBrawlerColors = () => {};
 let getBrawlerImage = () => {};
 let getBrawlerName = () => {};
-let getMapName = () => {};
+
 let getMapImage = () => {};
+let getMapName = () => {};
 
 let getIconImage = () => {};
 
-const getAssets = (seasonIndex, gameTypeName) => {
+const getAssets = () => {
   let state = store.getState();
 
   //not currently in use
@@ -36,6 +38,28 @@ const getAssets = (seasonIndex, gameTypeName) => {
     return color;
   };
 
+  getMapName = (mapID) => {
+    let state = store.getState();
+    let language = state.uiReducerPersist.language;
+    let languages = state.uiReducerNoPersist.languages;
+    console.log(998, language);
+    if (
+      language == "en" ||
+      language == undefined ||
+      Object.values(languages).includes(language) == false
+    ) {
+      let mapName = undefined;
+      state.brawlifyReducer.mapsList.map((map) => {
+        if (map.id == mapID) {
+          mapName = map.name;
+        }
+      });
+      return mapName;
+    } else {
+      // console.log(33344, language, state.uiReducerNoPersist.translations);
+      return state.uiReducerNoPersist.translations[`map_name_${mapID}`];
+    }
+  };
   getBrawlerColors = (brawler) => {
     //console.log(brawler);
     let color = undefined;
@@ -312,16 +336,6 @@ const getAssets = (seasonIndex, gameTypeName) => {
     return { uri: mapUrl };
   };
 
-  getMapName = (mapID) => {
-    let mapName = undefined;
-    state.brawlifyReducer.mapsList.map((map) => {
-      if (map.id == mapID) {
-        mapName = map.name;
-      }
-    });
-    return mapName;
-  };
-
   getIconImage = (iconID) => {
     let iconUrl = undefined;
     // console.log(iconID)
@@ -333,7 +347,7 @@ const getAssets = (seasonIndex, gameTypeName) => {
     return iconUrl;
   };
 };
-const unsubscribe = store.subscribe(getAssets);
+const unsubscribe = store.subscribe(getAssets, getMapName);
 unsubscribe();
 
 export {

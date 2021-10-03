@@ -11,6 +11,7 @@ import {
   TouchableHighlight,
   FlatList,
   BackHandler,
+  Dimensions,
 } from "react-native";
 
 import {
@@ -27,13 +28,18 @@ import SegmentedControlTab from "react-native-segmented-control-tab";
 import { moreInfoEventClosed } from "../../store/reducers/uiReducerNoPersist";
 import colors from "../../config/colors";
 
+import performanceImg from "../../assets/explanations/performance.png";
+import pickRateImg from "../../assets/explanations/pickRate.png";
 import trophy1 from "../../assets/icons/trophy1.png";
 import trophy2 from "../../assets/icons/trophy2.png";
 import trophy3 from "../../assets/icons/trophy3.png";
 import trophyLoss1 from "../../assets/icons/trophyLoss1.png";
 import trophyLoss2 from "../../assets/icons/trophyLoss2.png";
 import trophyLoss3 from "../../assets/icons/trophyLoss3.png";
-
+import { getTranslation } from "../../lib/apiDB";
+const deviceId = Expo.Constants.deviceId;
+console.log("oh hello", deviceId);
+const width = Dimensions.get("window").width;
 export default function EventsMoreInfo() {
   const device = useSelector((state) => state.uiReducerNoPersist.deviceType);
   const handleReturn = () => {
@@ -56,6 +62,9 @@ export default function EventsMoreInfo() {
   }, []);
   const dispatch = useDispatch();
   const carouselInfo = useSelector((state) => state.uiReducerNoPersist);
+  const brawlersInfo = useSelector(
+    (state) => state.brawlifyReducer.brawlersList
+  );
 
   const [typeIndex, setTypeIndex] = useState(
     carouselInfo.sortedBrawlers == undefined &&
@@ -71,6 +80,7 @@ export default function EventsMoreInfo() {
   let totalNumberOfBrawlers = 0;
   let topPointsTeams = undefined;
   let totalCountTeams = 0;
+  // console.log(444, carouselInfo.starPowers_gadgets_votes);
   if (carouselInfo.sortedBrawlers != undefined) {
     topPointsBrawlers = carouselInfo.sortedBrawlers[0].points;
     carouselInfo.sortedBrawlers.map((brawler) => {
@@ -87,8 +97,78 @@ export default function EventsMoreInfo() {
       (team) => (totalCountTeams += parseInt(team.count))
     );
   }
+  let voteString = getTranslation("1 vote = no ads for 1 hour");
+  console.log(44, voteString, voteString.length);
+  let brawlerStarPowers_Gadgets = {};
+
+  const handleVote = (vote) => {
+    
+
+  };
+
   const listItem = ({ item, index }) => {
     let brawlerindexImage = null;
+
+    let [starPower1_votes, starPower2_votes, gadget1_votes, gadget2_votes] = [
+      null,
+      null,
+      null,
+      null,
+    ];
+    if (typeIndex == 0) {
+      //brawlify brawler list
+      brawlersInfo.list.map((brawlerObject) => {
+        if (brawlerObject.id == item.ID) {
+          if (
+            (brawlerObject.starPowers[0] !== undefined &&
+              brawlerObject.starPowers[1] !== undefined) ||
+            (brawlerObject.gadgets[0] !== undefined &&
+              brawlerObject.gadgets[1] !== undefined)
+          ) {
+            //brawler info from brawlify
+            brawlerStarPowers_Gadgets[item.ID] = {};
+
+            brawlerStarPowers_Gadgets[item.ID].starPower1 =
+              brawlerObject.starPowers[0];
+            brawlerStarPowers_Gadgets[item.ID].starPower2 =
+              brawlerObject.starPowers[1];
+            //Votes From DB
+            if (
+              brawlerObject.starPowers[0] !== undefined &&
+              brawlerObject.starPowers[1] !== undefined
+            ) {
+              starPower1_votes =
+                carouselInfo.starPowers_gadgets_votes[item.ID][
+                  brawlerStarPowers_Gadgets[item.ID].starPower1.id
+                ];
+              starPower2_votes =
+                carouselInfo.starPowers_gadgets_votes[item.ID][
+                  brawlerStarPowers_Gadgets[item.ID].starPower2.id
+                ];
+            }
+
+            brawlerStarPowers_Gadgets[item.ID].gadget1 =
+              brawlerObject.gadgets[0];
+            brawlerStarPowers_Gadgets[item.ID].gadget2 =
+              brawlerObject.gadgets[1];
+            if (
+              brawlerObject.gadgets[0] !== undefined &&
+              brawlerObject.gadgets[1] !== undefined
+            ) {
+              //Votes From DB
+              gadget1_votes =
+                carouselInfo.starPowers_gadgets_votes[item.ID][
+                  brawlerStarPowers_Gadgets[item.ID].gadget1.id
+                ];
+              gadget2_votes =
+                carouselInfo.starPowers_gadgets_votes[item.ID][
+                  brawlerStarPowers_Gadgets[item.ID].gadget2.id
+                ];
+            }
+          }
+        }
+      });
+    }
 
     if (index <= totalNumberOfBrawlers) {
       // console.log(index, totalNumberOfBrawlers);
@@ -172,11 +252,11 @@ export default function EventsMoreInfo() {
               </Text>
             </View>
             <Image
-              style={
+              style={[
                 device == "tablet"
                   ? styles.brawlerImageTablet
-                  : styles.brawlerImage
-              }
+                  : styles.brawlerImage,
+              ]}
               source={getBrawlerImage(item.ID)}
             />
             {/* <Text
@@ -196,6 +276,7 @@ export default function EventsMoreInfo() {
                   showAdvancedPerformance == false ? true : false
                 )
               }
+              style={{ marginLeft: width * 0.05 }}
             >
               {showAdvancedPerformance == false && (
                 <Image
@@ -211,7 +292,7 @@ export default function EventsMoreInfo() {
                 <Text
                   style={[
                     device != "tablet" ? styles.stats : styles.statsTablet,
-                    { marginLeft: device != "tablet" ? 40 : 40 },
+                    { marginLeft: device != "tablet" ? 2 : 40 },
                     performanceBrawlers == 100
                       ? { fontSize: device != "tablet" ? 12 : 23 }
                       : null,
@@ -224,46 +305,195 @@ export default function EventsMoreInfo() {
             <Text
               style={[
                 device != "tablet" ? styles.stats : styles.statsTablet,
-                { position: "absolute", left: device != "tablet" ? 150 : 180 },
+                {
+                  position: "absolute",
+                  left: width * 0.3,
+                },
               ]}
             >
               {pickRateBrawlers + "%"}
             </Text>
-            {performanceAgainstBrawler[0] && (
-              <View
-                style={{ flexDirection: "row", position: "absolute", right: 0 }}
-              >
-                <Image
-                  style={[
-                    device != "tablet"
-                      ? styles.brawlerAgainst
-                      : styles.brawlerAgainstTablet,
-                    { borderColor: "gold" },
-                  ]}
-                  source={getBrawlerImage(performanceAgainstBrawler[0].ID)}
-                />
-                {performanceAgainstBrawler[1] && (
-                  <Image
-                    style={[
-                      device != "tablet"
-                        ? styles.brawlerAgainst
-                        : styles.brawlerAgainstTablet,
-                      { borderColor: "silver" },
-                    ]}
-                    source={getBrawlerImage(performanceAgainstBrawler[1].ID)}
-                  />
-                )}
-                {performanceAgainstBrawler[2] && (
-                  <Image
-                    style={[
-                      device != "tablet"
-                        ? styles.brawlerAgainst
-                        : styles.brawlerAgainstTablet,
-                      { borderColor: "#cd7f32" },
-                    ]}
-                    source={getBrawlerImage(performanceAgainstBrawler[2].ID)}
-                  />
-                )}
+            {brawlerStarPowers_Gadgets[item.ID] && (
+              <View style={{ flexDirection: "row", marginLeft: width * 0.22 }}>
+                <View style={{ flexDirection: "row" }}>
+                  {brawlerStarPowers_Gadgets[item.ID].starPower1 && (
+                    <TouchableOpacity
+                      style={{
+                        alignContent: "center",
+                        marginRight: width * 0.06,
+                      }}
+                      onPress={() => {
+                        handleVote("starPower1");
+                      }}
+                    >
+                      <Image
+                        source={{
+                          uri: brawlerStarPowers_Gadgets[item.ID].starPower1
+                            .imageUrl,
+                        }}
+                        style={{
+                          width: 22,
+                          height: 22,
+                          resizeMode: "contain",
+                        }}
+                      />
+                      <Text
+                        style={[
+                          device != "tablet"
+                            ? {
+                                color: colors.primary,
+                                fontFamily: "Lilita-One",
+                                fontSize: 8,
+                                textAlign: "center",
+                              }
+                            : styles.statsTablet,
+                          {},
+                        ]}
+                      >
+                        {starPower1_votes !== null && starPower2_votes !== null
+                          ? `${
+                              (starPower1_votes /
+                                (starPower1_votes + starPower2_votes)) *
+                              100
+                            }%`
+                          : "100%"}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                  {brawlerStarPowers_Gadgets[item.ID].starPower2 && (
+                    <TouchableOpacity
+                      style={{
+                        alignContent: "center",
+                        marginRight: width * 0.06,
+                      }}
+                      onPress={() => {
+                        handleVote("starPower2");
+                      }}
+                    >
+                      <Image
+                        source={{
+                          uri: brawlerStarPowers_Gadgets[item.ID].starPower2
+                            .imageUrl,
+                        }}
+                        style={{
+                          width: 22,
+                          height: 22,
+                          resizeMode: "contain",
+                        }}
+                      />
+                      <Text
+                        style={[
+                          device != "tablet"
+                            ? {
+                                color: colors.primary,
+                                fontFamily: "Lilita-One",
+                                fontSize: 8,
+                                textAlign: "center",
+                              }
+                            : styles.statsTablet,
+                          {},
+                        ]}
+                      >
+                        {starPower1_votes !== null && starPower2_votes !== null
+                          ? `${
+                              (starPower2_votes /
+                                (starPower1_votes + starPower2_votes)) *
+                              100
+                            }%`
+                          : "100%"}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  {brawlerStarPowers_Gadgets[item.ID].gadget1 && (
+                    <TouchableOpacity
+                      style={{
+                        alignContent: "center",
+                        marginRight: width * 0.06,
+                      }}
+                      onPress={() => {
+                        handleVote("gadget1");
+                      }}
+                    >
+                      <Image
+                        source={{
+                          uri: brawlerStarPowers_Gadgets[item.ID].gadget1
+                            .imageUrl,
+                        }}
+                        style={{
+                          width: 22,
+                          height: 22,
+                          resizeMode: "contain",
+                        }}
+                      />
+                      <Text
+                        style={[
+                          device != "tablet"
+                            ? {
+                                color: colors.primary,
+                                fontFamily: "Lilita-One",
+                                fontSize: 8,
+                                textAlign: "center",
+                              }
+                            : styles.statsTablet,
+                          {},
+                        ]}
+                      >
+                        {gadget1_votes !== null && gadget2_votes !== null
+                          ? `${
+                              (gadget1_votes /
+                                (gadget1_votes + gadget2_votes)) *
+                              100
+                            }%`
+                          : "100%"}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                  {brawlerStarPowers_Gadgets[item.ID].gadget2 && (
+                    <TouchableOpacity
+                      style={{
+                        alignContent: "center",
+                      }}
+                      onPress={() => {
+                        handleVote("gadget2");
+                      }}
+                    >
+                      <Image
+                        source={{
+                          uri: brawlerStarPowers_Gadgets[item.ID].gadget2
+                            .imageUrl,
+                        }}
+                        style={{
+                          width: 22,
+                          height: 22,
+                          resizeMode: "contain",
+                        }}
+                      />
+                      <Text
+                        style={[
+                          device != "tablet"
+                            ? {
+                                color: colors.primary,
+                                fontFamily: "Lilita-One",
+                                fontSize: 8,
+                                textAlign: "center",
+                              }
+                            : styles.statsTablet,
+                          {},
+                        ]}
+                      >
+                        {gadget1_votes !== null && gadget2_votes !== null
+                          ? `${
+                              (gadget2_votes /
+                                (gadget1_votes + gadget2_votes)) *
+                              100
+                            }%`
+                          : "100%"}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
               </View>
             )}
           </View>
@@ -378,7 +608,13 @@ export default function EventsMoreInfo() {
                 color={colors.secondary}
               />
             </TouchableOpacity>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-around",
+              }}
+            >
               <Image
                 source={
                   carouselInfo.type == "trophies"
@@ -416,14 +652,21 @@ export default function EventsMoreInfo() {
               <Text
                 style={[
                   styles.name,
-                  { marginRight: 20, fontSize: device != "tablet" ? 18 : 40 },
+                  {
+                    marginRight: width * 0.06,
+                    fontSize: device != "tablet" ? 18 : 40,
+                  },
                 ]}
               >
                 {carouselInfo.type == "trophies"
-                  ? carouselInfo.name
+                  ? getMapName(carouselInfo.mapID).length > 21
+                    ? getMapName(carouselInfo.mapID).slice(0, 21) + ".."
+                    : getMapName(carouselInfo.mapID)
+                  : getMapName(carouselInfo.name).length > 21
+                  ? getMapName(carouselInfo.name).slice(0, 21) + ".."
                   : getMapName(carouselInfo.name)}
               </Text>
-              {console.log(carouselInfo.mode)}
+              {/* {console.log(carouselInfo.mode)} */}
 
               <Image
                 source={
@@ -435,6 +678,7 @@ export default function EventsMoreInfo() {
                   width: device != "tablet" ? 60 : 180,
                   height: device != "tablet" ? 90 : 270,
                   marginTop: 10,
+                  marginRight: width * -0.1,
                 }}
               />
             </View>
@@ -467,61 +711,67 @@ export default function EventsMoreInfo() {
             )}
 
             <View style={{ flexDirection: "row", marginTop: 10 }}>
-              <Text
+              <Image
+                source={performanceImg}
                 style={[
                   device != "tablet"
                     ? {
-                        color: colors.primary,
-                        fontFamily: "Lilita-One",
-                        fontSize: 11,
                         position: "absolute",
-                        right: 35,
+                        right: width * 0.2,
+                        width: width * 0.19,
+                        height: 23,
                       }
                     : styles.columnNameTablet,
 
-                  typeIndex !== 0 ? { right: -8 } : null,
+                  typeIndex !== 0 ? { right: -12 } : null,
                 ]}
-              >
-                Performance
-              </Text>
-              <Text
+              />
+
+              <Image
+                source={pickRateImg}
                 style={[
                   device != "tablet"
                     ? {
-                        color: colors.primary,
-                        fontFamily: "Lilita-One",
-                        fontSize: 11,
                         position: "absolute",
-                        left: -19,
+                        right: width * 0.1,
+                        top: width * -0.01,
+                        height: 28,
+                        width: width * 0.09,
                       }
                     : styles.columnNameTablet,
                   ,
-                  typeIndex !== 0 ? { left: 18 } : null,
+                  typeIndex !== 0 ? { right: width * -0.16 } : null,
+                ]}
+              />
+
+              <Text
+                style={[
+                  device != "tablet"
+                    ? {
+                        color: colors.primary,
+                        fontFamily: "Lilita-One",
+                        fontSize: 10,
+                        position: "absolute",
+                        left:
+                          voteString.length > 35
+                            ? -20
+                            : voteString.length > 30
+                            ? -5
+                            : voteString.length > 26
+                            ? 0
+                            : 20,
+                      }
+                    : styles.columnNameTablet,
+                  typeIndex !== 0 ? { left: width * 0.2 } : null,
                 ]}
               >
-                Pick Rate
+                {typeIndex === 0
+                  ? voteString
+                  : getTranslation("Best Against Team")}
               </Text>
-              {!carouselInfo.mode.includes("Show") && (
-                <Text
-                  style={[
-                    device != "tablet"
-                      ? {
-                          color: colors.primary,
-                          fontFamily: "Lilita-One",
-                          fontSize: 11,
-                          position: "absolute",
-                          left: 66,
-                        }
-                      : styles.columnNameTablet,
-                    typeIndex !== 0 ? { left: 90 } : null,
-                  ]}
-                >
-                  Best Against
-                </Text>
-              )}
             </View>
 
-            <ScrollView style={{ marginTop: 15 }}>
+            <ScrollView style={{ marginTop: 30 }}>
               <FlatList
                 data={
                   typeIndex == 0
@@ -544,6 +794,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background2,
     alignItems: "center",
+    justifyContent: "space-around",
   },
   stats: {
     color: colors.primary,
@@ -571,10 +822,12 @@ const styles = StyleSheet.create({
   },
   itemBrawler: {
     height: 60,
-    width: 315,
     flex: 1,
+    width: width - 20,
     flexDirection: "row",
+
     alignItems: "center",
+    alignContent: "center",
   },
   itemBrawlerTablet: {
     width: 430,
@@ -600,7 +853,6 @@ const styles = StyleSheet.create({
   trophyImage: {
     width: 35,
     height: 25,
-    marginLeft: 35,
   },
   trophyImageTablet: {
     width: 50,
@@ -609,8 +861,9 @@ const styles = StyleSheet.create({
   brawlerImage: {
     width: 35,
     height: 35,
+    resizeMode: "contain",
   },
-  brawlerImageTablet: { width: 50, height: 50 },
+  brawlerImageTablet: { width: 50, height: 50, resizeMode: "contain" },
   columnName: {
     color: colors.primary,
     fontFamily: "Lilita-One",

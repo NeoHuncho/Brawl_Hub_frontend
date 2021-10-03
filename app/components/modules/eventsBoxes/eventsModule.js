@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { AdMobInterstitial } from "expo-ads-admob";
 import { ActivityIndicator } from "react-native-paper";
+
 import { showInterstitial, requestAd } from "../../../config/ads";
 import { sortEventsData } from "./eventsData";
 import colors from "../../../config/colors";
@@ -23,15 +24,35 @@ import {
   getModeColor,
 } from "../../../lib/getAssetsFunctions";
 import { useSelector, useDispatch } from "react-redux";
-import { moreInfoEventOpen } from "../../../store/reducers/uiReducerNoPersist";
-import { getGlobalStatsFromDB } from "../../../lib/apiDB";
+import uiReducerNoPersist, {
+  moreInfoEventOpen,
+  challengeOpened,
+} from "../../../store/reducers/uiReducerNoPersist";
+import {
+  getGlobalStatsFromDB,
+  getStarGadgetVotesFromDB,
+  getTranslation,
+} from "../../../lib/apiDB";
 import { globalStatsReceived } from "../../../store/reducers/globalStatsReducer";
+import CountDown from "../../CountDown";
 const windowWidth = Dimensions.get("window").width;
 let device = null;
 const EventsModule = ({ season, typeIndex, range }) => {
   console.log(typeIndex);
   const [loading, setLoading] = useState(false);
-  const [challengeClicked, setChallengeClicked] = useState(false);
+  const [challengeClicked, setChallengeClicked] = useState(
+    useSelector((state) => state.uiReducerNoPersist.challengeOpen)
+  );
+
+  const handleChallengePress = () => {
+    if (challengeClicked == false) {
+      setChallengeClicked(true);
+      dispatch(challengeOpened(true));
+    } else {
+      setChallengeClicked(false);
+      dispatch(challengeOpened(false));
+    }
+  };
 
   device = useSelector((state) => state.uiReducerNoPersist.deviceType);
   let globalNumbers = useSelector((state) => state.globalStatsReducer);
@@ -43,7 +64,9 @@ const EventsModule = ({ season, typeIndex, range }) => {
     modeImage,
     mapImage,
     sortedBrawlers,
-    sortedTeams
+    sortedTeams,
+    mapID,
+    starPowers_gadgets_votes
   ) => {
     // console.log(type);
     dispatch(
@@ -55,6 +78,8 @@ const EventsModule = ({ season, typeIndex, range }) => {
         image: mapImage,
         sortedBrawlers: sortedBrawlers,
         sortedTeams: sortedTeams,
+        mapID: mapID,
+        starPowers_gadgets_votes: starPowers_gadgets_votes,
       })
     );
     setLoading(false);
@@ -127,6 +152,11 @@ const EventsModule = ({ season, typeIndex, range }) => {
               );
               await dispatch(globalStatsReceived(globalStatsFromDB));
 
+              let star_gadget_vote_object = await getStarGadgetVotesFromDB(
+                season,
+                event.mapID,
+                range
+              );
               onPressEvent(
                 "trophies",
                 event.mapName,
@@ -137,7 +167,9 @@ const EventsModule = ({ season, typeIndex, range }) => {
                 ]["performanceBrawlers"],
                 globalStatsFromDB["trophies"][range][event.modeName][
                   event.mapID
-                ]["performanceTeams"]
+                ]["performanceTeams"],
+                event.mapID,
+                star_gadget_vote_object
               );
               await requestAd();
             }
@@ -174,21 +206,23 @@ const EventsModule = ({ season, typeIndex, range }) => {
                   marginLeft: 4,
                 }}
               >
-                {event.mapName}
+                {getMapName(event.mapID).length > 18
+                  ? getMapName(event.mapID).slice(0, 18) + ".."
+                  : getMapName(event.mapID)}
               </Text>
-
-              <Text
+              <View
                 style={{
-                  fontSize: device != "tablet" ? 11 : 20,
-                  fontFamily: "Lilita-One",
-                  color: colors.secondary,
                   position: "absolute",
-                  right: device != "tablet" ? 10 : 40,
+                  right: device != "tablet" ? 5 : 40,
                   top: 3,
                 }}
               >
-                {`${event.eventLeftTime.hours()}h: ${event.eventLeftTime.minutes()}m left`}
-              </Text>
+                <CountDown
+                  eventEndTime={event.endTime}
+                  device={device}
+                  max={"hours"}
+                />
+              </View>
             </View>
           </View>
           <View
@@ -217,13 +251,13 @@ const EventsModule = ({ season, typeIndex, range }) => {
                           {
                             position: "absolute",
                             top: device != "tablet" ? -20 : -22,
-                            left: 16,
+
                             fontSize: device != "tablet" ? 10 : 15,
                           },
                           styles.text,
                         ]}
                       >
-                        Top 3 Brawlers
+                        {getTranslation("Top 3 Brawlers")}
                       </Text>
                     )}
                     {sortedBrawlers[0] && (
@@ -279,12 +313,12 @@ const EventsModule = ({ season, typeIndex, range }) => {
                             position: "absolute",
                             top: device != "tablet" ? -20 : -22,
                             fontSize: device != "tablet" ? 10 : 15,
-                            right: 25,
+                            right: 0,
                           },
                           styles.text,
                         ]}
                       >
-                        Top Team
+                        {getTranslation("Top Team")}
                       </Text>
                     )}
                     <Image
@@ -418,6 +452,12 @@ const EventsModule = ({ season, typeIndex, range }) => {
                           await dispatch(
                             globalStatsReceived(globalStatsFromDB)
                           );
+                          let star_gadget_vote_object =
+                            await getStarGadgetVotesFromDB(
+                              season,
+                              mapID,
+                              range
+                            );
                           onPressEvent(
                             "powerLeague",
                             mapID,
@@ -428,7 +468,9 @@ const EventsModule = ({ season, typeIndex, range }) => {
                             ][mapID]["performanceBrawlers"],
                             globalStatsFromDB["powerLeagueSolo"][range][
                               modeName
-                            ][mapID]["performanceTeams"]
+                            ][mapID]["performanceTeams"],
+                            null,
+                            star_gadget_vote_object
                           );
                           await requestAd();
                         }
@@ -458,7 +500,9 @@ const EventsModule = ({ season, typeIndex, range }) => {
                           },
                         ]}
                       >
-                        {getMapName(mapID)}
+                        {getMapName(mapID).length > 19
+                          ? getMapName(mapID).slice(0, 19) + "..."
+                          : getMapName(mapID)}
                       </Text>
                       <View style={{ flexDirection: "row" }}>
                         <View style={{ marginLeft: 4 }}>
@@ -476,7 +520,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                       },
                                     ]}
                                   >
-                                    Top 3 Brawlers
+                                    {getTranslation("Top 3 Brawlers")}
                                   </Text>
 
                                   <View style={{ flexDirection: "row" }}>
@@ -555,7 +599,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                   },
                                 ]}
                               >
-                                Top Team
+                                {getTranslation("Top Team")}
                               </Text>
 
                               <View
@@ -642,6 +686,12 @@ const EventsModule = ({ season, typeIndex, range }) => {
                           await dispatch(
                             globalStatsReceived(globalStatsFromDB)
                           );
+                          let star_gadget_vote_object =
+                            await getStarGadgetVotesFromDB(
+                              season,
+                              mapID,
+                              range
+                            );
                           onPressEvent(
                             "powerLeague",
                             mapID,
@@ -652,7 +702,9 @@ const EventsModule = ({ season, typeIndex, range }) => {
                             ][mapID]["performanceBrawlers"],
                             globalStatsFromDB["powerLeagueSolo"][range][
                               modeName
-                            ][mapID]["performanceTeams"]
+                            ][mapID]["performanceTeams"],
+                            null,
+                            star_gadget_vote_object
                           );
                           await requestAd();
                         }
@@ -668,7 +720,9 @@ const EventsModule = ({ season, typeIndex, range }) => {
                           },
                         ]}
                       >
-                        {getMapName(mapID)}
+                        {getMapName(mapID).length > 21
+                          ? getMapName(mapID).slice(0, 21) + "..."
+                          : getMapName(mapID)}
                       </Text>
                       <View style={{ flexDirection: "row" }}>
                         <View style={{ marginLeft: 4 }}>
@@ -686,7 +740,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                       },
                                     ]}
                                   >
-                                    Top 3 Brawlers
+                                    {getTranslation("Top 3 Brawlers")}
                                   </Text>
 
                                   <View style={{ flexDirection: "row" }}>
@@ -774,7 +828,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                   },
                                 ]}
                               >
-                                Top Team
+                                {getTranslation("Top Team")}
                               </Text>
 
                               <View
@@ -874,8 +928,11 @@ const EventsModule = ({ season, typeIndex, range }) => {
     let trophiesStats = useSelector(
       (state) => state.globalStatsReducer.globalStats["trophies"][range]
     );
+    let challenge_endTime = useSelector(
+      (state) => state.globalStatsReducer.challenge_endTime
+    );
     let challengeImage = null;
-    let challenge_endTime = undefined;
+
     let challenge_startTime = undefined;
 
     specialEvents.map((event) => {
@@ -931,6 +988,11 @@ const EventsModule = ({ season, typeIndex, range }) => {
               0,
               range
             );
+            let star_gadget_vote_object = await getStarGadgetVotesFromDB(
+              season,
+              event.mapID,
+              range
+            );
             await dispatch(globalStatsReceived(globalStatsFromDB));
 
             onPressEvent(
@@ -943,7 +1005,9 @@ const EventsModule = ({ season, typeIndex, range }) => {
               ],
               globalStatsFromDB["trophies"][range][event.modeName][event.mapID][
                 "performanceTeams"
-              ]
+              ],
+              event.mapID,
+              star_gadget_vote_object
             );
             await requestAd();
           }}
@@ -979,16 +1043,18 @@ const EventsModule = ({ season, typeIndex, range }) => {
                   marginLeft: 4,
                 }}
               >
-                {event.mapName}
+                {getMapName(event.mapID).length > 21
+                  ? getMapName(event.mapID).slice(0, 22) + "..."
+                  : getMapName(event.mapID)}
               </Text>
 
               <Text
                 style={{
-                  fontSize: device != "tablet" ? 14 : 20,
+                  fontSize: device != "tablet" ? 12 : 20,
                   fontFamily: "Lilita-One",
                   color: colors.secondary,
                   position: "absolute",
-                  right: device != "tablet" ? 30 : 40,
+                  right: device != "tablet" ? 5 : 40,
                   top: 3,
                 }}
               >
@@ -1022,13 +1088,13 @@ const EventsModule = ({ season, typeIndex, range }) => {
                           {
                             position: "absolute",
                             top: device != "tablet" ? -20 : -22,
-                            left: 16,
+
                             fontSize: device != "tablet" ? 10 : 15,
                           },
                           styles.text,
                         ]}
                       >
-                        Top 3 Brawlers
+                        {getTranslation("Top 3 Brawlers")}
                       </Text>
                     )}
                     {sortedBrawlers[0] && (
@@ -1084,12 +1150,12 @@ const EventsModule = ({ season, typeIndex, range }) => {
                             position: "absolute",
                             top: device != "tablet" ? -20 : -22,
                             fontSize: device != "tablet" ? 10 : 15,
-                            right: 25,
+                            right: 0,
                           },
                           styles.text,
                         ]}
                       >
-                        Top Team
+                        {getTranslation("Top Team")}
                       </Text>
                     )}
                     <Image
@@ -1130,7 +1196,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
         </TouchableOpacity>
       );
     });
-    console.log(challenge_startTime);
+    // console.log(challenge_startTime);
     return (
       <View style={{ marginBottom: 10 }}>
         {loading && (
@@ -1150,13 +1216,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
           />
         )}
 
-        <TouchableOpacity
-          onPress={() =>
-            challengeClicked == false
-              ? setChallengeClicked(true)
-              : setChallengeClicked(false)
-          }
-        >
+        <TouchableOpacity onPress={() => handleChallengePress()}>
           <View style={{ alignItems: "center" }}>
             <Image
               source={{ uri: challengeImage }}
@@ -1176,10 +1236,17 @@ const EventsModule = ({ season, typeIndex, range }) => {
             >
               {globalNumbers.challenge_name}
             </Text>
+            <CountDown
+              eventEndTime={challenge_endTime}
+              device={device}
+              max={"days"}
+            />
           </View>
         </TouchableOpacity>
 
-        {challengeClicked == true && eventModule}
+        {challengeClicked == true && (
+          <View style={{ marginBottom: 30 }}>{eventModule}</View>
+        )}
       </View>
     );
   }

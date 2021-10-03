@@ -14,8 +14,8 @@ const migrations = {
     return {
       ...state,
       uiReducerPersist: {
-        ...state.uiReducerReducer,
-        languages: undefined,
+        ...state.uiDataPersist,
+        language: 'en',
       },
     };
   },
@@ -24,12 +24,13 @@ const migrations = {
 const persistConfig = {
   // Root
   key: "root",
-  version: 2,
+  version: 1,
   // Storage Method (React Native)
   storage: AsyncStorage,
+  migrations: migrations,
   // Whitelist (Save Specific Reducers)
   //"playerPersistReducer",
-  whitelist: ["uiReducerPersist", "playerPersistReducer"],
+  whitelist: ["playerPersistReducer","uiReducerPersist"],
   // Blacklist (Don't Save Specific Reducers)
   blacklist: [
     "battleLogReducer",
