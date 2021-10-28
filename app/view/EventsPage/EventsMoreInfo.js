@@ -37,8 +37,6 @@ import trophyLoss1 from "../../assets/icons/trophyLoss1.png";
 import trophyLoss2 from "../../assets/icons/trophyLoss2.png";
 import trophyLoss3 from "../../assets/icons/trophyLoss3.png";
 import { getTranslation } from "../../lib/apiDB";
-// const deviceId = Expo.Constants.deviceId;
-// console.log("oh hello", deviceId);
 const width = Dimensions.get("window").width;
 export default function EventsMoreInfo() {
   const device = useSelector((state) => state.uiReducerNoPersist.deviceType);
@@ -98,7 +96,7 @@ export default function EventsMoreInfo() {
     );
   }
   let voteString = getTranslation("1 vote = no ads for 1 hour");
-  // console.log(44, voteString, voteString.length);
+  console.log(44, voteString, voteString.length);
   let brawlerStarPowers_Gadgets = {};
 
   const handleVote = (vote) => {};
@@ -114,7 +112,57 @@ export default function EventsMoreInfo() {
     ];
     if (typeIndex == 0) {
       //brawlify brawler list
-      
+      brawlersInfo.list.map((brawlerObject) => {
+        if (brawlerObject.id == item.ID) {
+          if (
+            (brawlerObject.starPowers[0] !== undefined &&
+              brawlerObject.starPowers[1] !== undefined) ||
+            (brawlerObject.gadgets[0] !== undefined &&
+              brawlerObject.gadgets[1] !== undefined)
+          ) {
+            //brawler info from brawlify
+            brawlerStarPowers_Gadgets[item.ID] = {};
+
+            brawlerStarPowers_Gadgets[item.ID].starPower1 =
+              brawlerObject.starPowers[0];
+            brawlerStarPowers_Gadgets[item.ID].starPower2 =
+              brawlerObject.starPowers[1];
+            //Votes From DB
+            if (
+              brawlerObject.starPowers[0] !== undefined &&
+              brawlerObject.starPowers[1] !== undefined
+            ) {
+              starPower1_votes =
+                carouselInfo.starPowers_gadgets_votes[item.ID][
+                  brawlerStarPowers_Gadgets[item.ID].starPower1.id
+                ];
+              starPower2_votes =
+                carouselInfo.starPowers_gadgets_votes[item.ID][
+                  brawlerStarPowers_Gadgets[item.ID].starPower2.id
+                ];
+            }
+
+            brawlerStarPowers_Gadgets[item.ID].gadget1 =
+              brawlerObject.gadgets[0];
+            brawlerStarPowers_Gadgets[item.ID].gadget2 =
+              brawlerObject.gadgets[1];
+            if (
+              brawlerObject.gadgets[0] !== undefined &&
+              brawlerObject.gadgets[1] !== undefined
+            ) {
+              //Votes From DB
+              gadget1_votes =
+                carouselInfo.starPowers_gadgets_votes[item.ID][
+                  brawlerStarPowers_Gadgets[item.ID].gadget1.id
+                ];
+              gadget2_votes =
+                carouselInfo.starPowers_gadgets_votes[item.ID][
+                  brawlerStarPowers_Gadgets[item.ID].gadget2.id
+                ];
+            }
+          }
+        }
+      });
     }
 
     if (index <= totalNumberOfBrawlers) {
