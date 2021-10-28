@@ -1,16 +1,5 @@
 import { AdMobInterstitial } from "expo-ads-admob";
-
-// TEST "ca-app-pub-3940256099942544/6300978111"
-// PRODUCTION "ca-app-pub-2795080443480499/9766722308"
-const bannerAdID = "ca-app-pub-2795080443480499/9766722";
-
-// TEST "ca-app-pub-3940256099942544/1033173712"
-//PRODUCTION "ca-app-pub-2795080443480499/1284925570"
-const imageAdID = "ca-app-pub-2795080443480499/1284925";
-
-// TEST "ca-app-pub-3940256099942544/8691691433"
-//PRODUCTION "ca-app-pub-2795080443480499/4950011872"
-const videoAdID = "ca-app-pub-2795080443480499/4950011";
+import { IMAGE_AD_ID, VIDEO_AD_ID } from "react-native-dotenv";
 
 let countImageAd = 0;
 let countVideoAd = 0;
@@ -21,7 +10,7 @@ const prepareAdsFirstTime = async () => {
     countImageAd == 0 &&
     countVideoAd == 0
   )
-    await AdMobInterstitial.setAdUnitID(videoAdID); // Test ID, Replace with your-admob-unit-id
+    await AdMobInterstitial.setAdUnitID(VIDEO_AD_ID); // Test ID, Replace with your-admob-unit-id
   await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
 };
 
@@ -30,16 +19,15 @@ const showInterstitial = async () => {
     try {
       if ((await AdMobInterstitial.getIsReadyAsync()) == true) {
         await AdMobInterstitial.showAdAsync().catch(() => "nothingness");
-        await AdMobInterstitial.setAdUnitID(imageAdID).catch(
+        await AdMobInterstitial.setAdUnitID(IMAGE_AD_ID).catch(
           () => "nothingness"
         ); // Test ID, Replace with your-admob-unit-id
 
         countVideoAd += 1;
       } else {
-      
         if ((await AdMobInterstitial.getIsReadyAsync()) == true) {
           await AdMobInterstitial.showAdAsync().catch(() => "nothingness");
-          await AdMobInterstitial.setAdUnitID(imageAdID).catch(
+          await AdMobInterstitial.setAdUnitID(IMAGE_AD_ID).catch(
             () => "nothingness"
           ); // Test ID, Replace with your-admob-unit-id
 
@@ -53,16 +41,15 @@ const showInterstitial = async () => {
     try {
       if ((await AdMobInterstitial.getIsReadyAsync()) == true) {
         await AdMobInterstitial.showAdAsync().catch(() => "nothingness");
-        await AdMobInterstitial.setAdUnitID(videoAdID).catch(
+        await AdMobInterstitial.setAdUnitID(VIDEO_AD_ID).catch(
           () => "nothingness"
         ); // Test ID, Replace with your-admob-unit-id
 
         countImageAd += 1;
       } else {
-    
         if ((await AdMobInterstitial.getIsReadyAsync()) == true) {
           await AdMobInterstitial.showAdAsync().catch(() => "nothingness");
-          await AdMobInterstitial.setAdUnitID(videoAdID).catch(
+          await AdMobInterstitial.setAdUnitID(VIDEO_AD_ID).catch(
             () => "nothingness"
           ); // Test ID, Replace with your-admob-unit-id
 
@@ -79,16 +66,9 @@ const requestAd = async () => {
   try {
     await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
   } catch (error) {
-    await AdMobInterstitial.setAdUnitID(imageAdID);
+    await AdMobInterstitial.setAdUnitID(IMAGE_AD_ID);
     await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true });
   }
 };
 
-export {
-  bannerAdID,
-  imageAdID,
-  videoAdID,
-  prepareAdsFirstTime,
-  showInterstitial,
-  requestAd,
-};
+export { prepareAdsFirstTime, showInterstitial, requestAd };

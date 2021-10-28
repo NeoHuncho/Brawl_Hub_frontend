@@ -4,7 +4,7 @@ import { StyleSheet, View, Text, ImageBackground } from "react-native";
 import { getDeviceTypeAsync } from "expo-device";
 import { useDispatch, useSelector } from "react-redux";
 import * as Progress from "react-native-progress";
-import { auth } from "../lib/initFirebase";
+import auth from "@react-native-firebase/auth";
 
 import { getAssets } from "../lib/getAssetsFunctions";
 import season8_1 from "../assets/backgrounds/season8_1.jpg";
@@ -72,7 +72,14 @@ const getDevice = async () => {
 getDevice();
 const randomBackgroundIndex = Math.floor(Math.random() * backgrounds.length);
 export default function PlayerLogin() {
-  auth.signInAnonymously();
+  useEffect(() => {
+    auth()
+      .signInAnonymously()
+      .then(() => {
+        console.log("user signed in to FireBase!");
+      });
+  }, []);
+
   // console.log(deviceType);
   const dispatch = useDispatch();
   const userID = useSelector((state) => state.playerPersistReducer.playerID);
@@ -88,7 +95,7 @@ export default function PlayerLogin() {
       // await setTestDeviceIDAsync("EMULATOR");
       try {
       } catch (error) {}
-      console.log(432, language);
+      // console.log(432, language);
       if (
         language !== undefined &&
         language !== "en" &&

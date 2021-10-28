@@ -38,7 +38,7 @@ import CountDown from "../../CountDown";
 const windowWidth = Dimensions.get("window").width;
 let device = null;
 const EventsModule = ({ season, typeIndex, range }) => {
-  console.log(typeIndex);
+  // console.log(1, season, typeIndex, range);
   const [loading, setLoading] = useState(false);
   const [challengeClicked, setChallengeClicked] = useState(
     useSelector((state) => state.uiReducerNoPersist.challengeOpen)
@@ -103,7 +103,7 @@ const EventsModule = ({ season, typeIndex, range }) => {
     // console.log("look here g", range);
 
     normalEvents.map((event) => {
-      console.log(5, event.modeName);
+      // console.log(5, event.modeName);
       let sortedBrawlers = null;
       let sortedTeams = null;
       if (trophiesStats[event.modeName]) {
@@ -130,234 +130,238 @@ const EventsModule = ({ season, typeIndex, range }) => {
           teamBrawler3 = sortedTeams[0].ID.slice(20, 28);
         }
       }
+      if (getMapName(event.mapID) != undefined)
+        eventModule.push(
+          <TouchableOpacity
+            key={event.mapID}
+            style={[
+              styles.rectangle,
+              device == "tablet" ? { width: 500, height: 150 } : null,
+            ]}
+            activeOpacity={0.7}
+            onPress={async () => {
+              // console.log(11122, sortedBrawlers, sortedTeams);
+              if (sortedBrawlers.length > 0 || sortedTeams.length > 0) {
+                await showInterstitial();
+                let globalStatsFromDB = await getGlobalStatsFromDB(
+                  globalStats,
+                  season,
+                  [event.modeName, event.mapID],
+                  typeIndex,
+                  range
+                );
+                await dispatch(globalStatsReceived(globalStatsFromDB));
 
-      eventModule.push(
-        <TouchableOpacity
-          key={event.mapID}
-          style={[
-            styles.rectangle,
-            device == "tablet" ? { width: 500, height: 150 } : null,
-          ]}
-          activeOpacity={0.7}
-          onPress={async () => {
-            // console.log(11122, sortedBrawlers, sortedTeams);
-            if (sortedBrawlers.length > 0 || sortedTeams.length > 0) {
-              await showInterstitial();
-              let globalStatsFromDB = await getGlobalStatsFromDB(
-                globalStats,
-                season,
-                [event.modeName, event.mapID],
-                typeIndex,
-                range
-              );
-              await dispatch(globalStatsReceived(globalStatsFromDB));
-
-              let star_gadget_vote_object = await getStarGadgetVotesFromDB(
-                season,
-                event.mapID,
-                range
-              );
-              onPressEvent(
-                "trophies",
-                event.mapName,
-                event.modeImage,
-                event.mapImage,
-                globalStatsFromDB["trophies"][range][event.modeName][
-                  event.mapID
-                ]["performanceBrawlers"],
-                globalStatsFromDB["trophies"][range][event.modeName][
-                  event.mapID
-                ]["performanceTeams"],
-                event.mapID,
-                star_gadget_vote_object
-              );
-              await requestAd();
-            }
-          }}
-        >
-          <View
-            style={{
-              height: device != "tablet" ? 30 : 50,
-              width: device != "tablet" ? windowWidth - 100 : 500,
-              backgroundColor: event.modeColor,
-              borderTopLeftRadius: 5,
-              borderTopRightRadius: 5,
+                let star_gadget_vote_object = await getStarGadgetVotesFromDB(
+                  season,
+                  event.mapID,
+                  range
+                );
+                onPressEvent(
+                  "trophies",
+                  event.mapName,
+                  event.modeImage,
+                  event.mapImage,
+                  globalStatsFromDB["trophies"][range][event.modeName][
+                    event.mapID
+                  ]["performanceBrawlers"],
+                  globalStatsFromDB["trophies"][range][event.modeName][
+                    event.mapID
+                  ]["performanceTeams"],
+                  event.mapID,
+                  star_gadget_vote_object
+                );
+                await requestAd();
+              }
             }}
           >
             <View
               style={{
-                margin: 5,
-                marginTop: device != "tablet" ? 7 : 10,
-                flexDirection: "row",
+                height: device != "tablet" ? 30 : 50,
+                width: device != "tablet" ? windowWidth - 100 : 500,
+                backgroundColor: event.modeColor,
+                borderTopLeftRadius: 5,
+                borderTopRightRadius: 5,
               }}
             >
-              <Image
-                source={{ uri: event.modeImage }}
-                style={[
-                  styles.modeImage,
-                  device == "tablet" ? { width: 30, height: 30 } : null,
-                ]}
-              />
-              <Text
-                style={{
-                  fontSize: device != "tablet" ? 14 : 25,
-                  fontFamily: "Lilita-One",
-                  color: colors.secondary,
-                  marginLeft: 4,
-                }}
-              >
-                {getMapName(event.mapID).length > 18
-                  ? getMapName(event.mapID).slice(0, 18) + ".."
-                  : getMapName(event.mapID)}
-              </Text>
               <View
                 style={{
-                  position: "absolute",
-                  right: device != "tablet" ? 5 : 40,
-                  top: 3,
+                  margin: 5,
+                  marginTop: device != "tablet" ? 7 : 10,
+                  flexDirection: "row",
                 }}
               >
-                <CountDown
-                  eventEndTime={event.endTime}
-                  device={device}
-                  max={"hours"}
+                <Image
+                  source={{ uri: event.modeImage }}
+                  style={[
+                    styles.modeImage,
+                    device == "tablet" ? { width: 30, height: 30 } : null,
+                  ]}
                 />
+                <Text
+                  style={{
+                    fontSize: device != "tablet" ? 14 : 25,
+                    fontFamily: "Lilita-One",
+                    color: colors.secondary,
+                    marginLeft: 4,
+                  }}
+                >
+                  {getMapName(event.mapID).length > 18
+                    ? getMapName(event.mapID).slice(0, 18) + ".."
+                    : getMapName(event.mapID)}
+                </Text>
+                <View
+                  style={{
+                    position: "absolute",
+                    right: device != "tablet" ? 5 : 40,
+                    top: 3,
+                  }}
+                >
+                  <CountDown
+                    eventEndTime={event.endTime}
+                    device={device}
+                    max={"hours"}
+                  />
+                </View>
               </View>
             </View>
-          </View>
-          <View
-            style={{
-              width: device != "tablet" ? windowWidth - 100 : 500,
-              flex: 1,
-            }}
-          >
-            <ImageBackground
-              source={{ uri: event.mapEnvironment }}
-              style={styles.eventImage}
-              imageStyle={{
-                borderBottomLeftRadius: 5,
-                borderBottomRightRadius: 5,
-                opacity: 0.4,
+            <View
+              style={{
+                width: device != "tablet" ? windowWidth - 100 : 500,
+                flex: 1,
               }}
             >
-              <View
-                style={{ flexDirection: "row", marginTop: 30, marginLeft: 20 }}
+              <ImageBackground
+                source={{ uri: event.mapEnvironment }}
+                style={styles.eventImage}
+                imageStyle={{
+                  borderBottomLeftRadius: 5,
+                  borderBottomRightRadius: 5,
+                  opacity: 0.4,
+                }}
               >
-                {sortedBrawlers && (
-                  <>
-                    {sortedBrawlers[0] && (
-                      <Text
-                        style={[
-                          {
-                            position: "absolute",
-                            top: device != "tablet" ? -20 : -22,
+                <View
+                  style={{
+                    flexDirection: "row",
+                    marginTop: 30,
+                    marginLeft: 20,
+                  }}
+                >
+                  {sortedBrawlers && (
+                    <>
+                      {sortedBrawlers[0] && (
+                        <Text
+                          style={[
+                            {
+                              position: "absolute",
+                              top: device != "tablet" ? -20 : -22,
 
-                            fontSize: device != "tablet" ? 10 : 15,
-                          },
-                          styles.text,
-                        ]}
-                      >
-                        {getTranslation("Top 3 Brawlers")}
-                      </Text>
-                    )}
-                    {sortedBrawlers[0] && (
-                      <Image
-                        style={[
-                          device != "tablet"
-                            ? styles.brawlerImage
-                            : styles.brawlerImageTablet,
-                          styles.border,
-                          { borderColor: "gold", marginRight: 5 },
-                        ]}
-                        source={getBrawlerImage(sortedBrawlers[0].ID)}
-                      />
-                    )}
-                    {sortedBrawlers[1] && (
-                      <Image
-                        style={[
-                          device != "tablet"
-                            ? styles.brawlerImage
-                            : styles.brawlerImageTablet,
-                          styles.border,
-                          { borderColor: "silver", marginRight: 5 },
-                        ]}
-                        source={getBrawlerImage(sortedBrawlers[1].ID)}
-                      />
-                    )}
-                    {sortedBrawlers[2] && (
-                      <Image
-                        style={[
-                          device != "tablet"
-                            ? styles.brawlerImage
-                            : styles.brawlerImageTablet,
-                          styles.border,
-                          { borderColor: "#cd7f32", marginRight: 5 },
-                        ]}
-                        source={getBrawlerImage(sortedBrawlers[2].ID)}
-                      />
-                    )}
-                  </>
-                )}
-                {sortedTeams && (
-                  <View
-                    style={{
-                      position: "absolute",
-                      flexDirection: "row",
-                      right: 20,
-                    }}
-                  >
-                    {sortedTeams[0] && (
-                      <Text
-                        style={[
-                          {
-                            position: "absolute",
-                            top: device != "tablet" ? -20 : -22,
-                            fontSize: device != "tablet" ? 10 : 15,
-                            right: 0,
-                          },
-                          styles.text,
-                        ]}
-                      >
-                        {getTranslation("Top Team")}
-                      </Text>
-                    )}
-                    <Image
-                      style={
-                        device != "tablet"
-                          ? styles.brawlerImageTeam
-                          : styles.brawlerImageTablet
-                      }
-                      source={getBrawlerImage(teamBrawler1)}
-                    />
-
-                    <Image
-                      style={
-                        device != "tablet"
-                          ? styles.brawlerImageTeam
-                          : styles.brawlerImageTablet
-                      }
-                      source={getBrawlerImage(teamBrawler2)}
-                    />
-
-                    {teamBrawler3 ? (
-                      teamBrawler3.length == 8 ? (
+                              fontSize: device != "tablet" ? 10 : 15,
+                            },
+                            styles.text,
+                          ]}
+                        >
+                          {getTranslation("Top 3 Brawlers")}
+                        </Text>
+                      )}
+                      {sortedBrawlers[0] && (
                         <Image
-                          style={
+                          style={[
                             device != "tablet"
-                              ? styles.brawlerImageTeam
-                              : styles.brawlerImageTablet
-                          }
-                          source={getBrawlerImage(teamBrawler3)}
+                              ? styles.brawlerImage
+                              : styles.brawlerImageTablet,
+                            styles.border,
+                            { borderColor: "gold", marginRight: 5 },
+                          ]}
+                          source={getBrawlerImage(sortedBrawlers[0].ID)}
                         />
-                      ) : null
-                    ) : null}
-                  </View>
-                )}
-              </View>
-            </ImageBackground>
-          </View>
-        </TouchableOpacity>
-      );
+                      )}
+                      {sortedBrawlers[1] && (
+                        <Image
+                          style={[
+                            device != "tablet"
+                              ? styles.brawlerImage
+                              : styles.brawlerImageTablet,
+                            styles.border,
+                            { borderColor: "silver", marginRight: 5 },
+                          ]}
+                          source={getBrawlerImage(sortedBrawlers[1].ID)}
+                        />
+                      )}
+                      {sortedBrawlers[2] && (
+                        <Image
+                          style={[
+                            device != "tablet"
+                              ? styles.brawlerImage
+                              : styles.brawlerImageTablet,
+                            styles.border,
+                            { borderColor: "#cd7f32", marginRight: 5 },
+                          ]}
+                          source={getBrawlerImage(sortedBrawlers[2].ID)}
+                        />
+                      )}
+                    </>
+                  )}
+                  {sortedTeams && (
+                    <View
+                      style={{
+                        position: "absolute",
+                        flexDirection: "row",
+                        right: 20,
+                      }}
+                    >
+                      {sortedTeams[0] && (
+                        <Text
+                          style={[
+                            {
+                              position: "absolute",
+                              top: device != "tablet" ? -20 : -22,
+                              fontSize: device != "tablet" ? 10 : 15,
+                              right: 0,
+                            },
+                            styles.text,
+                          ]}
+                        >
+                          {getTranslation("Top Team")}
+                        </Text>
+                      )}
+                      <Image
+                        style={
+                          device != "tablet"
+                            ? styles.brawlerImageTeam
+                            : styles.brawlerImageTablet
+                        }
+                        source={getBrawlerImage(teamBrawler1)}
+                      />
+
+                      <Image
+                        style={
+                          device != "tablet"
+                            ? styles.brawlerImageTeam
+                            : styles.brawlerImageTablet
+                        }
+                        source={getBrawlerImage(teamBrawler2)}
+                      />
+
+                      {teamBrawler3 ? (
+                        teamBrawler3.length == 8 ? (
+                          <Image
+                            style={
+                              device != "tablet"
+                                ? styles.brawlerImageTeam
+                                : styles.brawlerImageTablet
+                            }
+                            source={getBrawlerImage(teamBrawler3)}
+                          />
+                        ) : null
+                      ) : null}
+                    </View>
+                  )}
+                </View>
+              </ImageBackground>
+            </View>
+          </TouchableOpacity>
+        );
     });
 
     return (
@@ -436,198 +440,181 @@ const EventsModule = ({ season, typeIndex, range }) => {
               {/*Top Row */}
               <View style={{ flexDirection: "row" }}>
                 {maps.map((mapID, index) => {
-                  return index <= 1 ? (
-                    <TouchableOpacity
-                      onPress={async () => {
-                        if (sortedBrawlers[mapID] || sortedTeams[mapID]) {
-                          await showInterstitial();
-                          // console.log('look here', modeName,mapID)
-                          let globalStatsFromDB = await getGlobalStatsFromDB(
-                            globalStats,
-                            season,
-                            [modeName, mapID],
-                            typeIndex,
-                            range
-                          );
-                          await dispatch(
-                            globalStatsReceived(globalStatsFromDB)
-                          );
-                          let star_gadget_vote_object =
-                            await getStarGadgetVotesFromDB(
+                  if (getMapName(mapID))
+                    return index <= 1 ? (
+                      <TouchableOpacity
+                        onPress={async () => {
+                          if (sortedBrawlers[mapID] || sortedTeams[mapID]) {
+                            await showInterstitial();
+                            // console.log('look here', modeName,mapID)
+                            let globalStatsFromDB = await getGlobalStatsFromDB(
+                              globalStats,
                               season,
-                              mapID,
+                              [modeName, mapID],
+                              typeIndex,
                               range
                             );
-                          onPressEvent(
-                            "powerLeague",
-                            mapID,
-                            mapID,
-                            mapID,
-                            globalStatsFromDB["powerLeagueSolo"][range][
-                              modeName
-                            ][mapID]["performanceBrawlers"],
-                            globalStatsFromDB["powerLeagueSolo"][range][
-                              modeName
-                            ][mapID]["performanceTeams"],
-                            null,
-                            star_gadget_vote_object
-                          );
-                          await requestAd();
-                        }
-                      }}
-                      style={{
-                        position: "absolute",
-                        right: 4,
-                        top: 3.5,
-                      }}
-                      style={[
-                        device != "tablet"
-                          ? styles.square
-                          : styles.squareTablet,
-                        {
-                          backgroundColor: getModeColor(modeName),
-                          marginRight: 10,
-                        },
-                      ]}
-                    >
-                      <Text
+                            await dispatch(
+                              globalStatsReceived(globalStatsFromDB)
+                            );
+                            let star_gadget_vote_object =
+                              await getStarGadgetVotesFromDB(
+                                season,
+                                mapID,
+                                range
+                              );
+                            onPressEvent(
+                              "powerLeague",
+                              mapID,
+                              mapID,
+                              mapID,
+                              globalStatsFromDB["powerLeagueSolo"][range][
+                                modeName
+                              ][mapID]["performanceBrawlers"],
+                              globalStatsFromDB["powerLeagueSolo"][range][
+                                modeName
+                              ][mapID]["performanceTeams"],
+                              null,
+                              star_gadget_vote_object
+                            );
+                            await requestAd();
+                          }
+                        }}
+                        style={{
+                          position: "absolute",
+                          right: 4,
+                          top: 3.5,
+                        }}
                         style={[
-                          styles.text,
+                          device != "tablet"
+                            ? styles.square
+                            : styles.squareTablet,
                           {
-                            marginTop: 4,
-                            marginLeft: 4,
-                            fontSize: device != "tablet" ? 13 : 25,
+                            backgroundColor: getModeColor(modeName),
+                            marginRight: 10,
                           },
                         ]}
                       >
-                        {getMapName(mapID).length > 19
-                          ? getMapName(mapID).slice(0, 19) + "..."
-                          : getMapName(mapID)}
-                      </Text>
-                      <View style={{ flexDirection: "row" }}>
-                        <View style={{ marginLeft: 4 }}>
-                          {sortedBrawlers && (
-                            <>
-                              {sortedBrawlers[mapID] && (
-                                <>
-                                  <Text
-                                    style={[
-                                      styles.text,
-                                      {
-                                        fontSize: device != "tablet" ? 8 : 15,
-                                        marginTop: 3,
-                                        marginBottom: 2,
-                                      },
-                                    ]}
-                                  >
-                                    {getTranslation("Top 3 Brawlers")}
-                                  </Text>
+                        <Text
+                          style={[
+                            styles.text,
+                            {
+                              marginTop: 4,
+                              marginLeft: 4,
+                              fontSize: device != "tablet" ? 13 : 25,
+                            },
+                          ]}
+                        >
+                          {getMapName(mapID).length > 19
+                            ? getMapName(mapID).slice(0, 19) + "..."
+                            : getMapName(mapID)}
+                        </Text>
+                        <View style={{ flexDirection: "row" }}>
+                          <View style={{ marginLeft: 4 }}>
+                            {sortedBrawlers && (
+                              <>
+                                {sortedBrawlers[mapID] && (
+                                  <>
+                                    <Text
+                                      style={[
+                                        styles.text,
+                                        {
+                                          fontSize: device != "tablet" ? 8 : 15,
+                                          marginTop: 3,
+                                          marginBottom: 2,
+                                        },
+                                      ]}
+                                    >
+                                      {getTranslation("Top 3 Brawlers")}
+                                    </Text>
 
-                                  <View style={{ flexDirection: "row" }}>
-                                    {sortedBrawlers[mapID][0] && (
-                                      <Image
-                                        style={[
-                                          styles.border,
-                                          {
-                                            borderColor: "gold",
-                                            width: device != "tablet" ? 28 : 50,
-                                            height:
-                                              device != "tablet" ? 28 : 50,
-                                            borderWidth:
-                                              device != "tablet" ? 2 : 3,
-                                          },
-                                        ]}
-                                        source={getBrawlerImage(
-                                          sortedBrawlers[mapID][0].ID
-                                        )}
-                                      />
-                                    )}
-                                    {sortedBrawlers[mapID][1] && (
-                                      <Image
-                                        style={[
-                                          styles.border,
-                                          {
-                                            borderColor: "silver",
-                                            width: device != "tablet" ? 28 : 50,
-                                            height:
-                                              device != "tablet" ? 28 : 50,
-                                            borderWidth:
-                                              device != "tablet" ? 2 : 3,
-                                            marginLeft:
-                                              device != "tablet" ? 2 : 5,
-                                          },
-                                        ]}
-                                        source={getBrawlerImage(
-                                          sortedBrawlers[mapID][1].ID
-                                        )}
-                                      />
-                                    )}
-                                    {sortedBrawlers[mapID][2] && (
-                                      <Image
-                                        style={[
-                                          styles.border,
-                                          {
-                                            borderColor: "#cd7f32",
-                                            width: device != "tablet" ? 28 : 50,
-                                            height:
-                                              device != "tablet" ? 28 : 50,
-                                            borderWidth:
-                                              device != "tablet" ? 2 : 3,
-                                            marginLeft:
-                                              device != "tablet" ? 2 : 5,
-                                          },
-                                        ]}
-                                        source={getBrawlerImage(
-                                          sortedBrawlers[mapID][2].ID
-                                        )}
-                                      />
-                                    )}
-                                  </View>
-                                </>
-                              )}
-                            </>
-                          )}
-                          {teamBrawler1[mapID] && (
-                            <>
-                              <Text
-                                style={[
-                                  styles.text,
-                                  {
-                                    fontSize: device != "tablet" ? 8 : 15,
-                                    marginTop: 5,
-                                    marginBottom: 2,
-                                  },
-                                ]}
-                              >
-                                {getTranslation("Top Team")}
-                              </Text>
-
-                              <View
-                                style={{
-                                  flexDirection: "row",
-                                }}
-                              >
-                                <Image
+                                    <View style={{ flexDirection: "row" }}>
+                                      {sortedBrawlers[mapID][0] && (
+                                        <Image
+                                          style={[
+                                            styles.border,
+                                            {
+                                              borderColor: "gold",
+                                              width:
+                                                device != "tablet" ? 28 : 50,
+                                              height:
+                                                device != "tablet" ? 28 : 50,
+                                              borderWidth:
+                                                device != "tablet" ? 2 : 3,
+                                            },
+                                          ]}
+                                          source={getBrawlerImage(
+                                            sortedBrawlers[mapID][0].ID
+                                          )}
+                                        />
+                                      )}
+                                      {sortedBrawlers[mapID][1] && (
+                                        <Image
+                                          style={[
+                                            styles.border,
+                                            {
+                                              borderColor: "silver",
+                                              width:
+                                                device != "tablet" ? 28 : 50,
+                                              height:
+                                                device != "tablet" ? 28 : 50,
+                                              borderWidth:
+                                                device != "tablet" ? 2 : 3,
+                                              marginLeft:
+                                                device != "tablet" ? 2 : 5,
+                                            },
+                                          ]}
+                                          source={getBrawlerImage(
+                                            sortedBrawlers[mapID][1].ID
+                                          )}
+                                        />
+                                      )}
+                                      {sortedBrawlers[mapID][2] && (
+                                        <Image
+                                          style={[
+                                            styles.border,
+                                            {
+                                              borderColor: "#cd7f32",
+                                              width:
+                                                device != "tablet" ? 28 : 50,
+                                              height:
+                                                device != "tablet" ? 28 : 50,
+                                              borderWidth:
+                                                device != "tablet" ? 2 : 3,
+                                              marginLeft:
+                                                device != "tablet" ? 2 : 5,
+                                            },
+                                          ]}
+                                          source={getBrawlerImage(
+                                            sortedBrawlers[mapID][2].ID
+                                          )}
+                                        />
+                                      )}
+                                    </View>
+                                  </>
+                                )}
+                              </>
+                            )}
+                            {teamBrawler1[mapID] && (
+                              <>
+                                <Text
                                   style={[
+                                    styles.text,
                                     {
-                                      width: device != "tablet" ? 28 : 50,
-                                      height: device != "tablet" ? 28 : 50,
+                                      fontSize: device != "tablet" ? 8 : 15,
+                                      marginTop: 5,
+                                      marginBottom: 2,
                                     },
                                   ]}
-                                  source={getBrawlerImage(teamBrawler1[mapID])}
-                                />
+                                >
+                                  {getTranslation("Top Team")}
+                                </Text>
 
-                                <Image
-                                  style={[
-                                    {
-                                      width: device != "tablet" ? 28 : 50,
-                                      height: device != "tablet" ? 28 : 50,
-                                    },
-                                  ]}
-                                  source={getBrawlerImage(teamBrawler2[mapID])}
-                                />
-
-                                {teamBrawler3[mapID] ? (
+                                <View
+                                  style={{
+                                    flexDirection: "row",
+                                  }}
+                                >
                                   <Image
                                     style={[
                                       {
@@ -636,27 +623,52 @@ const EventsModule = ({ season, typeIndex, range }) => {
                                       },
                                     ]}
                                     source={getBrawlerImage(
-                                      teamBrawler3[mapID]
+                                      teamBrawler1[mapID]
                                     )}
                                   />
-                                ) : null}
-                              </View>
-                            </>
-                          )}
-                        </View>
 
-                        <Image
-                          source={getMapImage(mapID)}
-                          style={{
-                            width: device != "tablet" ? 55 : 75,
-                            height: device != "tablet" ? 93.5 : 127.5,
-                            position: "absolute",
-                            right: 10,
-                          }}
-                        />
-                      </View>
-                    </TouchableOpacity>
-                  ) : null;
+                                  <Image
+                                    style={[
+                                      {
+                                        width: device != "tablet" ? 28 : 50,
+                                        height: device != "tablet" ? 28 : 50,
+                                      },
+                                    ]}
+                                    source={getBrawlerImage(
+                                      teamBrawler2[mapID]
+                                    )}
+                                  />
+
+                                  {teamBrawler3[mapID] ? (
+                                    <Image
+                                      style={[
+                                        {
+                                          width: device != "tablet" ? 28 : 50,
+                                          height: device != "tablet" ? 28 : 50,
+                                        },
+                                      ]}
+                                      source={getBrawlerImage(
+                                        teamBrawler3[mapID]
+                                      )}
+                                    />
+                                  ) : null}
+                                </View>
+                              </>
+                            )}
+                          </View>
+
+                          <Image
+                            source={getMapImage(mapID)}
+                            style={{
+                              width: device != "tablet" ? 55 : 75,
+                              height: device != "tablet" ? 93.5 : 127.5,
+                              position: "absolute",
+                              right: 10,
+                            }}
+                          />
+                        </View>
+                      </TouchableOpacity>
+                    ) : null;
                 })}
               </View>
               {/*Bottom Row */}

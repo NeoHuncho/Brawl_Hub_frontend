@@ -42,7 +42,7 @@ const getAssets = () => {
     let state = store.getState();
     let language = state.uiReducerPersist.language;
     let languages = state.uiReducerNoPersist.languages;
-    console.log(998, language);
+    // console.log(998, language);
     if (
       language == "en" ||
       language == undefined ||

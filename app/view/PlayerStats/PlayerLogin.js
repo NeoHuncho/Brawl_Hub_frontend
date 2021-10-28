@@ -79,7 +79,7 @@ export default function PlayerLogin() {
 
             if (name === undefined) {
       
-              console.log("called no name ", stats.globalStats.name);
+              // console.log("called no name ", stats.globalStats.name);
               dispatch(
                 userIdAndNameReceived({
                   userId: userId,

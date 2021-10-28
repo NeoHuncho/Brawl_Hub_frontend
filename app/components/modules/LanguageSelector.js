@@ -105,7 +105,7 @@ export default function LanguageSelector({ type }) {
                     Object.values(supportedLanguages).includes(language) !==
                     false
                   ) {
-                    console.log(455, language);
+                    // console.log(455, language);
                     dispatch(languageChanging(true));
                     dispatch(languageChanged(language));
                     if (language !== "en") {
@@ -163,7 +163,7 @@ export default function LanguageSelector({ type }) {
               Object.values(supportedLanguages).includes(languageSelected) !==
               false
             ) {
-              console.log(455, languageSelected);
+              // console.log(455, languageSelected);
               dispatch(languageChanging(true));
               dispatch(languageChanged(languageSelected));
               if (languageSelected !== "en") {

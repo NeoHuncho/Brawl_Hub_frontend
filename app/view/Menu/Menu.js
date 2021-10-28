@@ -16,7 +16,7 @@ import { AdMobBanner } from "expo-ads-admob";
 import { useSelector } from "react-redux";
 import { getStatusBarHeight } from "react-native-status-bar-height";
 
-import { bannerAdID } from "../../config/ads";
+import { BANNER_AD_ID } from "react-native-dotenv";
 import { getTranslation, writeError } from "../../lib/apiDB";
 import MessageBox from "../../components/modules/MessageBox";
 import colors from "../../config/colors";
@@ -115,7 +115,7 @@ export default function Menu() {
     <>
       <AdMobBanner
         bannerSize="smartBanner"
-        adUnitID={bannerAdID}
+        adUnitID={BANNER_AD_ID}
         servePersonalizedAds={true} // true or false
         onDidFailToReceiveAdWithError={(e) => console.log(e)}
         style={{ marginTop: getStatusBarHeight() }}

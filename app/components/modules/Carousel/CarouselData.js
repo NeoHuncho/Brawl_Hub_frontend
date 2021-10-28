@@ -460,7 +460,7 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
       //this part is to add the modes stats into their arrays to be shown
     } else if (type == "map") {
       let chosenMap = playerStats[name];
-      console.log(name, chosenMap);
+      // console.log(name, chosenMap);
 
       Object.values(chosenMap.brawler).map((brawler) => {
         brawlers.push({
@@ -502,7 +502,7 @@ const processPlayerStats = (seasonIndex, gameTypeName, name, type) => {
           });
         });
       }
-      console.log(teams);
+      // console.log(teams);
 
       brawlersByPerformance = [...brawlers].sort((a, b) =>
         a.winRatio > b.winRatio ? -1 : 1

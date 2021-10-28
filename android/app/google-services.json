@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "913314223821",
+    "firebase_url": "https://brawl-hub-6a708-default-rtdb.firebaseio.com",
+    "project_id": "brawl-hub-6a708",
+    "storage_bucket": "brawl-hub-6a708.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:913314223821:android:b8c24360282e0faf787b84",
+        "android_client_info": {
+          "package_name": "com.gcs.brawlmax"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "913314223821-1blvlobhshvmckrs200ppqk8arbb9d2p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmuH8Bt_YaYQ0xUnv-iQ3LDUV-6KHI9pg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "913314223821-1blvlobhshvmckrs200ppqk8arbb9d2p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

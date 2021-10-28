@@ -87,7 +87,7 @@ const sortEventsData = (typeIndex, challenge_hash) => {
       }
     }
     for (const eventKeyUpcoming in eventsUpcoming) {
-      console.log(eventsUpcoming[eventKeyUpcoming].slot.hash);
+      // console.log(eventsUpcoming[eventKeyUpcoming].slot.hash);
       if (
         typeIndex == "challenge" &&
         eventsUpcoming[eventKeyUpcoming].slot.hash.includes(challenge_hash) ==

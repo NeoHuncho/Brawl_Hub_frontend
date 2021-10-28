@@ -37,7 +37,6 @@ const slice = createSlice({
       uiDataPersist.plRange = action.payload;
     },
     languageChanged: (uiDataPersist, action) => {
-      console.log("done it 33", action.payload);
       uiDataPersist.language = action.payload;
     },
   },

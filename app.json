@@ -29,7 +29,7 @@
         "googleMobileAdsAppId": "ca-app-pub-2795080443480499~5524209059"
       },
       "permissions" : [],
-      "package": "com.brawlMax.brawlMax",
+      "package": "com.gcs.brawlmax",
       "versionCode": 24
     },
     "web": {

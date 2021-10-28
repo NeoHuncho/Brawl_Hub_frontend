@@ -16,9 +16,11 @@ const getBrawlifyMapsAndBrawlers = async () => {
     let brawlers = null;
 
     await axios.get("https://api.brawlapi.com/v1/maps").then((response) => {
+      
       maps = response.data.list;
     });
     await axios.get("https://api.brawlapi.com/v1/brawlers").then((response) => {
+      
       brawlers = response.data;
     });
 

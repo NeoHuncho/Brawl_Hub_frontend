@@ -1,4 +1,5 @@
-import { db, fireStore } from "./initFirebase";
+import fireStore from "@react-native-firebase/firestore";
+import db from "@react-native-firebase/database";
 import axios from "axios";
 import moment from "moment";
 import cloneDeep from "lodash.clonedeep";
@@ -29,7 +30,7 @@ const getStatsFirstLogin = async (userID) => {
 const writeLastLogin = async (userID) => {
   if (userID.length !== 0 && userID !== undefined && userID !== null)
     try {
-      let playerRef = db.ref(`lastLogin/${userID}`);
+      let playerRef = db().ref(`lastLogin/${userID}`);
       playerRef
         .set(moment().format("YYYY-MM-DD HH:mm"))
         .then(() => "nothingness");
@@ -45,7 +46,7 @@ const writeError = async (userID, error) => {
     userID = Math.round(Math.random() * 10000).toString();
   }
 
-  let playerRef = db.ref("errors/" + userID);
+  let playerRef = db().ref("errors/" + userID);
   playerRef.set(error).then(() => "nothingness");
 };
 
@@ -54,7 +55,7 @@ const getStatsFromDB = async (userID, season) => {
     // console.log("called db");
     let globalStats = {};
     let snapShot = null;
-    snapShot = await fireStore.collection(`S${season}_${userID}`).get();
+    snapShot = await fireStore().collection(`S${season}_${userID}`).get();
 
     snapShot.docs.map((doc) => {
       const data = doc.data(); //Here is your content
@@ -70,24 +71,24 @@ const getStatsFromDB = async (userID, season) => {
 };
 
 const setStats = (playerID, season, stats) => {
-  fireStore
+  fireStore()
     .collection(`S${season}_${playerID}`)
     .doc("brawlers")
     .set(stats.brawlers)
     .then(() => {
-      fireStore
+      fireStore()
         .collection(`S${season}_${playerID}`)
         .doc("teams")
         .set(stats.teams)
         .then(() => {
-          fireStore
+          fireStore()
             .collection(`S${season}_${playerID}`)
             .doc("globalStats")
             .set(stats.globalStats)
             .then(() => {
               for (const [key, value] of Object.entries(stats)) {
                 if (key.includes("maps")) {
-                  fireStore
+                  fireStore()
                     .collection(`S${season}_${playerID}`)
                     .doc(key)
                     .set(value)
@@ -101,7 +102,7 @@ const setStats = (playerID, season, stats) => {
 
 const getSwitchesFromDB = async () => {
   const globalSwitches = await (
-    await fireStore.collection("Commands").doc("Switches").get()
+    await fireStore().collection("Commands").doc("Switches").get()
   ).data();
 
   return globalSwitches;
@@ -165,7 +166,7 @@ const getGlobalStatsFromDB = async (
           return globalStats;
         }
       }
-      await fireStore
+      await fireStore()
         .collection(`eventsPageBR_TM`)
         .doc(`S${season}_${type}_${range}`)
         .get()
@@ -176,7 +177,7 @@ const getGlobalStatsFromDB = async (
     } else {
       // console.log("called firebases");
       // console.log(season, type, scope, range);
-      await fireStore
+      await fireStore()
         .collection(
           `S${season}_${type == "trophies" ? "Trophies" : "PL"}_Events`
         )
@@ -203,8 +204,8 @@ const getGlobalStatsFromDB = async (
 };
 
 const getStarGadgetVotesFromDB = async (season, mapID, rangeName) => {
-  console.log(season, mapID, rangeName);
-  let votes = await fireStore
+  // console.log(season, mapID, rangeName);
+  let votes = await fireStore()
     .collection(`season${season}_starPowers_gadgets_votes`)
     .doc(`${mapID}_${rangeName}`)
     .get();
@@ -215,7 +216,7 @@ const getStarGadgetVotesFromDB = async (season, mapID, rangeName) => {
 const getTranslations = async (language) => {
   if (language !== undefined && language !== "en") {
     const brawlifyTranslations = await getBrawlifyTranslations(language);
-    let translationsDB = await db
+    let translationsDB = await db()
       .ref(`translations/${language}`)
       .once("value")
       .then((snapshot) => snapshot.val());

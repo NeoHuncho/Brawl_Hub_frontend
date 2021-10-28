@@ -18,7 +18,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { store } from "../../store/configureStore";
 import { useSelector, useDispatch } from "react-redux";
 
-import { bannerAdID } from "../../config/ads";
+import { BANNER_AD_ID } from "react-native-dotenv";
 import Settings from "./Settings";
 import colors from "../../config/colors";
 import EventsModule from "../../components/modules/eventsBoxes/eventsModule";
@@ -109,7 +109,7 @@ export default function Events() {
     // console.log(44, Localization.locale);
     firstLoginLanguageCall = true;
     let localizationLanguage = Localization.locale.substr(3, 5).toLowerCase();
-    console.log(44, localizationLanguage);
+    // console.log(44, localizationLanguage);
     if (Object.values(languages).includes(localizationLanguage) == true)
       dispatch(languageChanged(Localization.locale.substr(3, 5)));
   }
@@ -136,7 +136,7 @@ export default function Events() {
   let rangesDisplayFromFirebase = useSelector(
     (state) => state.globalStatsReducer.rangesDisplay
   );
-  console.log("HEY", language);
+  // console.log("HEY", language);
 
   let rangesDisplay =
     language != "en" && language !== undefined
@@ -178,7 +178,7 @@ export default function Events() {
     <>
       <AdMobBanner
         bannerSize="smartBanner"
-        adUnitID={bannerAdID}
+        adUnitID={BANNER_AD_ID}
         servePersonalizedAds={true} // true or false
         onDidFailToReceiveAdWithError={(e) => console.log(e)}
         style={{ marginTop: getStatusBarHeight() }}
