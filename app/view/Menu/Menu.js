@@ -16,7 +16,7 @@ import { AdMobBanner } from "expo-ads-admob";
 import { useSelector } from "react-redux";
 import { getStatusBarHeight } from "react-native-status-bar-height";
 
-import { BANNER_AD_ID } from "react-native-dotenv";
+import { BANNER_AD_ID } from "../../config/ads";
 import { getTranslation, writeError } from "../../lib/apiDB";
 import MessageBox from "../../components/modules/MessageBox";
 import colors from "../../config/colors";
@@ -123,9 +123,9 @@ export default function Menu() {
       <ScrollView>
         {menuMessage == true && (
           <MessageBox
-            message={
-              getTranslation("All these modules are ideas I want to build in the next few weeks/months!")
-            }
+            message={getTranslation(
+              "All these modules are ideas I want to build in the next few weeks/months!"
+            )}
             idMessage={"menu"}
             color={colors.green}
           />
@@ -242,7 +242,7 @@ export default function Menu() {
                     device != "tablet"
                       ? styles.explanation
                       : styles.explanationTablet,
-                    { marginBottom: 5, marginTop:10 },
+                    { marginBottom: 5, marginTop: 10 },
                   ]}
                 >
                   {sent}

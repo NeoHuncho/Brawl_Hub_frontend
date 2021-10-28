@@ -23,7 +23,7 @@ import * as Progress from "react-native-progress";
 
 import { receivedPlayerStatsFromDB } from "../../store/reducers/battleLogReducer";
 import { getStatsFromDB, getTranslation } from "../../lib/apiDB";
-import { BANNER_AD_ID } from "react-native-dotenv";
+import { BANNER_AD_ID } from "../../config/ads";
 import colors from "../../config/colors";
 import { userIdReset } from "../../store/reducers/playerIdReducer";
 import { receivedGameTypeAndSeason } from "../../store/reducers/uiReducerNoPersist";

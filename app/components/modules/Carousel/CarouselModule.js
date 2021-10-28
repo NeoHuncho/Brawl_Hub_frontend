@@ -75,7 +75,7 @@ export default function CarouselModule({ dataType, style, sort }) {
   };
 
   const renderItem = ({ item, index }) => {
-    // console.log(item.name, item.mode);
+    console.log(item.winRatio == null ? item : "ok");
     return (
       <View style={styles.item}>
         <View
@@ -242,7 +242,7 @@ export default function CarouselModule({ dataType, style, sort }) {
               ]}
             >
               <Text style={styles.winRatio}>
-                {"Performance:  " + item.winRatio.toFixed(1)}
+                {`Performance:${item.winRatio ? item.winRatio.toFixed(1) : 1}`}
               </Text>
             </View>
             <Text style={styles.winLoss}>{"Losses: " + item.losses}</Text>

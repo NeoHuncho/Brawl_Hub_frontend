@@ -1,6 +1,17 @@
 import { AdMobInterstitial } from "expo-ads-admob";
-import { IMAGE_AD_ID, VIDEO_AD_ID } from "react-native-dotenv";
 
+
+// TEST "ca-app-pub-3940256099942544/6300978111"
+// PRODUCTION "ca-app-pub-2795080443480499/9766722308"
+const BANNER_AD_ID = "ca-app-pub-3940256099942544/";
+
+// TEST "ca-app-pub-3940256099942544/1033173712"
+//PRODUCTION "ca-app-pub-2795080443480499/1284925570"
+const IMAGE_AD_ID = "ca-app-pub-3940256099942544/";
+
+// TEST "ca-app-pub-3940256099942544/8691691433"
+//PRODUCTION "ca-app-pub-2795080443480499/4950011872"
+const VIDEO_AD_ID = "ca-app-pub-3940256099942544/";
 let countImageAd = 0;
 let countVideoAd = 0;
 
@@ -71,4 +82,11 @@ const requestAd = async () => {
   }
 };
 
-export { prepareAdsFirstTime, showInterstitial, requestAd };
+export {
+  VIDEO_AD_ID,
+  BANNER_AD_ID,
+  IMAGE_AD_ID,
+  prepareAdsFirstTime,
+  showInterstitial,
+  requestAd,
+};

@@ -18,7 +18,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { store } from "../../store/configureStore";
 import { useSelector, useDispatch } from "react-redux";
 
-import { BANNER_AD_ID } from "react-native-dotenv";
+import { BANNER_AD_ID } from "../../config/ads";
 import Settings from "./Settings";
 import colors from "../../config/colors";
 import EventsModule from "../../components/modules/eventsBoxes/eventsModule";
